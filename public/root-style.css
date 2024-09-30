@@ -1,0 +1,19 @@
+:root {
+    --color-main-green: #1a9988;
+    --color-main-orange: #eb5600;
+    --color-main-white: #d9d9d9;
+    --color-main-black: #343434;
+    --border-radius: 8px;
+    --box-shadow: 0 3px 6px #00000029, 0 3px 6px #0000003b;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    inset: 0;
+    position: fixed;
+}
