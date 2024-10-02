@@ -3,7 +3,7 @@ const router = express.Router();
 const { db } = require('../config/firebaseConfig');
 
 // Create a new troop
-router.post('/troop', async (req, res) => {
+/** router.post('/troop', async (req, res) => {
   try {
     const { name, email, userName, password, role, contactDetail, notificationPreference, assignedLeader, refreshToken } = req.body;
 
@@ -27,9 +27,37 @@ router.post('/troop', async (req, res) => {
       assignedLeader: assignedLeader || [],
       refreshToken: refreshToken || null,
     });
-
+    console.log(res);
     res.status(201).json({ id: newTroopRef.key });
   } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Error creating troop', error });
+  }
+});*/
+
+
+
+
+// Create a new troop
+/* EXP request body: 
+{
+  "name": "Troop C",
+  "email": "troopc@example.com"
+}
+*/
+router.post('/troop', async (req, res) => {
+  try {
+    const { name, email} = req.body;
+
+    const newTroopRef = db.ref('troops').push(); // Adds a new record under 'troops'
+    await newTroopRef.set({
+      name,
+      email
+    });
+    console.log(res.status);
+    res.status(201).json({ id: newTroopRef.key });
+  } catch (error) {
+    console.log(error);
     res.status(500).json({ message: 'Error creating troop', error });
   }
 });
@@ -115,7 +143,7 @@ router.delete('/troop/:id', async (req, res) => {
 router.delete('/troops', async (req, res) => {
   try {
     const ref = db.ref('troops');
-    await ref.remove();  // Removes the entire 'troops' node
+    await ref.remove();  
     res.status(200).json({ message: 'All troops deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Error deleting all troops', error });

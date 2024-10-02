@@ -19,9 +19,13 @@ admin.initializeApp({
     client_x509_cert_url: process.env.FIREBASE_CLIENT_CERT_URL,
     universe_domain: process.env.FIREBASE_UNIVERSE_DOMAIN,
   }),
-  databaseURL: `https://${process.env.FIREBASE_PROJECT_ID}.firebaseio.com`
+  databaseURL: process.env.FIREBASE_DB_URL
 });
 
-const db = getDatabase();
-module.exports = db;
+console.log('Firebase Project ID:', process.env.FIREBASE_PROJECT_ID);
+console.log('Firebase DB URL:', process.env.FIREBASE_DB_URL);
+
+
+const db = admin.database(); 
+module.exports = {db};
 
