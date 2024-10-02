@@ -1,0 +1,29 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Thin-Mint-Techies/CookieTrack.git"
+  },
+  "author": "Thin Mint Techies",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/Thin-Mint-Techies/CookieTrack/issues"
+  },
+  "homepage": "https://github.com/Thin-Mint-Techies/CookieTrack#readme",
+  "description": "A web app used to track, manage, and stay up to date with the latest orders, rewards, and inventory of Girl Scout cookie troops.",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "firebase": "^10.14.0",
+    "firebase-admin": "^12.6.0",
+    "jsonwebtoken": "^9.0.2",
+    "nodemon": "^3.1.7"
+  }
+}
