@@ -3,6 +3,9 @@ const troopRoutes = require('./routes/troopRoute.js');
 const admin = require('firebase-admin');  // Firebase Admin SDK
 const firebaseConfig = require('./config/firebaseConfig'); 
 require('dotenv').config();
+const cors = require('cors');
+
+
 
 const app = express();
 const PORT = process.env.PORT || 5000;

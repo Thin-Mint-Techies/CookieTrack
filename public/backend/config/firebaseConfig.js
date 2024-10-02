@@ -1,5 +1,8 @@
+const { initializeApp, cert } = require('firebase-admin/app');
+const { getDatabase } = require('firebase-admin/database');
 const admin = require('firebase-admin');
-require('dotenv').config();
+require('dotenv').config();  
+
 
 // get the data needed from the environment to run the app (data provided by Firebase)
 admin.initializeApp({
@@ -14,9 +17,11 @@ admin.initializeApp({
     token_uri: process.env.FIREBASE_TOKEN_URI,
     auth_provider_x509_cert_url: process.env.FIREBASE_AUTH_PROVIDER_CERT_URL,
     client_x509_cert_url: process.env.FIREBASE_CLIENT_CERT_URL,
+    universe_domain: process.env.FIREBASE_UNIVERSE_DOMAIN,
   }),
+  databaseURL: `https://${process.env.FIREBASE_PROJECT_ID}.firebaseio.com`
 });
 
-const db = admin.firestore();
+const db = getDatabase();
 module.exports = db;
 
