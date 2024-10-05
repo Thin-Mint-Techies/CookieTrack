@@ -4,7 +4,8 @@
   "description": "A web app used to track, manage, and stay up to date with the latest orders, rewards, and inventory of Girl Scout cookie troops.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "postcss ./src/main.css -o ./public/main.css --watch",
+    "prod": "postcss ./src/main.css -o ./public/main.css --minify"
   },
   "repository": {
     "type": "git",
@@ -12,11 +13,18 @@
   },
   "author": "Thin Mint Techies",
   "license": "Apache-2.0",
+  "browserslist": "last 4 versions",
   "bugs": {
     "url": "https://github.com/Thin-Mint-Techies/CookieTrack/issues"
   },
   "homepage": "https://github.com/Thin-Mint-Techies/CookieTrack#readme",
   "dependencies": {
-    "firebase": "^10.13.2"
+    "firebase": "^10.13.2",
+    "postcss-cli": "^11.0.0"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.13"
   }
 }
