@@ -4,6 +4,15 @@
   },
   "hosting": {
     "public": "public",
+    "redirects": [
+      {
+        "source": "/",
+        "destination": "/ui/login/sign-in.html",
+        "type": 301
+      }
+    ],
+    "cleanUrls": true,
+    "trailingSlash": false,
     "ignore": [
       "firebase.json",
       "**/.*",

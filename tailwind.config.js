@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ['./public/**/*.html'],
+  content: ['./public/ui/**/*.html'],
   theme: {
     colors: {
       'green': '#1a9988',
@@ -20,6 +20,9 @@ module.exports = {
     },
     boxShadow: {
       'default': '0 3px 6px #00000029, 0 3px 6px #0000003b'
+    },
+    backgroundImage: {
+      'login-img': "url('resources/login-bg.png')"
     }
   },
   plugins: [],
