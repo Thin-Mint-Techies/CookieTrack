@@ -16,47 +16,39 @@
   <header
     class='flex shadow-default py-4 px-4 sm:px-10 bg-white font-sans min-h-[80px] tracking-wide z-50 sticky top-0 rounded-default'>
     <div class='flex flex-wrap items-center gap-5 w-full'>
-      <a href="javascript:void(0)"><img src="../resources/cookietrack_logo.png" alt="logo" class='w-40 max-lg:mr-5' />
+      <a href="./sign-in.html"><img src="../resources/cookietrack_logo.png" alt="logo"
+          class='w-40 max-lg:mr-5 accent-green' />
       </a>
 
       <div id="collapseMenu"
         class='max-lg:hidden lg:!flex lg:ml-auto max-lg:before:fixed max-lg:before:bg-black max-lg:before:opacity-50 max-lg:before:inset-0 max-lg:before:z-50'>
-        <button id="toggleClose" class='lg:hidden fixed top-2 right-4 z-[100] rounded-default bg-white p-3'>
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 fill-black" viewBox="0 0 320.591 320.591">
-            <path
-              d="M30.391 318.583a30.37 30.37 0 0 1-21.56-7.288c-11.774-11.844-11.774-30.973 0-42.817L266.643 10.665c12.246-11.459 31.462-10.822 42.921 1.424 10.362 11.074 10.966 28.095 1.414 39.875L51.647 311.295a30.366 30.366 0 0 1-21.256 7.288z"
-              data-original="#000000"></path>
-            <path
-              d="M287.9 318.583a30.37 30.37 0 0 1-21.257-8.806L8.83 51.963C-2.078 39.225-.595 20.055 12.143 9.146c11.369-9.736 28.136-9.736 39.504 0l259.331 257.813c12.243 11.462 12.876 30.679 1.414 42.922-.456.487-.927.958-1.414 1.414a30.368 30.368 0 0 1-23.078 7.288z"
-              data-original="#000000"></path>
-          </svg>
+        <button id="toggleClose"
+          class='lg:hidden fixed top-2 right-4 z-[100] rounded-default bg-white p-3 accent-green'>
+          <i class="fa-solid fa-xmark text-3xl text-black"></i>
         </button>
 
         <ul
           class='lg:flex gap-4 max-lg:space-y-3 max-lg:fixed max-lg:bg-white max-lg:w-1/2 max-lg:min-w-[300px] max-lg:top-0 max-lg:left-0 max-lg:p-6 max-lg:h-full max-lg:shadow-default max-lg:overflow-auto z-50'>
           <li class='mb-6 hidden max-lg:block'>
-            <a href="javascript:void(0)"><img src="../resources/cookietrack_logo.png" alt="logo" class='w-40' />
+            <a href="./sign-in.html"><img src="../resources/cookietrack_logo.png" alt="logo"
+                class='w-40 accent-green' />
             </a>
           </li>
-          <li class='max-lg:border-b max-lg:py-3 px-3'><a href='javascript:void(0)'
-              class='hover:text-green text-black font-normal block text-[18px]'>Home</a>
+          <li class='max-lg:border-b max-lg:py-3 px-3'><a href='./sign-in.html'
+              class='hover:text-green text-black block text-[18px] accent-green'>Sign In</a>
           </li>
-          <li class='max-lg:border-b max-lg:py-3 px-3'><a href='javascript:void(0)'
-              class='hover:text-green text-black font-normal block text-[18px]'>About</a>
+          <li class='max-lg:border-b max-lg:py-3 px-3'><a href='./sign-up.html'
+              class='hover:text-green text-black block text-[18px] accent-green'>Create Account</a>
           </li>
-          <li class='max-lg:border-b max-lg:py-3 px-3'><a href='javascript:void(0)'
-              class='hover:text-green text-black font-normal block text-[18px]'>Contact</a>
+          <li class='max-lg:border-b max-lg:py-3 px-3'><a href='./forgot-pass.html'
+              class='hover:text-green text-black block text-[18px] accent-green'>Forgot Password</a>
           </li>
         </ul>
       </div>
 
       <div class='flex items-center max-lg:ml-auto space-x-6'>
-        <button id="toggleOpen" class='lg:hidden'>
-          <svg class="w-7 h-7" fill="#333" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-            <path fill-rule="evenodd"
-              d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-              clip-rule="evenodd"></path>
-          </svg>
+        <button id="toggleOpen" class='lg:hidden accent-green'>
+          <i class="fa-solid fa-bars text-2xl text-black"></i>
         </button>
       </div>
     </div>
@@ -67,7 +59,7 @@
         <div class="border border-gray bg-white rounded-default p-6 max-w-full shadow-default max-md:mx-auto">
           <form class="space-y-4">
             <div class="mb-8">
-              <h3 class="text-green text-5xl font-normal flex justify-center">Sign In</h3>
+              <h3 class="text-green text-4xl flex justify-center">Sign In</h3>
               <p class="text-black text-xl mt-4 leading-relaxed flex justify-center">Welcome back to CookieTrack!</p>
             </div>
 
@@ -75,7 +67,7 @@
               <label class="text-black text-lg mb-2 block">Email Address</label>
               <div class="relative flex items-center">
                 <input name="email" type="email" required
-                  class="w-full text-md text-black border border-gray px-4 py-3 rounded-default accent-green"
+                  class="w-full text-base text-black border border-gray px-4 py-3 rounded-default accent-green"
                   placeholder="E.g. cookies@gmail.com " />
                 <i class="fa-solid fa-envelope w-[18px] h-[18px] absolute right-4"></i>
               </div>
@@ -84,7 +76,7 @@
               <label class="text-black text-lg mb-2 block">Password</label>
               <div class="relative flex items-center">
                 <input name="password" type="password" required
-                  class="w-full text-md text-black border border-gray px-4 py-3 rounded-default accent-green"
+                  class="w-full text-base text-black border border-gray px-4 py-3 rounded-default accent-green"
                   placeholder="**********" />
                 <i class="fa-solid fa-lock w-[18px] h-[18px] absolute right-4"></i>
               </div>
@@ -93,14 +85,14 @@
             <div class="flex flex-wrap items-center justify-between gap-4">
               <div class="flex items-center cursor-pointer">
                 <input id="remember-me" name="remember-me" type="checkbox"
-                  class="h-4 w-4 shrink-0 text-black focus:ring-green border rounded accent-green cursor-pointer" />
-                <label for="remember-me" class="ml-3 block text-md text-black cursor-pointer">
+                  class="h-4 w-4 shrink-0 text-black focus:ring-orange border rounded accent-orange cursor-pointer" />
+                <label for="remember-me" class="ml-3 block text-base text-black cursor-pointer">
                   Remember me
                 </label>
               </div>
 
-              <div class="text-md">
-                <a href="jajvascript:void(0);" class="text-green hover:underline font-normal">
+              <div class="text-base">
+                <a href="./forgot-pass.html" class="text-green hover:underline accent-orange">
                   Forgot your password?
                 </a>
               </div>
@@ -108,19 +100,19 @@
 
             <div class="!mt-8">
               <button type="button"
-                class="w-full shadow-default py-3 px-4 text-xl tracking-wide rounded-default text-white bg-green hover:bg-green-light focus:outline-none">
+                class="w-full shadow-default py-3 px-4 text-xl tracking-wide rounded-default text-white bg-green hover:bg-green-light accent-orange">
                 Log in
               </button>
             </div>
 
             <div class="my-4 flex items-center gap-4">
               <hr class="w-full border-gray" />
-              <p class="text-md text-black text-center">or</p>
+              <p class="text-base text-black text-center">or</p>
               <hr class="w-full border-gray" />
             </div>
 
             <button type="button"
-              class="w-full flex items-center justify-center gap-4 py-3 px-6 text-lg tracking-wide text-black border border-gray rounded-default bg-white hover:bg-off-white focus:outline-none">
+              class="w-full flex items-center justify-center gap-4 py-3 px-6 text-lg tracking-wide text-black border border-gray rounded-default bg-white hover:bg-off-white accent-green">
               <svg xmlns="http://www.w3.org/2000/svg" width="20px" class="inline" viewBox="0 0 512 512">
                 <path fill="#fbbd00"
                   d="M120 256c0-25.367 6.989-49.13 19.131-69.477v-86.308H52.823C18.568 144.703 0 198.922 0 256s18.568 111.297 52.823 155.785h86.308v-86.308C126.989 305.13 120 281.367 120 256z"
@@ -144,8 +136,8 @@
               Continue with Google
             </button>
 
-            <p class="text-lg !mt-8 text-center text-black">Don't have an account? <a href="javascript:void(0);"
-                class="text-green font-normal hover:underline ml-1 whitespace-nowrap">Register here</a></p>
+            <p class="text-lg !mt-8 text-center text-black">Don't have an account? <a href="./sign-up.html"
+                class="text-green hover:underline ml-1 whitespace-nowrap accent-orange">Register here</a></p>
           </form>
         </div>
       </div>
@@ -156,11 +148,29 @@
       <p class="text-[15px] leading-loose">CookieTrack</p>
 
       <ul class="flex space-x-6 gap-y-2 max-lg:justify-center flex-wrap">
-        <li><a href="javascript:void(0)" class="text-[15px] hover:text-off-white">Terms of Service</a></li>
-        <li><a href="javascript:void(0)" class="text-[15px] hover:text-off-white">Privacy Policy</a></li>
+        <li><a href="javascript:void(0)" class="text-[15px] hover:text-off-white accent-orange">Terms of Service</a>
+        </li>
+        <li><a href="javascript:void(0)" class="text-[15px] hover:text-off-white accent-orange">Privacy Policy</a></li>
       </ul>
     </div>
   </footer>
 </body>
+
+<script>
+  var toggleOpen = document.getElementById('toggleOpen');
+  var toggleClose = document.getElementById('toggleClose');
+  var collapseMenu = document.getElementById('collapseMenu');
+
+  function handleClick() {
+    if (collapseMenu.style.display === 'block') {
+      collapseMenu.style.display = 'none';
+    } else {
+      collapseMenu.style.display = 'block';
+    }
+  }
+
+  toggleOpen.addEventListener('click', handleClick);
+  toggleClose.addEventListener('click', handleClick);
+</script>
 
 </html>
