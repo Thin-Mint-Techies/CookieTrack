@@ -22,10 +22,6 @@ admin.initializeApp({
   databaseURL: process.env.FIREBASE_DB_URL
 });
 
-console.log('Firebase Project ID:', process.env.FIREBASE_PROJECT_ID);
-console.log('Firebase DB URL:', process.env.FIREBASE_DB_URL);
-
-
 const db = admin.database(); 
 module.exports = {db};
 
