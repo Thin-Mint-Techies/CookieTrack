@@ -53,6 +53,7 @@
       </div>
     </div>
   </header>
+  <div id="toast-holder"></div>
   <div class="font-sans">
     <div class="min-h-[calc(100vh-158px)] flex items-center justify-center py-6 px-4">
       <div class="grid items-center gap-4 max-w-xl w-full">
@@ -155,6 +156,20 @@
     </div>
   </footer>
 </body>
+
+<template id="template-toast">
+  <div class="toast">
+    <div class="toast-content">
+      <i class="fa-solid fa-bell bell"></i>
+      <div class="toast-message">
+        <span class="toast-title">Notification Title</span>
+        <span>Notification Message.</span>
+      </div>
+    </div>
+    <i class="fa-solid fa-xmark close"></i>
+    <div class="toast-progress"></div>
+  </div>
+</template>
 
 <script src="../shared.js"></script>
 
