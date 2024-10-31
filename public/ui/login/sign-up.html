@@ -64,7 +64,7 @@
                         <div>
                             <label class="text-black text-base mb-2 block">Name</label>
                             <div class="relative flex items-center">
-                                <input name="name" type="text" required
+                                <input id="create-name" name="name" type="text" required
                                     class="bg-white border border-gray w-full text-base text-black pl-4 pr-10 py-2.5 rounded-default accent-green"
                                     placeholder="Enter your name" />
                                 <i class="fa-solid fa-user w-[18px] h-[18px] absolute right-4"></i>
@@ -73,7 +73,7 @@
                         <div>
                             <label class="text-black text-base mb-2 block">Email Address</label>
                             <div class="relative flex items-center">
-                                <input name="email" type="email" required
+                                <input id="create-email" name="email" type="email" required
                                     class="bg-white border border-gray w-full text-base text-black pl-4 pr-10 py-2.5 rounded-default accent-green"
                                     placeholder="Enter your email address" />
                                 <i class="fa-solid fa-envelope w-[18px] h-[18px] absolute right-4"></i>
@@ -82,7 +82,7 @@
                         <div>
                             <label class="text-black text-base mb-2 block">Password</label>
                             <div class="relative flex items-center">
-                                <input name="password" type="password" required
+                                <input id="create-password" name="password" type="password" required
                                     class="bg-white border border-gray w-full text-base text-black pl-4 pr-10 py-2.5 rounded-default accent-green"
                                     placeholder="**********" />
                                 <i class="fa-solid fa-lock w-[18px] h-[18px] absolute right-4"></i>
@@ -91,7 +91,7 @@
                         <div>
                             <label class="text-black text-base mb-2 block">Confirm Password</label>
                             <div class="relative flex items-center">
-                                <input name="confirm-password" type="password" required
+                                <input id="confirm-password" name="confirm-password" type="password" required
                                     class="bg-white border border-gray w-full text-base text-black pl-4 pr-10 py-2.5 rounded-default accent-green"
                                     placeholder="**********" />
                                 <i class="fa-solid fa-lock w-[18px] h-[18px] absolute right-4"></i>
@@ -108,7 +108,7 @@
                     </div>
 
                     <div class="!mt-8">
-                        <button type="button"
+                        <button type="button" id="create-account"
                             class="w-full py-2.5 px-4 text-lg tracking-wider shadow-default rounded-default bg-green hover:bg-green-light text-white accent-orange">
                             Create Account
                         </button>
@@ -124,7 +124,7 @@
                     </div>
 
                     <div class="space-y-6">
-                        <button type="button"
+                        <button type="button" id="create-google"
                             class="w-full px-5 py-2.5 flex items-center justify-center rounded-default text-black text-base tracking-wider border border-gray bg-white hover:bg-off-white accent-green">
                             <svg xmlns="http://www.w3.org/2000/svg" width="22px" fill="#fff"
                                 class="inline shrink-0 mr-4" viewBox="0 0 512 512">
@@ -180,6 +180,7 @@
     </div>
   </template>
 
+<script type="module" src="account.js"></script>
 <script src="../shared.js"></script>
 
 </html>

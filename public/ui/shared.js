@@ -16,7 +16,7 @@ toggleClose.addEventListener('click', handleClick);
 
 //Toast notifications ------------------------------------
 const STATUS_COLOR = { RED: "#d53d3d", GREEN: "#1a9988" };
-function showNotifToast(title, message, statusColor, isTimed, seconds) {
+window.showToast = function showNotifToast(title, message, statusColor, isTimed, seconds) {
     const toastHolder = document.getElementById('toast-holder');
     const toastTemplate = document.getElementById('template-toast');
     const toast = toastTemplate.content.cloneNode(true);
