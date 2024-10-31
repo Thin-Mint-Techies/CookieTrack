@@ -67,7 +67,7 @@
             <div>
               <label class="text-black text-lg mb-2 block">Email Address</label>
               <div class="relative flex items-center">
-                <input name="email" type="email" required
+                <input id="login-email" name="email" type="email" required
                   class="w-full text-base text-black border border-gray px-4 py-3 rounded-default accent-green"
                   placeholder="E.g. cookies@gmail.com " />
                 <i class="fa-solid fa-envelope w-[18px] h-[18px] absolute right-4"></i>
@@ -76,7 +76,7 @@
             <div>
               <label class="text-black text-lg mb-2 block">Password</label>
               <div class="relative flex items-center">
-                <input name="password" type="password" required
+                <input id="login-password" name="password" type="password" required
                   class="w-full text-base text-black border border-gray px-4 py-3 rounded-default accent-green"
                   placeholder="**********" />
                 <i class="fa-solid fa-lock w-[18px] h-[18px] absolute right-4"></i>
@@ -100,7 +100,7 @@
             </div>
 
             <div class="!mt-8">
-              <button type="button"
+              <button id="login" type="button"
                 class="w-full shadow-default py-3 px-4 text-xl tracking-wide rounded-default text-white bg-green hover:bg-green-light accent-orange">
                 Log in
               </button>
@@ -112,7 +112,7 @@
               <hr class="w-full border-gray" />
             </div>
 
-            <button type="button"
+            <button id="login-google" type="button"
               class="w-full flex items-center justify-center gap-4 py-3 px-6 text-lg tracking-wide text-black border border-gray rounded-default bg-white hover:bg-off-white accent-green">
               <svg xmlns="http://www.w3.org/2000/svg" width="20px" class="inline" viewBox="0 0 512 512">
                 <path fill="#fbbd00"
@@ -171,6 +171,7 @@
   </div>
 </template>
 
+<script type="module" src="account.js"></script>
 <script src="../shared.js"></script>
 
 </html>

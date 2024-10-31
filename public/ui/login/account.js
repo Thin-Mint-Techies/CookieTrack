@@ -1,5 +1,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailAndPassword, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+import {
+    getAuth, onAuthStateChanged, createUserWithEmailAndPassword, sendEmailVerification, setPersistence, browserLocalPersistence, browserSessionPersistence,
+    signInWithEmailAndPassword, sendPasswordResetEmail, signOut
+} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 import { getDatabase, ref as ref_db, set } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
 const firebaseConfig = {
@@ -19,10 +22,67 @@ const database = getDatabase(app);
 
 onAuthStateChanged(auth, (user) => {
     //If logged in and on login page,head to dashboard
-    if (user && window.location.href == "../login/sign-in.html") {
-        //window.location.href = "../dashboard/dashboard.html"
+    if (user) {
+        if (window.location.href.includes("/login/sign-in.html")) {
+            window.location.href = "../dashboard/dashboard.html";
+        }
+    } else {
+        if (!window.location.href.includes("/login/sign-in.html") && !window.location.href.includes("/login/sign-up.html")
+            && !window.location.href.includes("/login/forgot-pass.html")) {
+            window.location.href = "../login/sign-in.html";
+        }
     }
 });
+
+//Sign in variables
+const loginEmail = document.getElementById("login-email");
+const loginPassword = document.getElementById("login-password");
+const rememberMe = document.getElementById("remember-me");
+const loginBtn = document.getElementById("login");
+
+loginBtn?.addEventListener('click', () => {
+    loginUserEmail();
+});
+
+function loginUserEmail() {
+    const email = loginEmail.value;
+    const password = loginPassword.value;
+    const saveLogin = rememberMe.checked;
+
+    setPersistence(auth, saveLogin ? browserLocalPersistence : browserSessionPersistence)
+        .then(() => {
+            // If remember me is checked, persistence will be until user signs out
+            // If not checked, persistence will be for the current session (tab)
+            return signInWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    // Signed in 
+                    const user = userCredential.user;
+
+                })
+                .catch((error) => {
+                    showToast(error.code, error.message, STATUS_COLOR.RED, true, 10);
+                });
+        })
+        .catch((error) => {
+            showToast(error.code, error.message, STATUS_COLOR.RED, true, 10);
+        });
+
+}
+
+//Sign out variables
+const signoutBtn = document.getElementById("sign-out");
+
+signoutBtn?.addEventListener("click", () => {
+    signOutUser();
+});
+
+function signOutUser() {
+    signOut(auth).then(() => {
+        // Sign-out successful.
+    }).catch((error) => {
+        showToast(error.code, error.message, STATUS_COLOR.RED, true, 10);
+    });
+}
 
 //Sign up variables
 const createFName = document.getElementById("create-fname");
@@ -33,7 +93,7 @@ const confirmPassword = document.getElementById("confirm-password");
 const acceptTerms = document.getElementById("accept-terms");
 const createAccount = document.getElementById("create-account");
 
-createAccount.addEventListener('click', () => {
+createAccount?.addEventListener('click', () => {
     createUserAccount();
 });
 
@@ -96,6 +156,6 @@ function createUserAccount() {
             });
         })
         .catch((error) => {
-            showToast(error.code, error.message + ". Please try again", STATUS_COLOR.RED, true, 10);
+            showToast(error.code, error.message, STATUS_COLOR.RED, true, 10);
         });
 }
