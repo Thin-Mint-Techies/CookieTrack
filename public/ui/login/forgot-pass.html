@@ -85,7 +85,7 @@
                             <div>
                                 <label class="text-black text-lg mb-2 block">Email Address</label>
                                 <div class="relative flex items-center">
-                                    <input name="email" type="email" required
+                                    <input id="forgot-pass-email" name="email" type="email" required
                                         class="w-full text-base text-black border border-gray px-4 py-3 rounded-default accent-green"
                                         placeholder="E.g. cookies@gmail.com " />
                                     <i class="fa-solid fa-envelope w-[18px] h-[18px] absolute right-4"></i>
@@ -95,7 +95,7 @@
                     </div>
 
                     <div class="mt-8">
-                        <button type="button"
+                        <button id="reset-password" type="button"
                             class="w-full py-3 px-6 text-xl tracking-wide rounded-default bg-green hover:bg-green-light text-white accent-orange">
                             Reset Password
                         </button>
@@ -135,6 +135,7 @@
     </div>
   </template>
 
+<script type="module" src="account.js"></script>
 <script src="../shared.js"></script>
 
 </html>
