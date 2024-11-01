@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import {
     getAuth, onAuthStateChanged, createUserWithEmailAndPassword, sendEmailVerification, setPersistence, browserLocalPersistence, browserSessionPersistence,
-    signInWithEmailAndPassword, sendPasswordResetEmail, signOut
+    signInWithEmailAndPassword, sendPasswordResetEmail, signOut, GoogleAuthProvider, signInWithRedirect, getRedirectResult, getAdditionalUserInfo
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 import { getDatabase, ref as ref_db, set } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
@@ -19,17 +19,18 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const database = getDatabase(app);
+const provider = new GoogleAuthProvider();
 
 onAuthStateChanged(auth, (user) => {
     //If logged in and on login page,head to dashboard
     if (user) {
-        if (window.location.href.includes("/login/sign-in.html")) {
+        if (window.location.href.includes("/login/sign-in")) {
             window.location.href = "../dashboard/dashboard.html";
         }
     } else {
-        if (!window.location.href.includes("/login/sign-in.html") && !window.location.href.includes("/login/sign-up.html")
-            && !window.location.href.includes("/login/forgot-pass.html")) {
-            window.location.href = "../login/sign-in.html";
+        if (!window.location.href.includes("/login/sign-in") && !window.location.href.includes("/login/sign-up")
+            && !window.location.href.includes("/login/forgot-pass")) {
+            window.location.href = "../login/sign-in";
         }
     }
 });
@@ -39,6 +40,7 @@ const loginEmail = document.getElementById("login-email");
 const loginPassword = document.getElementById("login-password");
 const rememberMe = document.getElementById("remember-me");
 const loginBtn = document.getElementById("login");
+const googleLoginBtn = document.getElementById("login-google");
 
 loginBtn?.addEventListener('click', () => {
     loginUserEmail();
@@ -68,6 +70,56 @@ function loginUserEmail() {
         });
 
 }
+
+googleLoginBtn?.addEventListener('click', () => {
+    //Set flag for redirect 
+    localStorage.setItem("pendingRedirect", "true");
+    signInWithRedirect(auth, provider);
+});
+
+if (localStorage.getItem("pendingRedirect")) {
+    getRedirectResult(auth)
+        .then((result) => {
+            // Remove the redirect flag
+            localStorage.removeItem("pendingRedirect");
+
+            // This gives you a Google Access Token. You can use it to access Google APIs.
+            const credential = GoogleAuthProvider.credentialFromResult(result);
+            const token = credential.accessToken;
+
+            // Access additional identity provider data
+            const additionalUserInfo = getAdditionalUserInfo(result);
+            //const profile = additionalUserInfo?.profile;  // Provider-specific profile info
+            const isNewUser = additionalUserInfo?.isNewUser;  // True if first-time login
+
+            //Save profile to database if new user, otherwise go to dashboard
+            if (isNewUser) {
+                // The signed-in user info.
+                const user = result.user;
+                const email = user.email;
+                const displayName = user.displayName;  // Full name (first and last name)
+                const [firstName, lastName] = displayName ? displayName.split(" ") : ["", ""];
+
+                //Upload user to database
+                set(ref_db(database, 'Users/' + user.uid), {
+                    FirstName: firstName,
+                    LastName: lastName,
+                    Email: email,
+                }).then(() => {
+                    //Successfully uploaded, head to dashboard
+                    window.location.href = "../dashboard/dashboard.html"
+                });
+            } else {
+                //Signed in, head to dashboard
+                window.location.href = "../dashboard/dashboard.html"
+            }
+        }).catch((error) => {
+            // The AuthCredential type that was used.
+            const credential = GoogleAuthProvider.credentialFromError(error);
+            showToast(error.code, error.message + ". Credential: " + credential, STATUS_COLOR.RED, true, 10);
+        });
+}
+
 
 //Sign out variables
 const signoutBtn = document.getElementById("sign-out");
