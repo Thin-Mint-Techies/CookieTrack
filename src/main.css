@@ -60,7 +60,6 @@
 
 .toast-message span {
     font-size: 16px;
-    font-weight: 400;
     color: #343434;
     overflow: auto;
     overflow-wrap: break-word;
@@ -68,7 +67,6 @@
 }
 
 .toast-message span.toast-title {
-    font-weight: 600;
     color: var(--toast-status);
 }
 

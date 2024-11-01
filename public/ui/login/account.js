@@ -7,7 +7,7 @@ import { getDatabase, ref as ref_db, set } from "https://www.gstatic.com/firebas
 
 const firebaseConfig = {
     apiKey: "AIzaSyAq0uKOOdjO-UDVX80oZ0TFkRH6aUf941s",
-    authDomain: "cookietrack-hub.firebaseapp.com",
+    authDomain: "cookietrack-hub.web.app",
     databaseURL: "https://cookietrack-hub-default-rtdb.firebaseio.com",
     projectId: "cookietrack-hub",
     storageBucket: "cookietrack-hub.firebasestorage.app",
@@ -22,9 +22,9 @@ const database = getDatabase(app);
 const provider = new GoogleAuthProvider();
 
 onAuthStateChanged(auth, (user) => {
-    //If logged in and on login page,head to dashboard
+    //If logged in and on login page, head to dashboard
     if (user) {
-        if (window.location.href.includes("/login/sign-in")) {
+        if (window.location.href.includes("/login/sign-in") && !localStorage.getItem("pendingRedirect")) {
             window.location.href = "../dashboard/dashboard.html";
         }
     } else {
@@ -35,12 +35,13 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
-//Sign in variables
+//Sign in functions ------------------------------------------------
 const loginEmail = document.getElementById("login-email");
 const loginPassword = document.getElementById("login-password");
 const rememberMe = document.getElementById("remember-me");
 const loginBtn = document.getElementById("login");
 const googleLoginBtn = document.getElementById("login-google");
+const loader = document.getElementById("loader");
 
 loginBtn?.addEventListener('click', () => {
     loginUserEmail();
@@ -62,22 +63,25 @@ function loginUserEmail() {
 
                 })
                 .catch((error) => {
-                    showToast(error.code, error.message, STATUS_COLOR.RED, true, 10);
+                    console.log(error.code + ": " + error.message);
+                    showToast("Login Failed", "Make sure you have entered your account email and password correctly.", STATUS_COLOR.RED, true, 8);
                 });
         })
         .catch((error) => {
-            showToast(error.code, error.message, STATUS_COLOR.RED, true, 10);
+            console.log(error.code + ": " + error.message);
+            showToast("Persistance Error", "An unexpected error occured. Please login again.", STATUS_COLOR.RED, true, 8);
         });
 
 }
 
 googleLoginBtn?.addEventListener('click', () => {
-    //Set flag for redirect 
+    // Set flag for redirect 
     localStorage.setItem("pendingRedirect", "true");
     signInWithRedirect(auth, provider);
 });
 
 if (localStorage.getItem("pendingRedirect")) {
+    loader.style = "";
     getRedirectResult(auth)
         .then((result) => {
             // Remove the redirect flag
@@ -91,6 +95,7 @@ if (localStorage.getItem("pendingRedirect")) {
             const additionalUserInfo = getAdditionalUserInfo(result);
             //const profile = additionalUserInfo?.profile;  // Provider-specific profile info
             const isNewUser = additionalUserInfo?.isNewUser;  // True if first-time login
+            console.log("New User: " + isNewUser);
 
             //Save profile to database if new user, otherwise go to dashboard
             if (isNewUser) {
@@ -114,14 +119,14 @@ if (localStorage.getItem("pendingRedirect")) {
                 window.location.href = "../dashboard/dashboard.html"
             }
         }).catch((error) => {
-            // The AuthCredential type that was used.
-            const credential = GoogleAuthProvider.credentialFromError(error);
-            showToast(error.code, error.message + ". Credential: " + credential, STATUS_COLOR.RED, true, 10);
+            loader.style.display = "none";
+            console.log(error.code + ": " + error.message);
+            showToast("Unable to Sign In", "There was an error trying to sign in with your Google account. Please try again.", STATUS_COLOR.RED, true, 10);
         });
 }
 
 
-//Sign out variables
+//Sign out functions ------------------------------------------------
 const signoutBtn = document.getElementById("sign-out");
 
 signoutBtn?.addEventListener("click", () => {
@@ -136,7 +141,7 @@ function signOutUser() {
     });
 }
 
-//Sign up variables
+//Sign up functions ------------------------------------------------
 const createFName = document.getElementById("create-fname");
 const createLName = document.getElementById("create-lname");
 const createEmail = document.getElementById("create-email");
@@ -192,6 +197,9 @@ function createUserAccount() {
         return;
     }
 
+    // Show loader then try to create account
+    loader.style = "";
+
     createUserWithEmailAndPassword(auth, createEmail.value.trim(), createPassword.value.trim())
         .then((userCredential) => {
             // Signed up 
@@ -208,6 +216,8 @@ function createUserAccount() {
             });
         })
         .catch((error) => {
-            showToast(error.code, error.message, STATUS_COLOR.RED, true, 10);
+            loader.style.display = "none";
+            console.log(error.code + ": " + error.message);
+            showToast("Account Creation Error", "There was an error while trying to create your account. Please try again.", STATUS_COLOR.RED, true, 10);
         });
 }
