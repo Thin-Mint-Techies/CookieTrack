@@ -80,4 +80,4 @@ window.showToast = function showNotifToast(title, message, statusColor, isTimed,
 }
 
 //Call function like so:
-//showNotifToast("This is the title", "This is the message", STATUS_COLOR.GREEN, true, 5);
+//showToast("This is the title", "This is the message", STATUS_COLOR.GREEN, true, 5);

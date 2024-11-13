@@ -3,7 +3,7 @@ import {
     getAuth, onAuthStateChanged, createUserWithEmailAndPassword, sendEmailVerification, setPersistence, browserLocalPersistence, browserSessionPersistence,
     signInWithEmailAndPassword, sendPasswordResetEmail, signOut, GoogleAuthProvider, signInWithRedirect, getRedirectResult, getAdditionalUserInfo
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-import { getDatabase, ref as ref_db, set } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+import { getDatabase, ref as ref_db, set, onValue } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyAq0uKOOdjO-UDVX80oZ0TFkRH6aUf941s",
@@ -21,18 +21,31 @@ const auth = getAuth(app);
 const database = getDatabase(app);
 const provider = new GoogleAuthProvider();
 
+var dashboardLink = "dashboard-user.html";
+
 onAuthStateChanged(auth, (user) => {
-    //If logged in and on login page, head to dashboard
+    //If already logged in and on login page, head to dashboard based on user role
     if (user) {
         if (window.location.href.includes("/login/sign-in") && !localStorage.getItem("pendingRedirect")) {
             window.location.href = "../dashboard/dashboard.html";
+            //Get users role to determine dashboard
+            onValue(ref_db(database, `Users/${user.uid}/Role`), (snapshot) => {
+                const role = snapshot.val();
+                if (role) dashboardLink = `dashboard-${role}.html`;
+            });
         }
     } else {
         if (!window.location.href.includes("/login/sign-in") && !window.location.href.includes("/login/sign-up")
             && !window.location.href.includes("/login/forgot-pass")) {
-            window.location.href = "../login/sign-in";
+            window.location.href = "../login/sign-in.html";
         }
     }
+});
+
+//USED IN MEANTIME UNTIL BACKEND IS FUNCTIONAL ---------------------------------
+document.getElementById('dynamic-dashboard')?.addEventListener('click', (e) => {
+    e.preventDefault()
+    window.location.href = `../dashboard/${dashboardLink}`;
 });
 
 //Sign in functions ------------------------------------------------
@@ -60,7 +73,6 @@ function loginUserEmail() {
                 .then((userCredential) => {
                     // Signed in 
                     const user = userCredential.user;
-
                 })
                 .catch((error) => {
                     console.log(error.code + ": " + error.message);
@@ -110,13 +122,14 @@ if (localStorage.getItem("pendingRedirect")) {
                     FirstName: firstName,
                     LastName: lastName,
                     Email: email,
+                    Role: "user",
                 }).then(() => {
                     //Successfully uploaded, head to dashboard
-                    window.location.href = "../dashboard/dashboard.html"
+                    window.location.href = "../dashboard/dashboard-user.html"
                 });
             } else {
                 //Signed in, head to dashboard
-                window.location.href = "../dashboard/dashboard.html"
+                window.location.href = "../dashboard/dashboard-user.html"
             }
         }).catch((error) => {
             loader.style.display = "none";
@@ -124,7 +137,6 @@ if (localStorage.getItem("pendingRedirect")) {
             showToast("Unable to Sign In", "There was an error trying to sign in with your Google account. Please try again.", STATUS_COLOR.RED, true, 10);
         });
 }
-
 
 //Sign out functions ------------------------------------------------
 const signoutBtn = document.getElementById("sign-out");
@@ -210,9 +222,10 @@ function createUserAccount() {
                 FirstName: createFName.value.trim(),
                 LastName: createLName.value.trim(),
                 Email: createEmail.value.trim(),
+                Role: "user",
             }).then(() => {
                 //Successfully uploaded, head to dashboard
-                window.location.href = "../dashboard/dashboard.html"
+                window.location.href = "../dashboard/dashboard-user.html"
             });
         })
         .catch((error) => {
