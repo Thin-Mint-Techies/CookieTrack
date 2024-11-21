@@ -1,18 +1,13 @@
 const { initializeApp, cert } = require('firebase-admin/app');
-// this is for realtime database
-const { getDatabase } = require('firebase-admin/database');
-// firestore for more complex nested data
-const { getFirestore } = require('firebase-admin/firestore');  
-// auth provider
-const { getAuth } = require('firebase-admin/auth');  
-// firestore storage: allow upload of documents and images
-const { getStorage } = require('firebase-admin/storage');  
+const { getDatabase } = require('firebase-admin/database');  // Realtime Database
+const { getFirestore } = require('firebase-admin/firestore');  // Firestore
+const { getAuth } = require('firebase-admin/auth');  // Firebase Authentication
+const { getStorage } = require('firebase-admin/storage');  // Firebase Storage
 const admin = require('firebase-admin');
-require('dotenv').config();  
+require('dotenv').config();
 
-
-// get the data needed from the environment to run the app (data provided by Firebase)
-admin.initializeApp({
+// Initialize Firebase Admin with credentials from environment variables
+initializeApp({
   credential: admin.credential.cert({
     type: process.env.FIREBASE_TYPE,
     project_id: process.env.FIREBASE_PROJECT_ID,
@@ -27,22 +22,25 @@ admin.initializeApp({
     universe_domain: process.env.FIREBASE_UNIVERSE_DOMAIN,
   }),
   databaseURL: process.env.FIREBASE_DB_URL,
-  //NEED TO FETCH THIS FROM FIREBASE
-  //storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
-  
+  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,  
 });
 
-// realtimeDB
-const db = admin.database(); 
+// Initialize Realtime Database
+const db = getDatabase(); 
 
-// Firestore
-// const db = getFirestore();  
-// Firebase Authentication
-const auth = admin.getAuth();  
-// Firebase Storage
-//const storage = admin.getStorage();  
+// Initialize Firestore
+const Firestore = getFirestore();
 
-module.exports = {db};
-module.exports = {auth};
-//module.exports = {storage};
+// Initialize Firebase Authentication
+const auth = getAuth();
 
+// Initialize Firebase Storage
+const storage = getStorage();  
+
+// Export all Firebase services for use in your app
+module.exports = {
+  db,
+  Firestore,
+  auth,
+  storage
+};

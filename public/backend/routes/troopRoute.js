@@ -1,13 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const { db } = require('../config/firebaseConfig');
+const { Firestore } = require('../config/firebaseConfig');
 
 // Create a new troop
-/** router.post('/troop', async (req, res) => {
+router.post('/troop', async (req, res) => {
   try {
     const { name, email, userName, password, role, contactDetail, notificationPreference, assignedLeader, refreshToken } = req.body;
 
-    const newTroopRef = db.ref('troops').push(); // Adds a new record under 'troops'
+    // Firestore collection reference
+    const newTroopRef = Firestore.collection('troops').doc();  // Create a new document in 'troops' collection
     await newTroopRef.set({
       name,
       email,
@@ -27,35 +29,7 @@ const { db } = require('../config/firebaseConfig');
       assignedLeader: assignedLeader || [],
       refreshToken: refreshToken || null,
     });
-    console.log(res);
-    res.status(201).json({ id: newTroopRef.key });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: 'Error creating troop', error });
-  }
-});*/
-
-
-
-
-// Create a new troop
-/* EXP request body: 
-{
-  "name": "Troop C",
-  "email": "troopc@example.com"
-}
-*/
-router.post('/troop', async (req, res) => {
-  try {
-    const { name, email} = req.body;
-
-    const newTroopRef = db.ref('troops').push(); // Adds a new record under 'troops'
-    await newTroopRef.set({
-      name,
-      email
-    });
-    console.log(res.status);
-    res.status(201).json({ id: newTroopRef.key });
+    res.status(201).json({ id: newTroopRef.id });  // Firestore uses `id` for document identifiers
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: 'Error creating troop', error });
@@ -65,10 +39,10 @@ router.post('/troop', async (req, res) => {
 // Get all troops
 router.get('/troop', async (req, res) => {
   try {
-    const ref = db.ref('troops');
-    const snapshot = await ref.once('value');
-    if (snapshot.exists()) {
-      res.status(200).json(snapshot.val());
+    const snapshot = await Firestore.collection('troops').get(); // Get all troops in the collection
+    if (!snapshot.empty) {
+      const troops = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      res.status(200).json(troops);
     } else {
       res.status(404).json({ message: 'No troops found' });
     }
@@ -81,10 +55,9 @@ router.get('/troop', async (req, res) => {
 router.get('/troop/:id', async (req, res) => {
   const { id } = req.params;
   try {
-    const ref = db.ref(`troops/${id}`);
-    const snapshot = await ref.once('value');
-    if (snapshot.exists()) {
-      res.status(200).json({ id: snapshot.key, ...snapshot.val() });
+    const doc = await Firestore.collection('troops').doc(id).get();
+    if (doc.exists) {
+      res.status(200).json({ id: doc.id, ...doc.data() });
     } else {
       res.status(404).json({ message: 'Troop not found' });
     }
@@ -96,10 +69,10 @@ router.get('/troop/:id', async (req, res) => {
 // Update a troop by ID
 router.put('/troop/:id', async (req, res) => {
   const { id } = req.params;
-  const { name, email, userName, password, role, contactDetail, notificationPreference, appointments, assignedLeader, refreshToken } = req.body;
+  const { name, email, userName, password, role, contactDetail, notificationPreference, assignedLeader, refreshToken } = req.body;
 
   try {
-    const ref = db.ref(`troops/${id}`);
+    const ref = Firestore.collection('troops').doc(id);  // Get document by ID
     await ref.update({
       name,
       email,
@@ -131,8 +104,8 @@ router.delete('/troop/:id', async (req, res) => {
   const { id } = req.params;
 
   try {
-    const ref = db.ref(`troops/${id}`);
-    await ref.remove();
+    const ref = Firestore.collection('troops').doc(id);  // Get document by ID
+    await ref.delete();
     res.status(200).json({ message: 'Troop deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Error deleting troop', error });
@@ -142,11 +115,18 @@ router.delete('/troop/:id', async (req, res) => {
 // Delete all troops
 router.delete('/troops', async (req, res) => {
   try {
-    const ref = db.ref('troops');
-    await ref.remove();  
+    const snapshot = await Firestore.collection('troops').get();
+    const batch = Firestore.batch();
+
+    snapshot.docs.forEach(doc => {
+      batch.delete(doc.ref);  // Delete each document in the batch
+    });
+
+    await batch.commit();
     res.status(200).json({ message: 'All troops deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Error deleting all troops', error });
   }
 });
+
 module.exports = router;

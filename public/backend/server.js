@@ -20,7 +20,7 @@ app.use(cors({
 
 app.use('/', troopRoute);
 
-//Start the server, run using `nodemon server.js`
+//Start the server, run using `npx nodemon server.js`
 const initializeFirebase = async () => {
   try {
     // Firebase is initialized automatically via firebaseConfig
