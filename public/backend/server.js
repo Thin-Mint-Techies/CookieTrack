@@ -43,3 +43,4 @@ const initializeFirebase = async () => {
 
 // Call the Firebase initialization function
 initializeFirebase();
+//RUN: npx nodemon server.js

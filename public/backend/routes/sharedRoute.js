@@ -1,6 +1,7 @@
 const express = require('express');
 const sharedController = require('../controllers/sharedController');
 const router = express.Router();
+const upload = require('../utils/fileUpload'); 
 
 // Shared routes for all roles
 
@@ -9,7 +10,7 @@ const router = express.Router();
 //router.post('/register', sharedController.register);
 
 // CRUD for Documents
-//router.post('/document', sharedController.createDocument);
+router.post('/document', upload.single('file'), sharedController.uploadDocument);
 //router.get('/documents', sharedController.getAllDocuments);
 //router.get('/document/:id', sharedController.getDocumentById);
 //router.put('/document/:id', sharedController.updateDocument);
