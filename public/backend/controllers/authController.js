@@ -45,7 +45,7 @@ const loginController = async (req, res) => {
 };
 
 
-
+// Have not tested
 async function googleLogin(req, res) {
   const { idToken } = req.body;
 

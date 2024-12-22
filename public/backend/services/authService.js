@@ -1,5 +1,10 @@
 const { auth, Firestore } = require('../config/firebaseConfig');
 
+
+/*
+MIGHT NOT NEED
+*/
+
 async function authenticateToken(req, res, next) {
   const token = req.headers.authorization?.split('Bearer ')[1];
   if (!token) return res.status(401).json({ error: 'Token missing or invalid' });

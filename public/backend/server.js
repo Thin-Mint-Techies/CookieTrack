@@ -2,10 +2,15 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 
-const sharedRoute = require('./routes/sharedRoute'); // Shared routes for all roles
-const authRoutes = require('./routes/authRoute');
-const firebaseConfig = require('./config/firebaseConfig'); // Firebase config for initialization
+const authRoute = require('./routes/authRoute');
+const cookieRoute = require('./routes/cookieRoute');
+const documentRoute = require('./routes/documentRoute');
+const trooperRoute = require('./routes/trooperRoute');
+const userRoute = require('./routes/userRoute'); 
 
+
+
+const firebaseConfig = require('./config/firebaseConfig'); // Firebase config for initialization
 
 const admin = require('firebase-admin');  // Firebase Admin SDK (Ensure you have set up Firebase Admin SDK correctly)
 
@@ -23,8 +28,15 @@ app.use(cors({
 }));
 
 // Use shared routes for all requests related to the troop, documents, etc.
-app.use('/', sharedRoute);
-app.use('/api/users', authRoutes);
+app.use('/user', userRoute);
+app.use('/user', trooperRoute);
+app.use('/user', authRoute);
+app.use('/user', cookieRoute);
+app.use('/user', documentRoute);
+
+
+
+
 //app.use('/api/auth', authRoutes);
 
 
