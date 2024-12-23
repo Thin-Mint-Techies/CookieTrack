@@ -31,7 +31,7 @@ app.use(cors({
 app.use('/user', userRoute);
 app.use('/user', trooperRoute);
 app.use('/user', authRoute);
-app.use('/user', cookieRoute);
+app.use('/', cookieRoute);
 app.use('/user', documentRoute);
 
 

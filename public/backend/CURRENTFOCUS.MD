@@ -1,8 +1,15 @@
-References Parents and Troops inside of Leader and Manager
+Update troop sale data
 
-Troops have data related to cookies and sale data that can be access and update automatically by parents and Leader
+When troop created, link it to parent and vice versa(aka take in parent id as parameter)
 
-Setup structure of firestore, 4 categories'(create cookies, users (parents, manager, leaders), troopers, documents)
+when parent created, link it to leader and vice versa
+
+Manage access rights using firebase rules
+
+Create reward CRUD
+
+
+
 
 
 Route -> Controller -> Service

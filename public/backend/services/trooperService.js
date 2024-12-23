@@ -12,7 +12,7 @@ const createTroop = async ({ name, email, assignedParent, saleData = [] }) => {
     });
     return newTroopRef.id;
   } catch (error) {
-    throw new Error('Error creating troop');
+    throw new Error(error, 'Error creating troop');
   }
 };
 
