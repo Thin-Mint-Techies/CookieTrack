@@ -31,6 +31,12 @@ project-root/
 │   ├── README.md                    # Documentation
 
 
+Route -> Controller -> Service
+
+Route: Endpoint tied to that CRUD operation
+Controller: Making the enpoint request
+Service: perform the request
+
 
 ############
 Config Folder
