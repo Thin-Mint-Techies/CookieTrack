@@ -16,6 +16,38 @@ const createTroop = async ({ name, email, assignedParent, saleData = [] }) => {
   }
 };
 
+
+const createTroop2 = async ({ name, email, saleData }, parentId) => {
+  try {
+    //allow multiple oopeartion, but act as an atomic operation
+    const batch = Firestore.batch();
+
+    // Create a new troop document
+    const troopRef = Firestore.collection('troops').doc();
+    const troopData = {
+      name,
+      email,
+      saleData,
+      parentId, // Link to parent
+    };
+    batch.set(troopRef, troopData);
+
+    // Update the parent's troopIds array
+    const parentRef = Firestore.collection('users').doc(parentId);
+    batch.update(parentRef, {
+      troopIds: Firestore.FieldValue.arrayUnion(troopRef.id),
+    });
+
+    // Commit the batch operation
+    await batch.commit();
+
+    return troopRef.id;
+  } catch (error) {
+    throw new Error(`Error creating troop: ${error.message}`);
+  }
+};
+
+
 // Service to get all troops
 const getAllTroops = async () => {
   try {
@@ -84,6 +116,7 @@ const deleteTroop = async (id) => {
 
 module.exports = {
   createTroop,
+  createTroop2,
   getAllTroops,
   getTroopById,
   updateTroop,

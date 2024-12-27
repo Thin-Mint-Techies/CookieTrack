@@ -11,6 +11,17 @@ const createTroop = async (req, res) => {
   }
 };
 
+const createTroop2 = async (req, res) => {
+  try {
+    //need to test this
+    const parentId = req.user.uid; // Firebase user ID (assumes authentication middleware)
+    const troopId = await createTroop(req.body, parentId);
+    res.status(201).json({ message: 'Troop created successfully', troopId });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
 // Controller for getting all troops
 const getAllTroops = async (req, res) => {
   try {
@@ -69,6 +80,7 @@ const deleteAllTroops = async (req, res) => {
 
 module.exports = {
   createTroop,
+  createTroop2,
   getAllTroops,
   getTroopById,
   updateTroop,

@@ -5,6 +5,7 @@ const router = express.Router();
 
 // CRUD for Troops
 router.post('/troop', trooperController.createTroop);
+router.post('/troop2', trooperController.createTroop2);
 router.get('/troops', trooperController.getAllTroops);
 router.get('/troop/:id', trooperController.getTroopById);
 router.put('/troop/:id', trooperController.updateTroop);
