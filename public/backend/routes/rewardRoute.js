@@ -4,10 +4,10 @@ const router = express.Router();
 
 
 // CRUD for rewards
-router.post('/reward', rewardController.createreward);
-router.get('/reward', rewardController.getAllreward);
-router.put('/reward/:id', rewardController.updatereward);
-router.delete('/reward/:id', rewardController.deletereward);
+router.post('/reward', rewardController.createReward);
+router.get('/reward', rewardController.getAllReward);
+router.put('/reward/:id', rewardController.updateReward);
+router.delete('/reward/:id', rewardController.deleteReward);
 
 
 module.exports = router;

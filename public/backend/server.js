@@ -6,12 +6,12 @@ const authRoute = require('./routes/authRoute');
 const cookieRoute = require('./routes/cookieRoute');
 const documentRoute = require('./routes/documentRoute');
 const trooperRoute = require('./routes/trooperRoute');
-const userRoute = require('./routes/userRoute'); 
-
-
+const userRoute = require('./routes/userRoute');
+const rewardRoute = require('./routes/rewardRoute');
+const updateMonthlySales = require('./utils/updateMonthlySales');
 
 const firebaseConfig = require('./config/firebaseConfig'); // Firebase config for initialization
-
+const functions = require('firebase-functions');
 const admin = require('firebase-admin');  // Firebase Admin SDK (Ensure you have set up Firebase Admin SDK correctly)
 
 
@@ -33,11 +33,19 @@ app.use('/user', trooperRoute);
 app.use('/user', authRoute);
 app.use('/', cookieRoute);
 app.use('/user', documentRoute);
+app.use('/', rewardRoute);
 
 
 
 
 //app.use('/api/auth', authRoutes);
+
+exports.scheduledUpdateMonthlySales = functions.pubsub
+  .schedule('0 0 1 * *') // Runs at midnight on the 1st of every month
+  .timeZone('UTC') // Adjust time zone as needed
+  .onRun(async () => {
+    await updateMonthlySales();
+  });
 
 
 // Initialize Firebase and start the server

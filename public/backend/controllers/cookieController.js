@@ -44,6 +44,15 @@ const deleteCookie = async (req, res) => {
   }
 };
 
+const getMonthlyCookies = async (req, res) => {
+  try {
+    const Cookies = await cookieService.getMonthlyCookies();
+    res.status(200).json(Cookies);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 // Controller for deleting all Cookies
 /*
 const deleteAllCookie = async (req, res) => {
@@ -64,4 +73,5 @@ module.exports = {
   getAllCookie,
   updateCookie,
   deleteCookie,
+  getMonthlyCookies
 };
