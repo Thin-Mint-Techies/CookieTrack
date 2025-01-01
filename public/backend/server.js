@@ -8,10 +8,10 @@ const documentRoute = require('./routes/documentRoute');
 const trooperRoute = require('./routes/trooperRoute');
 const userRoute = require('./routes/userRoute');
 const rewardRoute = require('./routes/rewardRoute');
-const updateMonthlySales = require('./utils/updateMonthlySales');
+//const updateMonthlySales = require('./utils/updateSchedule');
 
 const firebaseConfig = require('./config/firebaseConfig'); // Firebase config for initialization
-const functions = require('firebase-functions');
+//const functions = require('firebase-functions');
 const admin = require('firebase-admin');  // Firebase Admin SDK (Ensure you have set up Firebase Admin SDK correctly)
 
 
@@ -34,18 +34,8 @@ app.use('/user', authRoute);
 app.use('/', cookieRoute);
 app.use('/user', documentRoute);
 app.use('/', rewardRoute);
-
-
-
-
 //app.use('/api/auth', authRoutes);
 
-exports.scheduledUpdateMonthlySales = functions.pubsub
-  .schedule('0 0 1 * *') // Runs at midnight on the 1st of every month
-  .timeZone('UTC') // Adjust time zone as needed
-  .onRun(async () => {
-    await updateMonthlySales();
-  });
 
 
 // Initialize Firebase and start the server
@@ -67,6 +57,30 @@ const initializeFirebase = async () => {
   }
 };
 
+
+
 // Call the Firebase initialization function
 initializeFirebase();
+
+
+/* Need to do these step before setting up monthly update
+login into firebase CLI: firebase login
+firebase init functions
+deploy the function: firebase deploy --only functions
+*/
+
+/*
+exports.scheduledMonthlySalesUpdate = functions.pubsub
+    .schedule('0 0 1 * *') // At midnight on the 1st of each month
+    .timeZone('America/Los_Angeles') // Adjust as per your timezone
+    .onRun(async () => {
+        console.log('Running monthly sales update...');
+        await updateMonthlySales(); // Call your utility function
+        console.log('Monthly sales update completed');
+        return null;
+    });
+*/
+
+
+
 //RUN: npx nodemon server.js

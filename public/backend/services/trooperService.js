@@ -9,6 +9,7 @@ const createTroop = async ({ name, email, assignedParent, saleData = [] }) => {
       email,
       assignedParent, 
       saleData, // Array of objects containing cookie references and amountSold
+      currentReward,
     });
     return newTroopRef.id;
   } catch (error) {
@@ -96,6 +97,7 @@ const updateTroop = async (id, { name, email, assignedParent, saleData }) => {
       email,
       assignedParent,
       saleData,
+      currentReward,
     });
     return { message: 'Troop updated successfully' };
   } catch (error) {
