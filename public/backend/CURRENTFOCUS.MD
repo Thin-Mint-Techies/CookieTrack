@@ -21,3 +21,4 @@ Parent select reward (Update field for troop)
 Only Manager can create reward and cookies
 
 Optical Character Recognition of Receipts
+    Do this last, is this a requirement?

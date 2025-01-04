@@ -4,8 +4,10 @@ const orderService = require('../services/orderService');
 // Controller for creating a new Order
 const createOrder = async (req, res) => {
   try {
-    const orderId = await orderService.createOrder(req.body);
-    res.status(201).json({ id: orderId });
+    const userId = req.user.uid; // Get user ID from Firebase Auth token
+    const { name,description,totalAmount } = req.body;
+    const orderId = await createOrder({ userId,name,description,totalAmount });
+    res.status(201).json({ message: 'Order created successfully', orderId });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -56,6 +58,22 @@ const deleteAllOrder = async (req, res) => {
 };
 */
 
+//have not tested
+const getUserOrders = async (req, res) => {
+  const idToken = req.headers.authorization?.split('Bearer ')[1];
+
+  if (!idToken) {
+    return res.status(401).json({ error: 'Unauthorized: Missing ID token' });
+  }
+
+  try {
+    const orders = await getUserOrders(userId);
+    res.status(200).json({ orders });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 
 
 
@@ -64,4 +82,5 @@ module.exports = {
   getAllOrder,
   updateOrder,
   deleteOrder,
+  getUserOrders
 };

@@ -1,12 +1,13 @@
 const { Firestore } = require('../config/firebaseConfig');
 
-// Service to create a new Order
-const createOrder = async ({ name, description, price }) => {
+const createOrder = async ({ userId, name, description, price }) => {
   try {
     const newOrderRef = Firestore.collection('orders').doc();
     await newOrderRef.set({
       name,
-      description
+      userId,
+      description,
+      totalAmount,
     });
     return newOrderRef.id;
   } catch (error) {
@@ -14,7 +15,6 @@ const createOrder = async ({ name, description, price }) => {
   }
 };
 
-// Service to get all Orders
 const getAllOrders = async () => {
   try {
     const snapshot = await Firestore.collection('orders').get();
@@ -52,9 +52,32 @@ const deleteOrder = async (id) => {
   }
 };
 
+//have not tested
+// this function check for login first
+const getUserOrders = async (userId) => {
+  try {
+    // Verify the Firebase ID token
+    const decodedToken = await auth.verifyIdToken(idToken);
+    const userId = decodedToken.uid;
+
+    const snapshot = await Firestore.collection('orders')
+      .where('userId', '==', userId)
+      .get();
+
+    if (!snapshot.empty) {
+      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    }
+    throw new Error('No orders found');
+  } catch (error) {
+    throw new Error('Error fetching orders: ' + error.message);
+  }
+};
+
+
 module.exports = {
   createOrder,
   getAllOrders,
   updateOrder,
   deleteOrder,
+  getUserOrders,
 };
