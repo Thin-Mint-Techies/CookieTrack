@@ -53,6 +53,21 @@ const getMonthlyCookies = async (req, res) => {
   }
 };
 
+const createCookieManager = async (req, res) => {
+  const idToken = req.headers.authorization?.split('Bearer ')[1];
+
+  if (!idToken) {
+    return res.status(401).json({ error: 'Unauthorized: Missing ID token' });
+  }
+
+  try {
+    const Cookies = await cookieService.createCookieManager(idToken, req.body);
+    res.status(200).json(Cookies);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 // Controller for deleting all Cookies
 /*
 const deleteAllCookie = async (req, res) => {
@@ -73,5 +88,6 @@ module.exports = {
   getAllCookie,
   updateCookie,
   deleteCookie,
-  getMonthlyCookies
+  getMonthlyCookies,
+  createCookieManager
 };

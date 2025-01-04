@@ -6,13 +6,9 @@ test functions with login credential
     CRUD cookie (leader/manager)
     
 
-Suggest Monthly cookie: get the top 3 cookie based on ammount sold
-    Need more setup and deploying to Firebase, do this last
 
-User Submit order (Create order)
-    Creating order can be done by all users
-    Need to be login first
-    Order have id and tied to user
+
+
 
 Parent select reward (Update field for troop)
     Can be done by leader and parent
@@ -20,5 +16,15 @@ Parent select reward (Update field for troop)
     
 Only Manager can create reward and cookies
 
+
+
 Optical Character Recognition of Receipts
     Do this last, is this a requirement?
+
+Suggest Monthly cookie: get the top 3 cookie based on ammount sold
+    Need more setup and deploying to Firebase, do this last
+
+Test User Submit order (Create order)
+    Creating order can be done by all users
+    Need to be login first
+    Order have id and tied to user

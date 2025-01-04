@@ -52,9 +52,85 @@ const deleteReward = async (id) => {
   }
 };
 
+const createRewardManager = async (idToken, { title, pointsRequired }) => {
+  try {
+    // Verify Firebase ID token
+    const decodedToken = await auth.verifyIdToken(idToken);
+    const userRole = decodedToken.role;
+
+    // Check if the user is a manager
+    if (userRole !== 'manager') {
+      throw new Error('Unauthorized: Only managers can create rewards');
+    }
+
+    // Add the reward to Firestore
+    const newRewardRef = Firestore.collection('rewards').doc();
+    await newRewardRef.set({
+      title,
+      pointsRequired,
+      createdAt: new Date().toISOString(),
+    });
+
+    return newRewardRef.id;
+  } catch (error) {
+    throw new Error('Error creating reward: ' + error.message);
+  }
+};
+
+
+// Allow user to select a reward for a specific troop
+const selectRewardForTroop = async (idToken, troopId, rewardId) => {
+  try {
+    // Verify Firebase ID token
+    const decodedToken = await auth.verifyIdToken(idToken);
+    const userId = decodedToken.uid;
+
+    // Validate troop association
+    const troopRef = Firestore.collection('troops').doc(troopId);
+    const troopDoc = await troopRef.get();
+
+    if (!troopDoc.exists) {
+      throw new Error('Troop not found');
+    }
+
+    const troopData = troopDoc.data();
+    if (!troopData.parentIds.includes(userId)) {
+      throw new Error('Unauthorized: You are not associated with this troop');
+    }
+
+    // Validate reward existence
+    const rewardRef = Firestore.collection('rewards').doc(rewardId);
+    const rewardDoc = await rewardRef.get();
+
+    if (!rewardDoc.exists) {
+      throw new Error('Reward not found');
+    }
+
+    // Add reward selection to the troop
+    const selectedRewards = troopData.selectedRewards || [];
+    selectedRewards.push({
+      rewardId,
+      selectedBy: userId,
+      selectedAt: new Date().toISOString(),
+    });
+
+    await troopRef.update({ selectedRewards });
+
+    return { message: 'Reward selected successfully for the troop' };
+  } catch (error) {
+    throw new Error('Error selecting reward: ' + error.message);
+  }
+};
+
+
+
+
+
 module.exports = {
   createReward,
   getAllRewards,
   updateReward,
   deleteReward,
+  createRewardManager,
+  selectRewardForTroop
 };

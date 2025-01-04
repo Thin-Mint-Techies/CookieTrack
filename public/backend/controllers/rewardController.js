@@ -56,6 +56,22 @@ const deleteAllReward = async (req, res) => {
 };
 */
 
+const selectRewardForTroop = async (req, res) => {
+  const idToken = req.headers.authorization?.split('Bearer ')[1];
+
+  if (!idToken) {
+    return res.status(401).json({ error: 'Unauthorized: Missing ID token' });
+  }
+
+  const { troopId, rewardId } = req.body;
+
+  try {
+    const result = await rewardService.selectRewardForTroop(idToken, troopId, rewardId);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 
 
@@ -64,4 +80,5 @@ module.exports = {
   getAllReward,
   updateReward,
   deleteReward,
+  selectRewardForTroop
 };

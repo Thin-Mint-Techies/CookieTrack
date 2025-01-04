@@ -112,6 +112,33 @@ const updateMonthlySales = async () => {
   }
 };
 
+const createCookieManager = async (idToken, { name, description, price }) => {
+  try {
+    // Verify Firebase ID token
+    const decodedToken = await auth.verifyIdToken(idToken);
+    const userRole = decodedToken.role;
+
+    // Check if the user is a manager
+    if (userRole !== 'manager') {
+      throw new Error('Unauthorized: Only managers can create cookies');
+    }
+
+    // Add the cookie to Firestore
+    const newCookieRef = Firestore.collection('cookies').doc();
+    await newCookieRef.set({
+      name,
+      description,
+      price,
+      createdAt: new Date().toISOString(),
+    });
+
+    return newCookieRef.id;
+  } catch (error) {
+    throw new Error('Error creating cookie: ' + error.message);
+  }
+};
+
+
 
 
 module.exports = {
@@ -121,4 +148,5 @@ module.exports = {
   deleteCookie,
   getMonthlyCookies,
   updateMonthlySales,
+  createCookieManager
 };
