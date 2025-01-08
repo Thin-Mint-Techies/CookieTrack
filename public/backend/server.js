@@ -8,6 +8,7 @@ const documentRoute = require('./routes/documentRoute');
 const trooperRoute = require('./routes/trooperRoute');
 const userRoute = require('./routes/userRoute');
 const rewardRoute = require('./routes/rewardRoute');
+const orderRoute  = require('./routes/orderRoute')
 //const updateMonthlySales = require('./utils/updateSchedule');
 
 const firebaseConfig = require('./config/firebaseConfig'); // Firebase config for initialization
@@ -34,6 +35,7 @@ app.use('/user', authRoute);
 app.use('/', cookieRoute);
 app.use('/user', documentRoute);
 app.use('/', rewardRoute);
+app.use('/user',orderRoute);
 //app.use('/api/auth', authRoutes);
 
 
