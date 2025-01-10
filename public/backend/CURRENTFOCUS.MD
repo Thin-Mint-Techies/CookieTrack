@@ -1,30 +1,11 @@
-test functions with login credential 
-    Login/Logout
-    CRUD troop (all)
-    CRUD saledata (all)
-    CRUD reward (leader/manager)
-    CRUD cookie (leader/manager)
-    
+1. Refine every CRUD with the correct fields
 
+2. Refine return message to output details in server console, simplify the return message for frontend
 
-
-
-
-Parent select reward (Update field for troop)
-    Can be done by leader and parent
-    Need to be login first
-    
-Only Manager can create reward and cookies
-
-
-
-Optical Character Recognition of Receipts
-    Do this last, is this a requirement?
-
-Suggest Monthly cookie: get the top 3 cookie based on ammount sold
-    Need more setup and deploying to Firebase, do this last
-
-Test User Submit order (Create order)
-    Creating order can be done by all users
-    Need to be login first
-    Order have id and tied to user
+3. Streamline every functions (Class: Dependent on)
+    Users
+    Troopers: Users
+    Rewards: Troopers
+    Orders: Troopers
+    Documents: Orders
+    Cookies: Troopers
