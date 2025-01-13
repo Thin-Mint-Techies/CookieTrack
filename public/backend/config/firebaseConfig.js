@@ -25,19 +25,11 @@ initializeApp({
   storageBucket: process.env.FIREBASE_STORAGE_BUCKET,  
 });
 
-// Initialize Realtime Database
 const db = getDatabase(); 
-
-// Initialize Firestore
 const Firestore = getFirestore();
-
-// Initialize Firebase Authentication
 const auth = getAuth();
-
-// Initialize Firebase Storage
 const storage = getStorage();  
 
-// Export all Firebase services for use in your app
 module.exports = {
   db,
   Firestore,

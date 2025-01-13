@@ -3,7 +3,6 @@ const rewardController = require('../controllers/rewardController');
 const router = express.Router();
 
 
-// CRUD for rewards
 router.post('/reward', rewardController.createReward);
 router.get('/reward', rewardController.getAllReward);
 router.put('/reward/:id', rewardController.updateReward);

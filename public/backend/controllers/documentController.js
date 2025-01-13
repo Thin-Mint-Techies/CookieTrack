@@ -1,22 +1,24 @@
 const documentService = require('../services/documentService')
 
-// Upload document (with image)
+// Upload document and image
 const uploadDocument = async (req, res) => {
   try {
     const file = req.file;
     if (!file) {
-      return res.status(400).json({ error: 'No file uploaded' });
+      console.log('No file to upload' );
+      return res.status(400).json({ error: 'No file to upload' });
     }
 
     const downloadURL = await documentService.uploadFileToStorage(file);
 
-    // Delete the file from memory
-    req.file = null;
-
+    
+    req.file = null; // Delete the file from memory
+    console.log('Upload successfully. Document URL: ', downloadURL );
     res.status(200).json({ message: 'File uploaded successfully', downloadURL: downloadURL });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to upload file' });
+    console.log('Failed to upload document:', error.message );
+    res.status(500).json({ message: error.message });
+
   }
 };
 

@@ -8,18 +8,17 @@ const documentRoute = require('./routes/documentRoute');
 const trooperRoute = require('./routes/trooperRoute');
 const userRoute = require('./routes/userRoute');
 const rewardRoute = require('./routes/rewardRoute');
-const orderRoute  = require('./routes/orderRoute')
+const orderRoute  = require('./routes/orderRoute');
 //const updateMonthlySales = require('./utils/updateSchedule');
 
-const firebaseConfig = require('./config/firebaseConfig'); // Firebase config for initialization
-//const functions = require('firebase-functions');
-const admin = require('firebase-admin');  // Firebase Admin SDK (Ensure you have set up Firebase Admin SDK correctly)
+const firebaseConfig = require('./config/firebaseConfig'); 
+const admin = require('firebase-admin');  
 
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware to parse incoming JSON requests
+// parse JSON requests
 app.use(express.json());
 
 // Enable CORS for frontend, make sure this matches your frontend URL
@@ -29,13 +28,13 @@ app.use(cors({
 }));
 
 // Use shared routes for all requests related to the troop, documents, etc.
-app.use('/user', userRoute);
-app.use('/user', trooperRoute);
-app.use('/user', authRoute);
+app.use('/', userRoute);
+app.use('/', trooperRoute);
+app.use('/', authRoute);
 app.use('/', cookieRoute);
-app.use('/user', documentRoute);
+app.use('/', documentRoute);
 app.use('/', rewardRoute);
-app.use('/user',orderRoute);
+app.use('/',orderRoute);
 //app.use('/api/auth', authRoutes);
 
 

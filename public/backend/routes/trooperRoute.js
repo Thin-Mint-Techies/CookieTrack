@@ -6,6 +6,7 @@ const { requireLogin, checkRole } = require('../utils/roleCheck');
 
 
 // CRUD for Troops
+    // Trying to set up nested auth and access right
 router.post('/troop', trooperController.createTroop);
 router.post('/troop2', 
     //requireLogin,

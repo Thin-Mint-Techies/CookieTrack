@@ -1,12 +1,9 @@
 const { auth, Firestore } = require('../config/firebaseConfig');
 const { registerUser, loginUser } = require('../services/authService');
 
-/**
- * Controller to register a new user.
- * 
- * @param {Object} req - Request object.
- * @param {Object} res - Response object.
- */
+/*
+NOT USE
+*/
 const registerController = async (req, res) => {
   const { email, password, role } = req.body;
 
