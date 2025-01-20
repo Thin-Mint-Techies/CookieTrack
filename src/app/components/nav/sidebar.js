@@ -7,6 +7,7 @@ import {
     faFileSignature, faGear
 } from '@fortawesome/free-solid-svg-icons';
 
+import Link from 'next/link';
 import Image from "next/image";
 import mainLogo from 'public/images/cookietrack_logo.png';
 import avatar from 'public/images/avatar.png';
@@ -75,13 +76,13 @@ export default function Sidebar() {
                 className="bg-green shadow-default h-screen fixed top-0 left-0 overflow-auto overflow-x-hidden z-[99] lg:w-[270px] max-lg:w-0 max-lg:invisible transition-all duration-500"
             >
                 <div className="bg-white flex items-center gap-4 pt-6 pb-2 px-4 sticky top-0 min-h-[64px] z-[100]">
-                    <a href="/user/signIn">
+                    <Link href="/main/dashboard">
                         <Image
                             src={mainLogo}
                             alt="logo"
                             className="w-40 max-lg:mr-5 accent-green"
                         />
-                    </a>
+                    </Link>
                     <button id="close-sidebar" className="ml-auto hover:bg-off-white p-2 rounded-default transition-all duration-300">
                         <FontAwesomeIcon icon={faBarsStaggered} className="text-xl text-black" />
                     </button>
@@ -89,37 +90,37 @@ export default function Sidebar() {
                 <div className="py-4 px-4">
                     <ul className="space-y-2">
                         <li>
-                            <a
-                                href="/dashboard"
+                            <Link
+                                href="/main/dashboard"
                                 className="text-black text-lg flex items-center cursor-pointer hover:bg-green-light rounded-default px-3 py-2.5 transition-all duration-300"
                             >
                                 <FontAwesomeIcon icon={faHouse} />
                                 <span className="overflow-hidden text-ellipsis whitespace-nowrap">
                                     Dashboard
                                 </span>
-                            </a>
+                            </Link>
                         </li>
                         <li>
-                            <a
-                                href="/inventory"
+                            <Link
+                                href="/main/inventory"
                                 className="text-black text-lg flex items-center cursor-pointer hover:bg-green-light rounded-default px-3 py-2.5 transition-all duration-300"
                             >
                                 <FontAwesomeIcon icon={faBoxesStacked} />
                                 <span className="overflow-hidden text-ellipsis whitespace-nowrap">
                                     Inventory
                                 </span>
-                            </a>
+                            </Link>
                         </li>
                         <li>
-                            <a
-                                href="/orders"
+                            <Link
+                                href="/main/orders"
                                 className="text-black text-lg flex items-center cursor-pointer hover:bg-green-light rounded-default px-3 py-2.5 transition-all duration-300"
                             >
                                 <FontAwesomeIcon icon={faMoneyCheckDollar} />
                                 <span className="overflow-hidden text-ellipsis whitespace-nowrap">
                                     Orders
                                 </span>
-                            </a>
+                            </Link>
                         </li>
                         <li>
                             <div
@@ -133,22 +134,22 @@ export default function Sidebar() {
                             </div>
                             <ul className="sub-menu overflow-hidden transition-[max-height] duration-500 ease-in-out ml-8">
                                 <li>
-                                    <a
-                                        href="/troop/troopers"
+                                    <Link
+                                        href="/main/troop/troopers"
                                         className="text-black text-sm block hover:bg-green-light rounded-default px-3 py-2 transition-all duration-300"
                                     >
                                         <FontAwesomeIcon icon={faUsers} />
                                         <span>Troopers</span>
-                                    </a>
+                                    </Link>
                                 </li>
                                 <li>
-                                    <a
-                                        href="/troop/rewards"
+                                    <Link
+                                        href="/main/troop/rewards"
                                         className="text-black text-sm block hover:bg-green-light rounded-default px-3 py-2 transition-all duration-300"
                                     >
                                         <FontAwesomeIcon icon={faGifts} />
                                         <span>Rewards</span>
-                                    </a>
+                                    </Link>
                                 </li>
                             </ul>
                         </li>
@@ -157,25 +158,16 @@ export default function Sidebar() {
                         <hr className="border-black my-6" />
                         <ul className="space-y-2">
                             <li>
-                                <a
-                                    href="/user/settings"
+                                <Link
+                                    href="/main/user/settings"
                                     className="text-black text-lg flex items-center cursor-pointer hover:bg-green-light rounded-default px-3 py-2.5 transition-all duration-300"
                                 >
                                     <FontAwesomeIcon icon={faGear} />
                                     Settings
-                                </a>
-                            </li>
-                            <li>
-                                <a
-                                    href="/terms"
-                                    className="text-black text-lg flex items-center cursor-pointer hover:bg-green-light rounded-default px-3 py-2.5 transition-all duration-300"
-                                >
-                                    <FontAwesomeIcon icon={faFileSignature} />
-                                    Terms of Service
-                                </a>
+                                </Link>
                             </li>
                         </ul>
-                        <a href="/user/account" className="mt-2 flex items-center cursor-pointer hover:bg-green-light rounded-default px-3 py-2.5 transition-all duration-300">
+                        <Link href="/main/user/account" className="mt-2 flex items-center cursor-pointer hover:bg-green-light rounded-default px-3 py-2.5 transition-all duration-300">
                             <Image
                                 src={avatar}
                                 alt="Profile picture"
@@ -187,7 +179,7 @@ export default function Sidebar() {
                                     john.doe@gmail.com
                                 </p>
                             </div>
-                        </a>
+                        </Link>
                     </div>
                 </div>
             </div>

@@ -5,6 +5,7 @@ import {
     faFileSignature, faGear
 } from '@fortawesome/free-solid-svg-icons';
 
+import Link from 'next/link';
 import Image from "next/image";
 import avatar from 'public/images/avatar.png';
 
@@ -19,28 +20,28 @@ export default function SidebarShrunk() {
                 <div className="py-4 px-[2px]">
                     <ul className="space-y-2">
                         <li>
-                            <a
-                                href="/dashboard"
+                            <Link
+                                href="/main/dashboard"
                                 className="text-black text-lg flex items-center cursor-pointer hover:bg-green-light rounded-default p-[13px] transition-all duration-300"
                             >
                                 <FontAwesomeIcon icon={faHouse} />
-                            </a>
+                            </Link>
                         </li>
                         <li>
-                            <a
-                                href="/inventory"
+                            <Link
+                                href="/main/inventory"
                                 className="text-black text-lg flex items-center cursor-pointer hover:bg-green-light rounded-default p-[13px] transition-all duration-300"
                             >
                                 <FontAwesomeIcon icon={faBoxesStacked} />
-                            </a>
+                            </Link>
                         </li>
                         <li>
-                            <a
-                                href="/orders"
+                            <Link
+                                href="/main/orders"
                                 className="text-black text-lg flex items-center cursor-pointer hover:bg-green-light rounded-default p-[13px] transition-all duration-300"
                             >
                                 <FontAwesomeIcon icon={faMoneyCheckDollar} />
-                            </a>
+                            </Link>
                         </li>
                         <li className="group">
                             <div
@@ -50,22 +51,22 @@ export default function SidebarShrunk() {
                             </div>
                             <ul className="group-hover:pointer-events-auto group-hover:opacity-100 overflow-hidden transition-opacity duration-200 ease-in-out fixed opacity-0 pointer-events-none top-[235px] left-[45px] p-[2px] rounded-default bg-white shadow-default">
                                 <li>
-                                    <a
-                                        href="/troop/troopers"
+                                    <Link
+                                        href="/main/troop/troopers"
                                         className="text-black text-sm block hover:bg-green-light rounded-default px-3 py-2 transition-all duration-300"
                                     >
                                         <FontAwesomeIcon icon={faUsers} />
                                         Troopers
-                                    </a>
+                                    </Link>
                                 </li>
                                 <li>
-                                    <a
-                                        href="/troop/rewards"
+                                    <Link
+                                        href="/main/troop/rewards"
                                         className="text-black text-sm block hover:bg-green-light rounded-default px-3 py-2 transition-all duration-300"
                                     >
                                         <FontAwesomeIcon icon={faGifts} />
                                         Rewards
-                                    </a>
+                                    </Link>
                                 </li>
                             </ul>
                         </li>
@@ -74,29 +75,21 @@ export default function SidebarShrunk() {
                         <hr className="border-black my-6" />
                         <ul className="space-y-2">
                             <li>
-                                <a
-                                    href="/user/settings"
+                                <Link
+                                    href="/main/user/settings"
                                     className="text-black text-lg flex items-center cursor-pointer hover:bg-green-light rounded-default p-[13px] transition-all duration-300"
                                 >
                                     <FontAwesomeIcon icon={faGear} />
-                                </a>
-                            </li>
-                            <li>
-                                <a
-                                    href="/terms"
-                                    className="text-black text-lg flex items-center cursor-pointer hover:bg-green-light rounded-default p-[13px] transition-all duration-300"
-                                >
-                                    <FontAwesomeIcon icon={faFileSignature} />
-                                </a>
+                                </Link>
                             </li>
                         </ul>
-                        <a href="/user/account" className="mt-2 py-1 flex items-center justify-center cursor-pointer hover:bg-green-light rounded-default transition-all duration-300">
+                        <Link href="/main/user/account" className="mt-2 py-1 flex items-center justify-center cursor-pointer hover:bg-green-light rounded-default transition-all duration-300">
                             <Image
                                 src={avatar}
                                 alt="Profile picture"
                                 className="w-9 h-9 rounded-full border-2 border-black shrink-0"
                             />
-                        </a>
+                        </Link>
                     </div>
                 </div>
             </div>
