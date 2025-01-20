@@ -1,38 +1,24 @@
-const { initializeApp, cert } = require('firebase-admin/app');
-const { getDatabase } = require('firebase-admin/database');  // Realtime Database
-const { getFirestore } = require('firebase-admin/firestore');  // Firestore
-const { getAuth } = require('firebase-admin/auth');  // Firebase Authentication
-const { getStorage } = require('firebase-admin/storage');  // Firebase Storage
-const admin = require('firebase-admin');
-require('dotenv').config();
+const { cert } = require('firebase-admin/app');
+const functions = require('firebase-functions');
 
-// Initialize Firebase Admin with credentials from environment variables
-initializeApp({
-  credential: admin.credential.cert({
-    type: process.env.FIREBASE_TYPE,
-    project_id: process.env.FIREBASE_PROJECT_ID,
-    private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
-    private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-    client_email: process.env.FIREBASE_CLIENT_EMAIL,
-    client_id: process.env.FIREBASE_CLIENT_ID,
-    auth_uri: process.env.FIREBASE_AUTH_URI,
-    token_uri: process.env.FIREBASE_TOKEN_URI,
-    auth_provider_x509_cert_url: process.env.FIREBASE_AUTH_PROVIDER_CERT_URL,
-    client_x509_cert_url: process.env.FIREBASE_CLIENT_CERT_URL,
-    universe_domain: process.env.FIREBASE_UNIVERSE_DOMAIN,
+// Export Firebase Admin credentials from Firebase Functions config
+const firebaseConfig = {
+  credential: cert({
+    type: functions.config().admin.type,
+    project_id: functions.config().admin.project_id,
+    private_key_id: functions.config().admin.private_key_id,
+    private_key: functions.config().admin.private_key.replace(/\\n/g, '\n'),
+    client_email: functions.config().admin.client_email,
+    client_id: functions.config().admin.client_id,
+    auth_uri: functions.config().admin.auth_uri,
+    token_uri: functions.config().admin.token_uri,
+    auth_provider_x509_cert_url: functions.config().admin.auth_provider_cert_url,
+    client_x509_cert_url: functions.config().admin.client_cert_url,
+    universe_domain: functions.config().admin.universe_domain,
   }),
-  databaseURL: process.env.FIREBASE_DB_URL,
-  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,  
-});
-
-const db = getDatabase(); 
-const Firestore = getFirestore();
-const auth = getAuth();
-const storage = getStorage();  
-
-module.exports = {
-  db,
-  Firestore,
-  auth,
-  storage
+  databaseURL: functions.config().admin.db_url,
+  storageBucket: functions.config().admin.storage_bucket,
 };
+
+
+module.exports = firebaseConfig;

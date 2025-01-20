@@ -1,6 +1,7 @@
 {
   "projects": {
-    "cookietrack": "cookietrack-hub"
+    "cookietrack": "cookietrack-hub",
+    "default": "cookietrack-hub"
   },
   "targets": {},
   "etags": {}
