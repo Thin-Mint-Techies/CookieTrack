@@ -34,12 +34,7 @@ function authorizeRole(requiredRole) {
 }
 
 
-/**
- * Registers a new user and saves role-based data to Firestore.
- * 
- * @param {Object} userData - User details.
- * @returns {Object} - Newly created user information.
- */
+
 const registerUser = async (userData) => {
   const { email, password, role } = userData;
 
@@ -71,13 +66,6 @@ const registerUser = async (userData) => {
 };
 
 
-/**
- * Logs in a user and fetches role-based data.
- * 
- * @param {string} email - User email.
- * @param {string} password - User password.
- * @returns {Object} - User data and role-based information.
- */
 const loginUser = async (email, password) => {
   try {
     // Fetch the user document from Firestore
@@ -125,4 +113,9 @@ const loginUser = async (email, password) => {
 };
 
 
-module.exports = { registerUser, loginUser, authenticateToken, authorizeRole };
+module.exports = { 
+  registerUser, 
+  loginUser, 
+  authenticateToken, 
+  authorizeRole 
+};

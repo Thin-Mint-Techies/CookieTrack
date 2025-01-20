@@ -1,6 +1,5 @@
 const { Firestore } = require('../config/firebaseConfig');
 
-// Service to create a new cookie
 const createCookie = async ({ name, description, price }) => {
   try {
     const newCookieRef = Firestore.collection('cookies').doc();
@@ -8,7 +7,7 @@ const createCookie = async ({ name, description, price }) => {
       name,
       description,
       price,
-      soldAmount: 0, // Total Sold
+      soldAmount: 0, // Total Sold, calculate by fetching saleData from troop, referencing the cookie id
       monthlySold: {}, // Monthly Sale, is an array of month that contain ammount sold that month
     });
     return newCookieRef.id;
@@ -18,7 +17,6 @@ const createCookie = async ({ name, description, price }) => {
 };
 
 
-// Service to get all cookies
 const getAllCookies = async () => {
   try {
     const snapshot = await Firestore.collection('cookies').get();
@@ -27,11 +25,10 @@ const getAllCookies = async () => {
     }
     throw new Error('No cookies found');
   } catch (error) {
-    throw new Error('Error fetching cookies');
+    throw new Error(`Error fetching all cookie: ${error.message}`);
   }
 };
 
-// Service to update a cookie by ID
 const updateCookie = async (id, { name, description, price }) => {
   try {
     const ref = Firestore.collection('cookies').doc(id);
@@ -42,18 +39,17 @@ const updateCookie = async (id, { name, description, price }) => {
     });
     return { message: 'Cookie updated successfully' };
   } catch (error) {
-    throw new Error('Error updating cookie');
+    throw new Error(`Error updating cookie: ${error.message}`);
   }
 };
 
-// Service to delete a cookie by ID
 const deleteCookie = async (id) => {
   try {
     const ref = Firestore.collection('cookies').doc(id);
     await ref.delete();
     return { message: 'Cookie deleted successfully' };
   } catch (error) {
-    throw new Error('Error deleting cookie');
+    throw new Error(`Error deleting cookie: ${error.message}`);
   }
 };
 
@@ -112,32 +108,6 @@ const updateMonthlySales = async () => {
   }
 };
 
-const createCookieManager = async (idToken, { name, description, price }) => {
-  try {
-    // Verify Firebase ID token
-    const decodedToken = await auth.verifyIdToken(idToken);
-    const userRole = decodedToken.role;
-
-    // Check if the user is a manager
-    if (userRole !== 'manager') {
-      throw new Error('Unauthorized: Only managers can create cookies');
-    }
-
-    // Add the cookie to Firestore
-    const newCookieRef = Firestore.collection('cookies').doc();
-    await newCookieRef.set({
-      name,
-      description,
-      price,
-      createdAt: new Date().toISOString(),
-    });
-
-    return newCookieRef.id;
-  } catch (error) {
-    throw new Error('Error creating cookie: ' + error.message);
-  }
-};
-
 
 
 
@@ -148,5 +118,4 @@ module.exports = {
   deleteCookie,
   getMonthlyCookies,
   updateMonthlySales,
-  createCookieManager
 };

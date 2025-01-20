@@ -6,6 +6,13 @@
     Users
     Troopers: Users
     Rewards: Troopers
+    Cookies
     Orders: Troopers
     Documents: Orders
-    Cookies: Troopers
+
+
+4. Host server on firebase
+
+5. Run frontend and try to connect to hosted server
+
+6. Test rules and access right for all functions in real time

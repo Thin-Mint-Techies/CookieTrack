@@ -1,39 +1,29 @@
 const { Firestore } = require('../config/firebaseConfig');
 
-// Service to create a new troop
-const createTroop = async ({ name, email, assignedParent, saleData = [] }) => {
+// Need to link to parent immediately, the parent or leader need to call this
+const createTroop = async ({ name, email, assignedParent, saleData = [], contactDetail,rewardPoints }) => {
   try {
     const newTroopRef = Firestore.collection('troopers').doc();
     await newTroopRef.set({
       name,
       email,
-      assignedParent, 
-      saleData, // Array of objects containing cookie references and amountSold
-      currentReward,
+      assignedParent, //need to be id
+      contactDetail: {
+        address: contactDetail?.address || null,
+        phone: contactDetail?.phone || null
+      },
+      saleData, // Array of objects containing "cookieNameAndID": "amountSold"
+      currentReward, // need to be id
+      rewardPoints,
+
     });
     return newTroopRef.id;
   } catch (error) {
-    throw new Error(error, 'Error creating troop');
+    throw new Error(error, `Error creating troop: ${error.message}`);
   }
 };
 
 
-const createTroop2 = async ({ name, email, assignedParent }) => {
-  try {
-
-    // Create the troop document
-    const newTroopRef = Firestore.collection('troopers').doc();
-    await newTroopRef.set({
-      name,
-      email,
-      assignedParent, // Parent ID tied to the troop
-    });
-
-    return { success: true, troopId: newTroopRef.id };
-  } catch (error) {
-    return { success: false, message: `Error creating troop: ${error.message}` };
-  }
-};
 
 
 // Service to get all troops
@@ -45,7 +35,8 @@ const getAllTroops = async () => {
     }
     throw new Error('No troops found');
   } catch (error) {
-    throw new Error('Error fetching troops');
+    throw new Error(`Error fetching troops: ${error.message}`);
+
   }
 };
 
@@ -58,11 +49,12 @@ const getTroopById = async (id) => {
     }
     throw new Error('Troop not found');
   } catch (error) {
-    throw new Error('Error fetching troop');
+    throw new Error(`Error fetch troop by id: ${error.message}`);
+
   }
 };
 
-// Service to update troop sales data
+// Need to manage the fields
 const updateTroopSales = async (troopId, saleData) => {
   try {
     const ref = Firestore.collection('troopers').doc(troopId);
@@ -71,11 +63,11 @@ const updateTroopSales = async (troopId, saleData) => {
     });
     return { message: 'Sales data updated successfully' };
   } catch (error) {
-    throw new Error('Error updating troop sales data');
+    throw new Error(`Error updating troop sales data: ${error.message}`);
   }
 };
 
-// Service to update a troop by ID
+// Need to manage the fields
 const updateTroop = async (id, { name, email, assignedParent, saleData }) => {
   try {
     const ref = Firestore.collection('troopers').doc(id);
@@ -88,24 +80,45 @@ const updateTroop = async (id, { name, email, assignedParent, saleData }) => {
     });
     return { message: 'Troop updated successfully' };
   } catch (error) {
-    throw new Error('Error updating troop');
+    throw new Error(`Error updating troop by id: ${error.message}`);
   }
 };
 
-// Service to delete a troop by ID
 const deleteTroop = async (id) => {
   try {
     const ref = Firestore.collection('troopers').doc(id);
     await ref.delete();
     return { message: 'Troop deleted successfully' };
   } catch (error) {
-    throw new Error('Error deleting troop');
+    throw new Error(`Error deleting troop: ${error.message}`);
+  }
+};
+
+// create an entire troop that link to the leader
+const groupTrooper = async ({ name, email, assignedParent, saleData = [], contactDetail,rewardPoints }) => {
+  try {
+    const newTroopRef = Firestore.collection('troops').doc();
+    await newTroopRef.set({
+      name,
+      email,
+      assignedParent, //need to be id
+      contactDetail: {
+        address: contactDetail?.address || null,
+        phone: contactDetail?.phone || null
+      },
+      saleData, // Array of objects containing "cookieNameAndID": "amountSold"
+      currentReward, // need to be id
+      rewardPoints,
+
+    });
+    return newTroopRef.id;
+  } catch (error) {
+    throw new Error(error, `Error creating troop: ${error.message}`);
   }
 };
 
 module.exports = {
   createTroop,
-  createTroop2,
   getAllTroops,
   getTroopById,
   updateTroop,

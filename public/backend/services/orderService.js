@@ -1,17 +1,18 @@
 const { Firestore } = require('../config/firebaseConfig');
 
-const createOrder = async ({ userId, name, description, price }) => {
+const createOrder = async ({ buyer,trooperSeller, descriptions, totalPayment ,amountOfCookies }) => {
   try {
     const newOrderRef = Firestore.collection('orders').doc();
     await newOrderRef.set({
-      name,
-      userId,
-      description,
-      totalAmount,
+      buyer,
+      trooperSeller,
+      descriptions, // address, delivery, etc...
+      totalPayment,
+      amountOfCookies,
     });
     return newOrderRef.id;
   } catch (error) {
-    throw new Error('Error creating Order');
+    throw new Error(`Failed to create order: ${error.message}`);
   }
 };
 
@@ -23,7 +24,7 @@ const getAllOrders = async () => {
     }
     throw new Error('No Orders found');
   } catch (error) {
-    throw new Error('Error fetching Orders');
+    throw new Error(`Error fetching Orders: ${error.message}`);
   }
 };
 
@@ -48,7 +49,7 @@ const deleteOrder = async (id) => {
     await ref.delete();
     return { message: 'Order deleted successfully' };
   } catch (error) {
-    throw new Error('Error deleting Order');
+    throw new Error(`Error deleting Order: ${error.message}`);
   }
 };
 
@@ -69,7 +70,7 @@ const getUserOrders = async (userId) => {
     }
     throw new Error('No orders found');
   } catch (error) {
-    throw new Error('Error fetching orders: ' + error.message);
+    throw new Error(`Error fetching user orders: ${error.message}`);
   }
 };
 

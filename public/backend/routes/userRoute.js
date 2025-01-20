@@ -5,11 +5,11 @@ const upload = require('../utils/fileUpload');
 
 
 
-router.post('/', userController.createUser);
-router.get('/', userController.getAllUser);
-router.get('/:id', userController.getUserById);
-router.put('/:id', userController.updateUser);
-router.delete('/:id', userController.deleteUser);
+router.post('/user', userController.createUser);
+router.get('/user', userController.getAllUser);
+router.get('/user/:id', userController.getUserById);
+router.put('/user/:id', userController.updateUser);
+router.delete('/user/:id', userController.deleteUser);
 
 // Notifications
 //router.post('/notification', userController.createNotification);

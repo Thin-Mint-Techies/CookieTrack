@@ -1,9 +1,10 @@
 const { Firestore } = require('../config/firebaseConfig');
 
-// Secret code for elevated roles
+// Secret code for elevated roles, NEED TO CHANGE IT, NEED TO GO TO ENV 
 const SECRET_CODE = '123';
 
-// Service to create a new user
+/**MIGHT NOT NEED, FRONTEND HANDLE THIS MAYBE?  */
+
 const createUser = async ({ name, email, role, contactDetail, trooperIds = [], secretCode }) => {
     try {
       // Validate role and secret code
@@ -20,11 +21,11 @@ const createUser = async ({ name, email, role, contactDetail, trooperIds = [], s
       await newUserRef.set({
         name,
         email,
-        role, // Role is locked here
+        role, 
         trooperIds,
         contactDetail: {
           address: contactDetail?.address || null,
-          phone: contactDetail?.phone || null,
+          phone: contactDetail?.phone || null
         },
       });
       return newUserRef.id;
@@ -33,16 +34,17 @@ const createUser = async ({ name, email, role, contactDetail, trooperIds = [], s
     }
   };
   
-// Service to get all users
-const getAllUsers = async () => {
+
+  const getAllUsers = async () => {
   try {
     const snapshot = await Firestore.collection('users').get();
     if (!snapshot.empty) {
+      // return all users here
       return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     }
     throw new Error('No users found');
   } catch (error) {
-    throw new Error('Error fetching users');
+    throw new Error(`Error fetching users: ${error.message}`);
   }
 };
 
@@ -55,10 +57,11 @@ const getUserById = async (id) => {
     }
     throw new Error('User not found');
   } catch (error) {
-    throw new Error('Error fetching user');
+    throw new Error(`Error fetching user by id: ${error.message}`);
   }
 };
 
+// NEED A LOOK, make sure that role cannot be update
 const updateUser = async (id, { name, email, trooperIds, contactDetail }) => {
     try {
       const ref = Firestore.collection('users').doc(id);
@@ -81,7 +84,7 @@ const updateUser = async (id, { name, email, trooperIds, contactDetail }) => {
       });
       return { message: 'User updated successfully' };
     } catch (error) {
-      throw new Error('Error updating user');
+      throw new Error(`Error updating user: ${error.message}`);
     }
   };
   
@@ -93,7 +96,44 @@ const deleteUser = async (id) => {
     await ref.delete();
     return { message: 'User deleted successfully' };
   } catch (error) {
-    throw new Error('Error deleting user');
+    throw new Error(`Error deleting user: ${error.message}`);
+  }
+};
+
+
+// Combine createUser and updateUser into a single function
+const createUserRevise = async ({ name, email, password, role, contactDetail, trooperIds = [], secretCode }) => {
+  try {
+    // Validate role and secret code
+    if (role === 'leader' || role === 'manager') {
+      if (secretCode !== SECRET_CODE) {
+        throw new Error('Invalid secret code for elevated roles');
+      }
+    } else if (role !== 'parent') {
+      throw new Error('Invalid role');
+    }
+
+    // Create user in Firebase Auth
+    const userRecord = await auth.createUser({ email, password });
+
+    // Save user details in Firestore
+    const newUserRef = Firestore.collection('users').doc(userRecord.uid);
+    await newUserRef.set({
+      name,
+      email,
+      role,
+      trooperIds,
+      contactDetail: {
+        address: contactDetail?.address || null,
+        phone: contactDetail?.phone || null
+      },
+      parents: role === 'leader' ? [] : undefined, // Only leaders have "parents"
+    });
+
+    return { uid: userRecord.uid, email, role };
+  } catch (error) {
+    console.error('Error during user creation:', error);
+    throw new Error('Failed to create user');
   }
 };
 
@@ -104,3 +144,4 @@ module.exports = {
   updateUser,
   deleteUser,
 };
+
