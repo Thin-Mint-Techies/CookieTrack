@@ -1,11 +1,22 @@
 'use client'
 
 import { signInWithGoogle } from "@/app/lib/firebase/auth";
+import { useRouter } from "next/navigation";
+import { useToast } from "../toasts/toast-holder";
 
 export default function GoogleSignIn({}) {
-    const handleGoogleSignIn = event => {
+    const router = useRouter();
+    const { showToast } = useToast();
+
+    const handleGoogleSignIn = async (event) => {
         event.preventDefault();
-        signInWithGoogle();
+
+        try {
+            await signInWithGoogle();
+            router.push('/main/dashboard');
+        } catch (error) {
+            showToast("Error Signing In", error, true, true, 5);
+        }
     };
 
     return (

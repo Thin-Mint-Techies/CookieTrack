@@ -12,6 +12,7 @@ import mainLogo from 'public/images/cookietrack_logo.png';
 import avatar from 'public/images/avatar.png';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { onAuthStateChanged } from '@/app/lib/firebase/auth';
 import { firebaseConfig } from '@/app/lib/firebase/config';
 
 function useUserSession(initialUser) {
