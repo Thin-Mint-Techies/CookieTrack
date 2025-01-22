@@ -10,6 +10,8 @@ config.autoAddCss = false;
 import Sidebar from "../components/nav/sidebar";
 import SidebarShrunk from "../components/nav/sidebar-shrunk";
 import { ToastProvider } from "../components/toasts/toast-holder";
+import { getAuthenticatedAppForUser } from "../lib/firebase/serverApp";
+export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "CookieTrack",
@@ -21,15 +23,17 @@ const lilitaSans = Lilita_One({
   subsets: ["latin"],
 });
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  const { currentUser } = await getAuthenticatedAppForUser();
+  
   return (
     <html lang="en">
       <body className={`${lilitaSans.className} antialiased bg-main-bg bg-repeat`}>
         <ToastProvider>
           <div className="relative h-full min-h-screen font-sans bg-white-overlay">
             <div className="flex items-start">
-              <Sidebar></Sidebar>
-              <SidebarShrunk></SidebarShrunk>
+              <Sidebar initialUser={currentUser?.toJSON()}></Sidebar>
+              <SidebarShrunk initialUser={currentUser?.toJSON()}></SidebarShrunk>
               <button
                 id="open-sidebar"
                 className="max-lg:-left-[7px] max-lg:pr-[1px] max-lg:bg-white max-lg:shadow-default ml-auto fixed top-[20px] left-[7px] z-[100] hover:bg-off-white p-2 rounded-default transition-all duration-300"

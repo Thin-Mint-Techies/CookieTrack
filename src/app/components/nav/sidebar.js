@@ -2,18 +2,63 @@
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-    faBarsStaggered, faHouse, faBoxesStacked,
-    faMoneyCheckDollar, faListCheck, faAngleDown, faUsers, faGifts,
-    faFileSignature, faGear
+    faBarsStaggered, faHouse, faBoxesStacked,faMoneyCheckDollar, 
+    faListCheck, faAngleDown, faUsers, faGifts, faGear
 } from '@fortawesome/free-solid-svg-icons';
 
 import Link from 'next/link';
 import Image from "next/image";
 import mainLogo from 'public/images/cookietrack_logo.png';
 import avatar from 'public/images/avatar.png';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { firebaseConfig } from '@/app/lib/firebase/config';
 
-export default function Sidebar() {
+function useUserSession(initialUser) {
+    // The initialUser comes from the server via a server component
+    const [user, setUser] = useState(initialUser);
+    const router = useRouter();
+
+    // Register the service worker that sends auth state back to server
+    // The service worker is built with npm run build-service-worker
+    useEffect(() => {
+        if ("serviceWorker" in navigator) {
+            const serializedFirebaseConfig = encodeURIComponent(JSON.stringify(firebaseConfig));
+            const serviceWorkerUrl = `/auth-service-worker.js?firebaseConfig=${serializedFirebaseConfig}`
+
+            navigator.serviceWorker
+                .register(serviceWorkerUrl)
+                .then((registration) => console.log("scope is: ", registration.scope));
+        }
+    }, []);
+
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged((authUser) => {
+            setUser(authUser)
+        })
+
+        return () => unsubscribe()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    useEffect(() => {
+        onAuthStateChanged((authUser) => {
+            if (user === undefined) return
+
+            // refresh when user changed to ease testing
+            if (user?.email !== authUser?.email) {
+                router.refresh()
+            }
+        })
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [user])
+
+    return user;
+}
+
+export default function Sidebar({ initialUser }) {
+    const user = useUserSession(initialUser);
+
     useEffect(() => {
         // Add functionality for submenus
         document.querySelectorAll('#sidebar ul > li > div').forEach((menu) => {
@@ -65,7 +110,7 @@ export default function Sidebar() {
             sidebarCloseBtn?.removeEventListener('click', () => { });
         };
     }, []);
-    
+
     return (
         <nav
             id="sidebar"
@@ -169,14 +214,14 @@ export default function Sidebar() {
                         </ul>
                         <Link href="/main/user/account" className="mt-2 flex items-center cursor-pointer hover:bg-green-light rounded-default px-3 py-2.5 transition-all duration-300">
                             <Image
-                                src={avatar}
+                                src={user?.photoURL || avatar}
                                 alt="Profile picture"
                                 className="w-9 h-9 rounded-full border-2 border-black shrink-0"
                             />
                             <div className="ml-4">
-                                <p className="text-sm text-black whitespace-nowrap">John Doe</p>
+                                <p className="text-sm text-black whitespace-nowrap">{user?.displayName || "John Doe"}</p>
                                 <p className="text-xs text-black whitespace-nowrap">
-                                    john.doe@gmail.com
+                                    {user?.email || "johndoe@gmail.com"}
                                 </p>
                             </div>
                         </Link>

@@ -9,7 +9,7 @@ import Link from 'next/link';
 import Image from "next/image";
 import avatar from 'public/images/avatar.png';
 
-export default function SidebarShrunk() {
+export default function SidebarShrunk({initialUser}) {
     return (
         <nav
             id="shrunk-sidebar"
