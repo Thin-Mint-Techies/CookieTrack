@@ -20,7 +20,7 @@ export default function GoogleSignIn({}) {
     };
 
     return (
-        <button id="login-google" type="button" onClick={handleGoogleSignIn}
+        <button type="button" onClick={handleGoogleSignIn}
             className="w-full flex items-center justify-center gap-4 py-3 px-6 text-lg tracking-wide text-black border border-gray rounded-default bg-white hover:bg-off-white accent-green">
             <svg xmlns="http://www.w3.org/2000/svg" width="20px" className="inline" viewBox="0 0 512 512">
                 <path fill="#fbbd00"

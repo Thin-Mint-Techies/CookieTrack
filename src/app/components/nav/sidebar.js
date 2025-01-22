@@ -14,6 +14,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { onAuthStateChanged } from '@/app/lib/firebase/auth';
 import { firebaseConfig } from '@/app/lib/firebase/config';
+import SignOut from '../buttons/signOut';
 
 function useUserSession(initialUser) {
     // The initialUser comes from the server via a server component
@@ -21,7 +22,6 @@ function useUserSession(initialUser) {
     const router = useRouter();
 
     // Register the service worker that sends auth state back to server
-    // The service worker is built with npm run build-service-worker
     useEffect(() => {
         if ("serviceWorker" in navigator) {
             const serializedFirebaseConfig = encodeURIComponent(JSON.stringify(firebaseConfig));
@@ -44,11 +44,13 @@ function useUserSession(initialUser) {
 
     useEffect(() => {
         onAuthStateChanged((authUser) => {
-            if (user === undefined) return
+            if (user === undefined) {
+                router.push("/login/signIn");
+            }
 
             // refresh when user changed to ease testing
             if (user?.email !== authUser?.email) {
-                router.refresh()
+                router.refresh();
             }
         })
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -212,10 +214,11 @@ export default function Sidebar({ initialUser }) {
                                     Settings
                                 </Link>
                             </li>
+                            <SignOut/>
                         </ul>
                         <Link href="/main/user/account" className="mt-2 flex items-center cursor-pointer hover:bg-green-light rounded-default px-3 py-2.5 transition-all duration-300">
                             <Image
-                                src={user?.photoURL || avatar}
+                                src={avatar}
                                 alt="Profile picture"
                                 className="w-9 h-9 rounded-full border-2 border-black shrink-0"
                             />

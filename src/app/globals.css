@@ -4,7 +4,8 @@
 
 /*#region GENERAL CSS*/
 a>svg,
-nav div>svg {
+nav div>svg,
+nav button>svg {
   width: 30px;
 }
 
