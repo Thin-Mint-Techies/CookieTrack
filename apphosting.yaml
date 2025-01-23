@@ -1,0 +1,13 @@
+env:
+  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+    value: AIzaSyAq0uKOOdjO-UDVX80oZ0TFkRH6aUf941s
+  - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    value: cookietrack-hub.firebaseapp.com
+  - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    value: cookietrack-hub
+  - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+    value: cookietrack-hub.firebasestorage.app
+  - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+    value: 1030404578063
+  - variable: NEXT_PUBLIC_FIREBASE_APP_ID
+    value: 1:1030404578063:web:ebacdf6bf6921b9d72fc7a
