@@ -74,7 +74,7 @@ export default function SignIn() {
                             </div>
 
                             <div className="!mt-8">
-                                <button type="submit" onClick={handleEmailSignIn}
+                                <button type="button" onClick={handleEmailSignIn}
                                     className="w-full shadow-default py-3 px-4 text-xl tracking-wide rounded-default text-white bg-green hover:bg-green-light accent-orange">
                                     Log in
                                 </button>
