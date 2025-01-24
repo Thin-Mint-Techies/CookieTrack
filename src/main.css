@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+/*#region GENERAL CSS*/
+a>i,
+nav div>i,
+nav button>i {
+  width: 30px;
+}
+
+/*#endregion GENERAL CSS*/
+
 /*#region NOTIFICATION TOAST*/
 #toast-holder {
     display: flex;

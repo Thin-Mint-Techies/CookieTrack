@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ['./public/**/*.html'],
+  content: ['./public/**/*.{html,js}', './public/404.html'],
   theme: {
     extend: {
       colors: {
@@ -12,8 +12,10 @@ module.exports = {
         'orange-dark': '#bc4500',
         'white': '#ffffff',
         'off-white': '#d9d9d9',
+        'white-overlay': 'rgba(255,255,255,0.6)',
         'black': '#343434',
-        'gray': '#D1D5DB'
+        'gray': '#D1D5DB',
+        'red': '#d53d3d'
       },
       fontFamily: {
         sans: ['Lilita One', 'sans-serif']
@@ -25,7 +27,7 @@ module.exports = {
         'default': '0 3px 6px #00000029, 0 3px 6px #0000003b'
       },
       backgroundImage: {
-        'login-img': "url('resources/login-bg.png')"
+        'main-bg': "url('/public/frontend/resources/main-bg.png')"
       }
     }
   },

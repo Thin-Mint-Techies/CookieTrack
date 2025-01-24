@@ -12,44 +12,41 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 </head>
 
-<body class="bg-login-img bg-repeat">
-    <div id="loader" style="display: none;">
-        <div class="flex-col gap-4 w-full flex items-center justify-center fixed top-0 bottom-0 bg-white z-[999999]">
-          <div
-            class="w-20 h-20 border-4 border-transparent text-green text-4xl animate-spin flex items-center justify-center border-t-green rounded-full"
-          >
-            <div
-              class="w-16 h-16 border-4 border-transparent text-orange text-2xl animate-spin flex items-center justify-center border-t-orange rounded-full"
-            ></div>
-          </div>
-        </div>
-      </div>
+<body class="bg-main-bg bg-repeat">
     <header
         class='flex shadow-default py-4 px-4 sm:px-10 bg-white font-sans min-h-[80px] tracking-wide z-50 sticky top-0 rounded-default'>
         <div class='flex flex-wrap items-center gap-5 w-full'>
-            <a href="../login/sign-in.html"><img src="../resources/cookietrack_logo.png" alt="logo" class='w-40 max-lg:mr-5 accent-green' />
+            <a href="/public/frontend/login/sign-in.html"><img src="/public/frontend/resources/cookietrack_logo.png"
+                    alt="logo" class='w-40 max-lg:mr-5 accent-green' />
             </a>
 
             <div id="collapseMenu"
                 class='max-lg:hidden lg:!flex lg:ml-auto max-lg:before:fixed max-lg:before:bg-black max-lg:before:opacity-50 max-lg:before:inset-0 max-lg:before:z-50'>
-                <button id="toggleClose" class='lg:hidden fixed top-2 right-4 z-[100] rounded-default bg-white p-3 accent-green'>
+                <button id="toggleClose"
+                    class='lg:hidden fixed top-2 right-4 z-[100] rounded-default bg-white p-3 accent-green'>
                     <i class="fa-solid fa-xmark text-3xl text-black"></i>
                 </button>
 
                 <ul
                     class='lg:flex gap-4 max-lg:space-y-3 max-lg:fixed max-lg:bg-white max-lg:w-1/2 max-lg:min-w-[300px] max-lg:top-0 max-lg:left-0 max-lg:p-6 max-lg:h-full max-lg:shadow-default max-lg:overflow-auto z-50'>
                     <li class='mb-6 hidden max-lg:block'>
-                        <a href="../login/sign-in.html"><img src="../resources/cookietrack_logo.png" alt="logo" class='w-40 accent-green' />
+                        <a href="/public/frontend/login/sign-in.html"><img src="/public/frontend/resources/cookietrack_logo.png"
+                                alt="logo" class='w-40 accent-green' />
                         </a>
                     </li>
-                    <li class='max-lg:border-b max-lg:py-3 px-3'><a href='./sign-in.html'
-                            class='hover:text-green text-black block text-[18px] accent-green'><i class="fa-solid fa-right-to-bracket"></i> Sign In</a>
+                    <li class='max-lg:border-b max-lg:py-3 px-3'><a href='/public/frontend/login/sign-in.html'
+                            class='hover:text-green-light text-black block text-[18px] accent-green'><i
+                                class="fa-solid fa-right-to-bracket"></i> Sign In</a>
                     </li>
-                    <li class='max-lg:border-b max-lg:py-3 px-3'><a href='./sign-up.html'
-                            class='hover:text-green-light text-green block text-[18px] accent-green'><i class="fa-solid fa-user-plus"></i> Create Account</a>
+                    <li class='max-lg:border-b max-lg:py-3 px-3'><a href='/public/frontend/login/sign-up.html'
+                            class='hover:text-green text-black block text-[18px] accent-green'><i
+                                class="fa-solid fa-user-plus"></i>
+                            Create Account</a>
                     </li>
-                    <li class='max-lg:border-b max-lg:py-3 px-3'><a href='./forgot-pass.html'
-                            class='hover:text-green text-black block text-[18px] accent-green'><i class="fa-solid fa-key"></i> Forgot Password</a>
+                    <li class='max-lg:border-b max-lg:py-3 px-3'><a href='/public/frontend/login/forgot-pass.html'
+                            class='hover:text-green text-black block text-[18px] accent-green'><i
+                                class="fa-solid fa-key"></i> Forgot
+                            Password</a>
                     </li>
                 </ul>
             </div>
@@ -61,7 +58,7 @@
             </div>
         </div>
     </header>
-    <div id="toast-holder"></div>
+
     <div class="font-sans flex items-center min-h-[calc(100vh-158px)] p-4">
         <div class="w-full max-w-4xl max-md:max-w-xl mx-auto">
             <div
@@ -119,9 +116,11 @@
                         </div>
                         <div class="flex items-center">
                             <input id="accept-terms" name="accept-terms" type="checkbox"
-                                class="h-4 w-4 shrink-0 text-black focus:ring-orange border-gray rounded accent-orange cursor-pointer" required />
+                                class="h-4 w-4 shrink-0 text-black focus:ring-orange border-gray rounded accent-orange cursor-pointer"
+                                required />
                             <label for="accept-terms" class="text-black ml-3 block text-base">
-                                I accept the <a href="javascript:void(0);" class="text-green hover:underline ml-1 accent-orange">Terms
+                                I accept the <a href="javascript:void(0);"
+                                    class="text-green hover:underline ml-1 accent-orange">Terms
                                     and Conditions</a>
                             </label>
                         </div>
@@ -131,7 +130,7 @@
                         <button type="button" id="create-account"
                             class="w-full py-2.5 px-4 text-lg tracking-wider shadow-default rounded-default bg-green hover:bg-green-light text-white accent-orange">
                             Create Account
-                    </button>
+                        </button>
                     </div>
                     <p class="text-black text-base mt-6 text-center">Already have an account? <a href="./sign-in.html"
                             class="text-green hover:underline ml-1 accent-orange">Login
@@ -174,30 +173,19 @@
             </div>
         </div>
     </div>
+
     <footer class="bg-green text-white py-6 px-16 font-sans tracking-wide fixed bottom-0 left-0 right-0">
         <div class="flex justify-between items-center max-lg:flex-col text-center flex-wrap gap-4">
             <p class="text-[15px] leading-loose">CookieTrack</p>
 
             <ul class="flex space-x-6 gap-y-2 max-lg:justify-center flex-wrap">
-                <li><a href="javascript:void(0)" class="text-[15px] hover:text-off-white accent-orange">Terms of Service</a></li>
+                <li><a href="/public/frontend/login/terms.html"
+                        class="text-[15px] hover:text-off-white accent-orange">Terms of
+                        Service</a></li>
             </ul>
         </div>
     </footer>
 </body>
-
-<template id="template-toast">
-    <div class="toast">
-      <div class="toast-content">
-        <i class="fa-solid fa-bell bell"></i>
-        <div class="toast-message">
-          <span class="toast-title">Notification Title</span>
-          <span>Notification Message.</span>
-        </div>
-      </div>
-      <i class="fa-solid fa-xmark close"></i>
-      <div class="toast-progress"></div>
-    </div>
-  </template>
 
 <script type="module" src="account.js"></script>
 <script src="../shared.js"></script>

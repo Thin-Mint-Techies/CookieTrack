@@ -4,8 +4,8 @@
   "description": "A web app used to track, manage, and stay up to date with the latest orders, rewards, and inventory of Girl Scout cookie troops.",
   "main": "index.js",
   "scripts": {
-    "dev": "postcss ./src/main.css -o ./public/ui/main.css --watch",
-    "prod": "npx tailwindcss -i ./src/main.css -o ./public/ui/main.css --minify"
+    "dev": "postcss ./src/main.css -o ./public/frontend/main.css --watch",
+    "prod": "npx tailwindcss -i ./src/main.css -o ./public/frontend/main.css --minify"
   },
   "repository": {
     "type": "git",
