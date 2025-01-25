@@ -54,8 +54,34 @@ app.use('/', rewardRoute);
 app.use('/',orderRoute);
 //app.use('/api/auth', authRoutes);
 
+// DEPLOYMENT ONLY
+//exports.api = functions.https.onRequest(app);
 
 
-exports.api = functions.https.onRequest(app);
+// LOCAL ONLY
+
+const PORT = process.env.PORT || 5000;
+const initializeFirebase = async () => {
+  try {
+    // Initialize Firebase (ensure your Firebase config is correct)
+    if (!admin.apps.length) {
+      admin.initializeApp(firebaseConfig); // Firebase configuration should be set up correctly
+    }
+    console.log('Firebase initialized successfully!');
+
+    // Start the Express server
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`Server is running on PORT: ${PORT}`);
+    });
+  } catch (error) {
+    console.error('Error initializing Firebase:', error);
+    process.exit(1); // Exit if Firebase initialization fails
+  }
+};
+initializeFirebase();
 
 
+
+
+// run locally: npx nodemon index.js
+// deploy: firebase deploy --only functions
