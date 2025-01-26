@@ -1,4 +1,5 @@
 const { Firestore } = require('../firebaseConfig');
+const notificationService = require('./notificationService');
 
 // Need to link to parent immediately, the parent or leader need to call this
 const createTroop = async ({ name, email, assignedParent, saleData = [], contactDetail,rewardPoints }) => {
@@ -17,6 +18,16 @@ const createTroop = async ({ name, email, assignedParent, saleData = [], contact
       rewardPoints,
 
     });
+
+    // Need notification service to notify the parent
+    // Mabe in controller instead of here?
+    // Have not test
+    await notificationService.sendNotificationToUser(
+      assignedParent,
+      'New Trooper Assigned',
+      `You have been assigned a new trooper: ${name}`
+    );
+
     return newTroopRef.id;
   } catch (error) {
     throw new Error(error, `Error creating troop: ${error.message}`);

@@ -39,9 +39,9 @@ project-root/
 
 Route -> Controller -> Service
 
-Route: Endpoint tied to that CRUD operation
-Controller: Making the enpoint request
-Service: perform the request
+Route: handle enpoints, apply auth and role check from middleware
+Controller: should making request andreturn messages
+Service: only handle business logic and DB interactions
 
 
 ############
@@ -148,3 +148,7 @@ Utils Folder: The utils folder contains helper functions and middleware that can
             Set up middleware for CORS, JSON parsing, etc.
             Start the server and listen for requests.
             Set up Firebase initialization.
+
+
+
+

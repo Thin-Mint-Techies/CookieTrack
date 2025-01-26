@@ -1,8 +1,4 @@
-1. Refine every CRUD with the correct fields
-
-2. Refine return message to output details in server console, simplify the return message for frontend
-
-3. Streamline every functions (Class: Dependent on)
+1. Streamline every functions, Refine return message to output details in server console, simplify the return message for frontend (Class: Dependent on)
     Users
     Troopers: Users
     Rewards: Troopers
@@ -10,9 +6,8 @@
     Orders: Troopers
     Documents: Orders
 
+2. Notification services
 
-4. Host server on firebase
+3. Run frontend and try to connect to hosted server
 
-5. Run frontend and try to connect to hosted server
-
-6. Test rules and access right for all functions in real time
+4. Test rules and access right for all functions in real time
