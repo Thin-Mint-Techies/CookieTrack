@@ -40,6 +40,28 @@ const app = express();
 // parse JSON requests
 app.use(express.json());
 
+/*CORS might need to be update to this, have not test
+const cors = require('cors');
+
+const allowedOrigins = [
+  'http://localhost:3000', // Localhost for development
+  'https://your-frontend-domain.com' // Your frontend production domain
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      // Allow requests with no origin (like mobile apps or Postman) or those in the list
+      callback(null, true);
+    } else {
+      // Block other origins
+      callback(new Error('Not allowed by CORS'));
+    }
+  }
+}));
+
+*/
+
 app.use(cors({
   origin: true
 }));
@@ -55,11 +77,11 @@ app.use('/',orderRoute);
 //app.use('/api/auth', authRoutes);
 
 // DEPLOYMENT ONLY
-//exports.api = functions.https.onRequest(app);
+exports.api = functions.https.onRequest(app);
 
 
 // LOCAL ONLY
-
+/*
 const PORT = process.env.PORT || 5000;
 const initializeFirebase = async () => {
   try {
@@ -79,7 +101,7 @@ const initializeFirebase = async () => {
   }
 };
 initializeFirebase();
-
+*/
 
 
 

@@ -2,10 +2,10 @@ const { Firestore } = require('../firebaseConfig');
 const notificationService = require('./notificationService');
 
 // Need to link to parent immediately, the parent or leader need to call this
-const createTroop = async ({ name, email, assignedParent, saleData = [], contactDetail,rewardPoints }) => {
+const createTroopExp = async ({ name, email, assignedParent, saleData = [], contactDetail,rewardPoints }) => {
   try {
     const newTroopRef = Firestore.collection('troopers').doc();
-    await newTroopRef.set({
+    const troopData = {
       name,
       email,
       assignedParent, //need to be id
@@ -13,11 +13,17 @@ const createTroop = async ({ name, email, assignedParent, saleData = [], contact
         address: contactDetail?.address || null,
         phone: contactDetail?.phone || null
       },
-      saleData, // Array of objects containing "cookieNameAndID": "amountSold"
-      currentReward, // need to be id
-      rewardPoints,
+    };
 
-    });
+    // optional fields
+    if (saleData.length > 0) {
+      troopData.saleData = saleData; // Array of objects containing "cookieNameAndID": "amountSold"
+    }
+    if (currentReward) {
+      troopData.currentReward = currentReward; // need to be id
+    }
+
+    await newTroopRef.set(troopData);
 
     // Need notification service to notify the parent
     // Mabe in controller instead of here?
@@ -34,6 +40,38 @@ const createTroop = async ({ name, email, assignedParent, saleData = [], contact
   }
 };
 
+
+const createTroop = async ({ name, email, assignedParent, saleData = [], contactDetail,rewardPoints }) => {
+  try {
+    const newTroopRef = Firestore.collection('troopers').doc();
+    const troopData = {
+      name,
+      email,
+      assignedParent, //need to be id
+      contactDetail: {
+        address: contactDetail?.address || null,
+        phone: contactDetail?.phone || null
+      },
+    };
+
+    // optional fields
+    if (saleData.length > 0) {
+      troopData.saleData = saleData; // Array of objects containing "cookieNameAndID": "amountSold"
+    }
+    if (currentReward) {
+      troopData.currentReward = currentReward; // need to be id
+    }
+
+    await newTroopRef.set(troopData);
+
+    // Need notification service to notify the parent
+    // Mabe in controller instead of here?
+    // Have not test
+    return newTroopRef.id;
+  } catch (error) {
+    throw new Error(error, `Error creating troop: ${error.message}`);
+  }
+};
 
 
 
