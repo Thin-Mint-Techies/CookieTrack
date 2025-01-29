@@ -1,12 +1,12 @@
 const { Firestore } = require('../firebaseConfig');
 
 // Service to create a new Reward
-const createReward = async ({ name, description, price }) => {
+const createReward = async ({ name, description }) => {
   try {
     const newRewardRef = Firestore.collection('rewards').doc();
     await newRewardRef.set({
       name,
-      description
+      description,
     });
     return newRewardRef.id;
   } catch (error) {
@@ -121,8 +121,6 @@ const selectRewardForTroop = async (idToken, troopId, rewardId) => {
     throw new Error('Error selecting reward: ' + error.message);
   }
 };
-
-
 
 
 

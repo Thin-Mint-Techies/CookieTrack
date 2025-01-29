@@ -77,11 +77,11 @@ app.use('/',orderRoute);
 //app.use('/api/auth', authRoutes);
 
 // DEPLOYMENT ONLY
-exports.api = functions.https.onRequest(app);
+//exports.api = functions.https.onRequest(app);
 
 
 // LOCAL ONLY
-/*
+
 const PORT = process.env.PORT || 5000;
 const initializeFirebase = async () => {
   try {
@@ -101,7 +101,6 @@ const initializeFirebase = async () => {
   }
 };
 initializeFirebase();
-*/
 
 
 
