@@ -9,6 +9,10 @@ nav button>i {
   width: 30px;
 }
 
+h2>i {
+    margin-right: 10px;
+}
+
 /*#endregion GENERAL CSS*/
 
 /*#region NOTIFICATION TOAST*/
