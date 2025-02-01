@@ -1,12 +1,13 @@
 const BASE_URL = "https://api-gknady4m2q-uc.a.run.app";
 
-export async function callApi(subroute, method = 'GET', body = null) {
+export async function callApi(subroute, method = 'GET', userToken, body = null) {
   const url = `${BASE_URL}${subroute}`;
 
   const options = {
     method,
     headers: {
       'Content-Type': 'application/json',
+      'Authorization': `Bearer ${userToken}`
     },
   };
 

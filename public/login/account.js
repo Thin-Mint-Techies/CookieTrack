@@ -1,9 +1,10 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import {
     getAuth, onAuthStateChanged, createUserWithEmailAndPassword, sendEmailVerification, setPersistence, browserLocalPersistence, browserSessionPersistence,
-    signInWithEmailAndPassword, sendPasswordResetEmail, signOut, GoogleAuthProvider, signInWithRedirect, getRedirectResult, getAdditionalUserInfo
+    signInWithEmailAndPassword, sendPasswordResetEmail, signOut, GoogleAuthProvider, signInWithRedirect, getRedirectResult, getAdditionalUserInfo, getIdToken
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-import { getDatabase, ref as ref_db, set, onValue } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+//import { getDatabase, ref as ref_db, set, onValue } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+import { callApi } from "../utils/apiCall.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyAq0uKOOdjO-UDVX80oZ0TFkRH6aUf941s",
@@ -18,7 +19,7 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const database = getDatabase(app);
+//const database = getDatabase(app);
 const provider = new GoogleAuthProvider();
 
 var dashboardLink = "dashboard-user.html";
@@ -29,10 +30,10 @@ onAuthStateChanged(auth, (user) => {
         if (window.location.href.includes("/login/sign-in") && !localStorage.getItem("pendingRedirect")) {
             window.location.href = "../dashboard/dashboard.html";
             //Get users role to determine dashboard
-            onValue(ref_db(database, `Users/${user.uid}/Role`), (snapshot) => {
+            /* onValue(ref_db(database, `Users/${user.uid}/Role`), (snapshot) => {
                 const role = snapshot.val();
                 if (role) dashboardLink = `dashboard-${role}.html`;
-            });
+            }); */
         }
     } else {
         if (!window.location.href.includes("/login/sign-in") && !window.location.href.includes("/login/sign-up")
@@ -40,6 +41,21 @@ onAuthStateChanged(auth, (user) => {
             window.location.href = "../login/sign-in.html";
         }
     }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('keydown', (e) => {
+        if (e.key === '\\') {
+            console.log("here");
+            let accessToken = null;
+            auth.currentUser.getIdToken().then((token) => {
+                accessToken = token;
+                console.log(accessToken);
+                let response = callApi(`/trooper/9SkSYZ8u1TQ2hwqeBAre`, 'GET', accessToken);
+                console.log(response);
+            });
+        }
+    });
 });
 
 //USED IN MEANTIME UNTIL BACKEND IS FUNCTIONAL ---------------------------------
@@ -225,7 +241,7 @@ function createUserAccount() {
                 Role: "user",
             }).then(() => {
                 //Successfully uploaded, head to dashboard
-                window.location.href = "../dashboard/dashboard-user.html"
+                window.location.href = "../dashboard/dashboard-user.html";
             });
         })
         .catch((error) => {
