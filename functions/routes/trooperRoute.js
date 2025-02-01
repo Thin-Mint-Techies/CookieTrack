@@ -7,16 +7,16 @@ const { requireLogin, checkRole } = require('../utils/roleCheck');
 
 // CRUD for Troops
     // Trying to set up nested auth and access right
-router.post('/troop', trooperController.createTroop);
-router.post('/troop2', 
+router.post('/trooper', trooperController.createTrooper);
+//router.post('/trooper2', 
     //requireLogin,
     //checkRole,
-    trooperController.createTroop2Controller);
-router.get('/troops', trooperController.getAllTroops);
-router.get('/troop/:id', trooperController.getTroopById);
-router.put('/troop/:id', trooperController.updateTroop);
-router.delete('/troop/:id', trooperController.deleteTroop);
-router.delete('/troops', trooperController.deleteAllTroops);
+    //trooperController.createTroop2Controller);
+router.get('/troopers', trooperController.getAllTroopers);
+router.get('/trooper/:id', trooperController.getTrooperById);
+router.put('/trooper/:id', trooperController.updateTrooper);
+router.delete('/trooper/:id', trooperController.deleteTrooper);
+router.delete('/troopers', trooperController.deleteAllTroopers);
 
 
 module.exports = router;

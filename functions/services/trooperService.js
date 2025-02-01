@@ -41,7 +41,7 @@ const createTroopExp = async ({ name, email, assignedParent, saleData = [], cont
 };
 
 
-const createTroop = async ({ name, email, assignedParent, saleData = [], contactDetail,rewardPoints }) => {
+const createTrooper = async ({ name, email, assignedParent, saleData = [], contactDetail,rewardPoints }) => {
   try {
     const newTroopRef = Firestore.collection('troopers').doc();
     const troopData = {
@@ -76,7 +76,7 @@ const createTroop = async ({ name, email, assignedParent, saleData = [], contact
 
 
 // Service to get all troops
-const getAllTroops = async () => {
+const getAllTroopers = async () => {
   try {
     const snapshot = await Firestore.collection('troopers').get();
     if (!snapshot.empty) {
@@ -90,7 +90,7 @@ const getAllTroops = async () => {
 };
 
 // Service to get a troop by ID
-const getTroopById = async (id) => {
+const getTrooperById = async (id) => {
   try {
     const doc = await Firestore.collection('troopers').doc(id).get();
     if (doc.exists) {
@@ -104,7 +104,7 @@ const getTroopById = async (id) => {
 };
 
 // Need to manage the fields
-const updateTroopSales = async (troopId, saleData) => {
+const updateTrooperSales = async (troopId, saleData) => {
   try {
     const ref = Firestore.collection('troopers').doc(troopId);
     await ref.update({
@@ -117,7 +117,7 @@ const updateTroopSales = async (troopId, saleData) => {
 };
 
 // Need to manage the fields
-const updateTroop = async (id, { name, email, assignedParent, saleData }) => {
+const updateTrooper = async (id, { name, email, assignedParent, saleData }) => {
   try {
     const ref = Firestore.collection('troopers').doc(id);
     await ref.update({
@@ -133,7 +133,7 @@ const updateTroop = async (id, { name, email, assignedParent, saleData }) => {
   }
 };
 
-const deleteTroop = async (id) => {
+const deleteTrooper = async (id) => {
   try {
     const ref = Firestore.collection('troopers').doc(id);
     await ref.delete();
@@ -144,13 +144,14 @@ const deleteTroop = async (id) => {
 };
 
 // create an entire troop that link to the leader
-const groupTrooper = async ({ name, email, assignedParent, saleData = [], contactDetail,rewardPoints }) => {
+const createTroop = async ({ name, email, assignedParent, saleData = [], contactDetail,rewardPoints }) => {
   try {
     const newTroopRef = Firestore.collection('troops').doc();
     await newTroopRef.set({
-      name,
+      squadName,
       email,
       assignedParent, //need to be id
+      leader, // need to be id
       contactDetail: {
         address: contactDetail?.address || null,
         phone: contactDetail?.phone || null
@@ -158,7 +159,6 @@ const groupTrooper = async ({ name, email, assignedParent, saleData = [], contac
       saleData, // Array of objects containing "cookieNameAndID": "amountSold"
       currentReward, // need to be id
       rewardPoints,
-
     });
     return newTroopRef.id;
   } catch (error) {
@@ -167,10 +167,10 @@ const groupTrooper = async ({ name, email, assignedParent, saleData = [], contac
 };
 
 module.exports = {
-  createTroop,
-  getAllTroops,
-  getTroopById,
-  updateTroop,
-  updateTroopSales,
-  deleteTroop,
+  createTrooper,
+  getAllTroopers,
+  getTrooperById,
+  updateTrooper,
+  updateTrooperSales,
+  deleteTrooper,
 };

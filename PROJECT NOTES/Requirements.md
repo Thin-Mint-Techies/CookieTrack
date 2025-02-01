@@ -14,7 +14,6 @@
     d. View data by month/week/day/etc
     e. Update information for: inventory, reward, trooper data
 
-
 4. Parent Select Rewards for Trooper:
     a. Only available when sales threshold has been met 
 

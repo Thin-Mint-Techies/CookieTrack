@@ -1,8 +1,8 @@
 const troopService = require('../services/trooperService');
 
-const createTroop = async (req, res) => {
+const createTrooper = async (req, res) => {
   try {
-    const troopId = await troopService.createTroop(req.body);
+    const troopId = await troopService.createTrooper(req.body);
     console.log('Troop created successfully:', troopId);
     res.status(201).json({ id: troopId });
   } catch (error) {
@@ -12,9 +12,9 @@ const createTroop = async (req, res) => {
 };
 
 
-const getAllTroops = async (req, res) => {
+const getAllTroopers = async (req, res) => {
   try {
-    const troops = await troopService.getAllTroops();
+    const troops = await troopService.getAllTroopers();
     console.log('Fetch all troop successfully:', troopId);
     res.status(200).json(troops);
   } catch (error) {
@@ -23,10 +23,10 @@ const getAllTroops = async (req, res) => {
   }
 };
 
-const getTroopById = async (req, res) => {
+const getTrooperById = async (req, res) => {
   const { id } = req.params;
   try {
-    const troop = await troopService.getTroopById(id);
+    const troop = await troopService.getTrooperById(id);
     console.log('Get troop by id successfully:', troop);
     res.status(200).json(troop);
   } catch (error) {
@@ -35,10 +35,10 @@ const getTroopById = async (req, res) => {
   }
 };
 
-const updateTroop = async (req, res) => {
+const updateTrooper = async (req, res) => {
   const { id } = req.params;
   try {
-    const result = await troopService.updateTroop(id, req.body);
+    const result = await troopService.updateTrooper(id, req.body);
     console.log('Troop updated successfully:', result);
     res.status(200).json(result);
   } catch (error) {
@@ -47,10 +47,10 @@ const updateTroop = async (req, res) => {
   }
 };
 
-const deleteTroop = async (req, res) => {
+const deleteTrooper = async (req, res) => {
   const { id } = req.params;
   try {
-    const result = await troopService.deleteTroop(id);
+    const result = await troopService.deleteTrooper(id);
     console.log('Troop deleted successfully:', result);
     res.status(200).json(result);
   } catch (error) {
@@ -59,9 +59,9 @@ const deleteTroop = async (req, res) => {
   }
 };
 
-const deleteAllTroops = async (req, res) => {
+const deleteAllTroopers = async (req, res) => {
   try {
-    const result = await troopService.deleteAllTroops();
+    const result = await troopService.deleteAllTroopers();
     console.log('All Troop deleted', result);
     res.status(200).json(result);
   } catch (error) {
@@ -71,34 +71,13 @@ const deleteAllTroops = async (req, res) => {
 };
 
 
-//need more testing, need to go through roleCheck.js first
-const createTroop2Controller = async (req, res) => {
-  try {
-    // Extract troop data from the request body
-    const { name, email, assignedParent } = req.body;
-
-    // Extract the user ID from the authenticated request
-    //const userId = req.user.uid;
-
-    // Call the service to create the troop
-    const result = await troopService.createTroop2({ name, email, assignedParent});
-    //,userId
-
-    // Send success response
-    res.status(201).json({ success: true, message: 'Troop created successfully', troopId: result.troopId });
-  } catch (error) {
-    // Handle errors and send response to the client
-    res.status(400).json({ success: false, message: error.message });
-  }
-};
 
 
 module.exports = {
-  createTroop,
-  createTroop2Controller,
-  getAllTroops,
-  getTroopById,
-  updateTroop,
-  deleteTroop,
-  deleteAllTroops,
+  createTrooper,
+  getAllTroopers,
+  getTrooperById,
+  updateTrooper,
+  deleteTrooper,
+  deleteAllTroopers,
 };
