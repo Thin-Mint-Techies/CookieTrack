@@ -24,6 +24,25 @@
 
 10. OCR
 
+11. get troopers from user
+
+12. get troops from leader
+
+14. get total cookie sold from troop
+
+15. get trooper sale data
+
+16. get user orders
+
+17. 
+
+
+
+Priority: 
+    merge user and auth, implement register, login, logout, create auth when create user
+    access control
+
+
 
 Information needed from Brandon: 
 1. preferred json format for each: user, trooper, reward, order, cookie

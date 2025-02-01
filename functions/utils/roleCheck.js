@@ -1,5 +1,5 @@
 const admin = require('firebase-admin');
-
+const xss = require('xss');
 
 const requireLogin1 = (req, res, next) => {
   if (!req.user || !req.user.uid) {
@@ -17,7 +17,7 @@ const requireLogin = async (req, res, next) => {
   }
 
   try {
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    const decodedToken = await admin.auth().verifyIdToken(idToken); //verify the login token
     req.user = decodedToken;
     next();
   } catch (error) {
@@ -44,7 +44,8 @@ const checkRole = (allowedRoles) => {
 const checkUserOwnership = (userIdParam = 'userId') => {
   return (req, res, next) => {
     const { uid } = req.user;
-    const userIdFromRequest = req.params[userIdParam] || req.body[userIdParam];
+    // remove xss if not needed or it's causing issues
+    const userIdFromRequest = xss(req.params[userIdParam] || req.body[userIdParam]);
 
     if (!userIdFromRequest || uid !== userIdFromRequest) {
       return res.status(403).json({ success: false, message: 'Permission denied. You can only access your own data.' });
@@ -52,6 +53,19 @@ const checkUserOwnership = (userIdParam = 'userId') => {
     next(); // Proceed to the next middleware or controller
   };
 };
+
+/** 
+const verifyLoginIdToken = async (idToken) => {
+  try {
+    const decodedToken = await auth.verifyIdToken(idToken);
+    return decodedToken;
+  } catch (error) {
+    console.error('Error verifying ID token:', error);
+    throw new Error('Invalid ID token');
+  }
+};
+*/
+
 
 module.exports = {
   checkRole,

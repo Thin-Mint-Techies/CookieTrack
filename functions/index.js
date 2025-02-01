@@ -62,8 +62,25 @@ app.use(cors({
 
 */
 
+const allowedOrigins = [
+  'http://localhost:3000', // Localhost for development
+  'https://your-frontend-domain.com' // Your frontend production domain
+];
+
 app.use(cors({
-  origin: true
+  // Testing only
+  // origin: true
+
+  // Production
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      // Allow requests with no origin (like mobile apps or Postman) or those in the list
+      callback(null, true);
+    } else {
+      // Block other origins
+      callback(new Error('Not allowed by CORS'));
+    }
+  }
 }));
 
 // Use shared routes for all requests related to the troop, documents, etc.
@@ -81,7 +98,6 @@ app.use('/',orderRoute);
 
 
 // LOCAL ONLY
-
 const PORT = process.env.PORT || 5000;
 const initializeFirebase = async () => {
   try {

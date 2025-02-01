@@ -2,7 +2,7 @@ const { Firestore } = require('../firebaseConfig');
 const notificationService = require('./notificationService');
 
 // Need to link to parent immediately, the parent or leader need to call this
-const createTroopExp = async ({ name, email, assignedParent, saleData = [], contactDetail,rewardPoints }) => {
+const createTrooperExp = async ({ name, email, assignedParent, saleData = [], contactDetail,rewardPoints }) => {
   try {
     const newTroopRef = Firestore.collection('troopers').doc();
     const troopData = {
@@ -148,21 +148,51 @@ const createTroop = async ({ name, email, assignedParent, saleData = [], contact
   try {
     const newTroopRef = Firestore.collection('troops').doc();
     await newTroopRef.set({
-      squadName,
-      email,
-      assignedParent, //need to be id
+      troopName,
       leader, // need to be id
-      contactDetail: {
-        address: contactDetail?.address || null,
-        phone: contactDetail?.phone || null
-      },
-      saleData, // Array of objects containing "cookieNameAndID": "amountSold"
-      currentReward, // need to be id
-      rewardPoints,
+      troopers: [],
+      totalSaleData: [], // get all data from the trooopers
     });
     return newTroopRef.id;
   } catch (error) {
     throw new Error(error, `Error creating troop: ${error.message}`);
+  }
+};
+
+
+// Read a troop by ID
+const getTroopById = async (id) => {
+  try {
+    const troopRef = Firestore.collection('troops').doc(id);
+    const doc = await troopRef.get();
+    if (!doc.exists) {
+      throw new Error('Troop not found');
+    }
+    return doc.data();
+  } catch (error) {
+    throw new Error(`Error fetching troop: ${error.message}`);
+  }
+};
+
+// Update a troop by ID
+const updateTroop = async (id, updateData) => {
+  try {
+    const troopRef = Firestore.collection('troops').doc(id);
+    await troopRef.update(updateData);
+    return { message: 'Troop updated successfully' };
+  } catch (error) {
+    throw new Error(`Error updating troop: ${error.message}`);
+  }
+};
+
+// Delete a troop by ID
+const deleteTroop = async (id) => {
+  try {
+    const troopRef = Firestore.collection('troops').doc(id);
+    await troopRef.delete();
+    return { message: 'Troop deleted successfully' };
+  } catch (error) {
+    throw new Error(`Error deleting troop: ${error.message}`);
   }
 };
 
@@ -173,4 +203,9 @@ module.exports = {
   updateTrooper,
   updateTrooperSales,
   deleteTrooper,
+  
+  createTroop,
+  getTroopById,
+  updateTroop,
+  deleteTroop,
 };

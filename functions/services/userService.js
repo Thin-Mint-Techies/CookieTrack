@@ -1,9 +1,7 @@
 const { Firestore } = require('../firebaseConfig');
+require('dotenv').config();
+const SECRET_CODE = process.env.SECRET_CODE;
 
-// Secret code for elevated roles, NEED TO CHANGE IT, NEED TO GO TO ENV 
-const SECRET_CODE = '123';
-
-/**MIGHT NOT NEED, FRONTEND HANDLE THIS MAYBE?  */
 
 const createUser = async ({ name, email, role, contactDetail, trooperIds = [], secretCode }) => {
     try {
@@ -136,6 +134,85 @@ const createUserRevise = async ({ name, email, password, role, contactDetail, tr
     throw new Error('Failed to create user');
   }
 };
+
+
+
+
+////////////////////////////////////////////
+////////////////////////////////////////////
+////////////////////////////////////////////
+const registerUser = async ({ name, email, password, role, contactDetail, trooperIds = [], secretCode }) => {
+  try {
+    // Validate role and secret code
+    if (role === 'leader' || role === 'manager') {
+      if (secretCode !== SECRET_CODE) {
+        throw new Error('Invalid secret code for elevated roles');
+      }
+    } else if (role !== 'parent') {
+      throw new Error('Invalid role');
+    }
+
+    // Create user in Firebase Auth
+    const userRecord = await auth.createUser({ email, password });
+
+    // Save user details in Firestore
+    const newUserRef = Firestore.collection('users').doc(userRecord.uid);
+    await newUserRef.set({
+      name,
+      email,
+      role,
+      trooperIds,
+      contactDetail: {
+        address: contactDetail?.address || null,
+        phone: contactDetail?.phone || null
+      },
+      parents: role === 'leader' ? [] : undefined, // Only leaders have "parents"
+    });
+
+    return { uid: userRecord.uid, email, role };
+  } catch (error) {
+    console.error('Error during user registration:', error);
+    throw new Error('Failed to register user');
+  }
+};
+
+
+const loginUser = async (email, password) => {
+  try {
+    // Fetch the user document from Firestore
+    const userQuery = await Firestore.collection('users').where('email', '==', email).limit(1).get();
+
+    if (userQuery.empty) {
+      throw new Error('User not found');
+    }
+
+    const userDoc = userQuery.docs[0];
+    const user = userDoc.data();
+
+    // For Firebase Auth, you would typically use Firebase Authentication SDK on the client side
+    
+    // Generate a custom token (if needed)
+    const customToken = await auth.createCustomToken(userDoc.id);
+
+    // Return user details
+    return { uid: userDoc.id, email: user.email, role: user.role, token: customToken };
+  } catch (error) {
+    console.error('Error during user login:', error);
+    throw new Error('Failed to login user');
+  }
+};
+
+const logoutUser = async () => {
+  try {
+    await auth().signOut(); 
+    console.log('User logged out successfully');
+  } catch (error) {
+    console.error('Error during user logout:', error);
+    throw new Error('Failed to logout user');
+  }
+};
+
+
 
 module.exports = {
   createUser,
