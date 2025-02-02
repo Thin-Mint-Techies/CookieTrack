@@ -13,7 +13,7 @@ router.post('/trooper', trooperController.createTrooper);
     //checkRole,
     //trooperController.createTroop2Controller);
 router.get('/troopers', trooperController.getAllTroopers);
-router.get('/trooper/:id', trooperController.getTrooperById);
+router.get('/trooper/:id',requireLogin, checkRole('leader'), trooperController.getTrooperById);
 router.put('/trooper/:id', trooperController.updateTrooper);
 router.delete('/trooper/:id', trooperController.deleteTrooper);
 router.delete('/troopers', trooperController.deleteAllTroopers);
