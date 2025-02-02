@@ -1,39 +1,39 @@
 const { Firestore } = require('../firebaseConfig');
 require('dotenv').config();
 const SECRET_CODE = process.env.SECRET_CODE;
+const auth = require('../firebaseConfig').auth;
 
 
-const createUser = async ({ name, email, role, contactDetail, trooperIds = [], secretCode }) => {
-    try {
-      // Validate role and secret code
-      if (role === 'leader' || role === 'manager') {
-        if (secretCode !== SECRET_CODE) {
-          throw new Error('Invalid secret code for elevated roles');
-        }
-      } else if (role !== 'parent') {
-        throw new Error('Invalid role');
+const registerUser = async ({ name, email, role, secretCode, password }) => {
+  try {
+    // Validate role and secret code
+    if (role === 'leader' || role === 'manager') {
+      if (secretCode !== SECRET_CODE) {
+        throw new Error('Invalid secret code for elevated roles. Cannot create account');
       }
-  
-      // Role is set here and cannot be changed later
-      const newUserRef = Firestore.collection('users').doc();
-      await newUserRef.set({
-        name,
-        email,
-        role, 
-        trooperIds,
-        contactDetail: {
-          address: contactDetail?.address || null,
-          phone: contactDetail?.phone || null
-        },
-      });
-      return newUserRef.id;
-    } catch (error) {
-      throw new Error(`Error creating user: ${error.message}`);
+    } else if (role !== 'parent') {
+      throw new Error('Invalid role');
     }
-  };
-  
 
-  const getAllUsers = async () => {
+    // Create user in Firebase Auth
+    const userRecord = await auth.createUser({ email, password });
+    await auth.setCustomUserClaims(userRecord.uid, { role });
+
+    // Save user details in Firestore
+    const newUserRef = Firestore.collection('users').doc(userRecord.uid);
+    await newUserRef.set({
+      name,
+      email,
+    });
+
+    return { uid: userRecord.uid, email, role };
+  } catch (error) {
+    console.error('Error during user registration:', error);
+    throw new Error('Failed to register user');
+  }
+};
+
+const getAllUsers = async () => {
   try {
     const snapshot = await Firestore.collection('users').get();
     if (!snapshot.empty) {
@@ -46,7 +46,6 @@ const createUser = async ({ name, email, role, contactDetail, trooperIds = [], s
   }
 };
 
-// Service to get a user by ID
 const getUserById = async (id) => {
   try {
     const doc = await Firestore.collection('users').doc(id).get();
@@ -59,35 +58,43 @@ const getUserById = async (id) => {
   }
 };
 
-// NEED A LOOK, make sure that role cannot be update
-const updateUser = async (id, { name, email, trooperIds, contactDetail }) => {
-    try {
-      const ref = Firestore.collection('users').doc(id);
-  
-      // Fetch the current user data
-      const doc = await ref.get();
-      if (!doc.exists) {
-        throw new Error('User not found');
-      }
-  
-      // Update only non-role fields
-      await ref.update({
-        name,
-        email,
-        trooperIds,
-        contactDetail: {
-          address: contactDetail?.address || null,
-          phone: contactDetail?.phone || null,
-        },
-      });
-      return { message: 'User updated successfully' };
-    } catch (error) {
-      throw new Error(`Error updating user: ${error.message}`);
-    }
-  };
-  
+const updateUser = async (id, { name, email, newTrooperIds, contactDetail,removeTrooperIds }) => {
+  try {
+    const ref = Firestore.collection('users').doc(id);
 
-// Service to delete a user by ID
+    // Fetch the current user data
+    const doc = await ref.get();
+    if (!doc.exists) {
+      throw new Error('User not found');
+    }
+
+    // Update only non-role fields
+    await ref.update({
+      name,
+      email,
+      contactDetail: {
+        address: contactDetail?.address || null,
+        phone: contactDetail?.phone || null,
+      },
+      parents: role === 'leader' ? [] : undefined, // Only leaders have "parents"
+    });
+
+    // add new trooper, using array operations
+    if (newTrooperIds && newTrooperIds.length > 0) {
+      updateData.trooperIds = Firestore.FieldValue.arrayUnion(...newTrooperIds);
+    }
+
+    // remove trooper, using array operations
+    if (removeTrooperIds && removeTrooperIds.length > 0) {
+      updateData.trooperIds = Firestore.FieldValue.arrayRemove(...removeTrooperIds);
+    }
+    
+    return { message: 'User updated successfully' };
+  } catch (error) {
+    throw new Error(`Error updating user: ${error.message}`);
+  }
+};
+  
 const deleteUser = async (id) => {
   try {
     const ref = Firestore.collection('users').doc(id);
@@ -99,123 +106,8 @@ const deleteUser = async (id) => {
 };
 
 
-// Combine createUser and updateUser into a single function
-const createUserRevise = async ({ name, email, password, role, contactDetail, trooperIds = [], secretCode }) => {
-  try {
-    // Validate role and secret code
-    if (role === 'leader' || role === 'manager') {
-      if (secretCode !== SECRET_CODE) {
-        throw new Error('Invalid secret code for elevated roles');
-      }
-    } else if (role !== 'parent') {
-      throw new Error('Invalid role');
-    }
-
-    // Create user in Firebase Auth
-    const userRecord = await auth.createUser({ email, password });
-
-    // Save user details in Firestore
-    const newUserRef = Firestore.collection('users').doc(userRecord.uid);
-    await newUserRef.set({
-      name,
-      email,
-      role,
-      trooperIds,
-      contactDetail: {
-        address: contactDetail?.address || null,
-        phone: contactDetail?.phone || null
-      },
-      parents: role === 'leader' ? [] : undefined, // Only leaders have "parents"
-    });
-
-    return { uid: userRecord.uid, email, role };
-  } catch (error) {
-    console.error('Error during user creation:', error);
-    throw new Error('Failed to create user');
-  }
-};
-
-
-
-
-////////////////////////////////////////////
-////////////////////////////////////////////
-////////////////////////////////////////////
-const registerUser = async ({ name, email, password, role, contactDetail, trooperIds = [], secretCode }) => {
-  try {
-    // Validate role and secret code
-    if (role === 'leader' || role === 'manager') {
-      if (secretCode !== SECRET_CODE) {
-        throw new Error('Invalid secret code for elevated roles');
-      }
-    } else if (role !== 'parent') {
-      throw new Error('Invalid role');
-    }
-
-    // Create user in Firebase Auth
-    const userRecord = await auth.createUser({ email, password });
-
-    // Save user details in Firestore
-    const newUserRef = Firestore.collection('users').doc(userRecord.uid);
-    await newUserRef.set({
-      name,
-      email,
-      role,
-      trooperIds,
-      contactDetail: {
-        address: contactDetail?.address || null,
-        phone: contactDetail?.phone || null
-      },
-      parents: role === 'leader' ? [] : undefined, // Only leaders have "parents"
-    });
-
-    return { uid: userRecord.uid, email, role };
-  } catch (error) {
-    console.error('Error during user registration:', error);
-    throw new Error('Failed to register user');
-  }
-};
-
-
-const loginUser = async (email, password) => {
-  try {
-    // Fetch the user document from Firestore
-    const userQuery = await Firestore.collection('users').where('email', '==', email).limit(1).get();
-
-    if (userQuery.empty) {
-      throw new Error('User not found');
-    }
-
-    const userDoc = userQuery.docs[0];
-    const user = userDoc.data();
-
-    // For Firebase Auth, you would typically use Firebase Authentication SDK on the client side
-    
-    // Generate a custom token (if needed)
-    const customToken = await auth.createCustomToken(userDoc.id);
-
-    // Return user details
-    return { uid: userDoc.id, email: user.email, role: user.role, token: customToken };
-  } catch (error) {
-    console.error('Error during user login:', error);
-    throw new Error('Failed to login user');
-  }
-};
-
-const logoutUser = async () => {
-  try {
-    await auth().signOut(); 
-    console.log('User logged out successfully');
-  } catch (error) {
-    console.error('Error during user logout:', error);
-    throw new Error('Failed to logout user');
-  }
-};
-
-
-
 module.exports = {
-  createUser,
+  registerUser,
   getAllUsers,
   getUserById,
   updateUser,

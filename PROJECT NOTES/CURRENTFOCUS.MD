@@ -8,15 +8,7 @@
 
 2. Notification service (check with frontend)
 
-3. Create new role check, access control wrapper
-
-4. Test access control or all functions
-
 5. Create a troops CRUD, consist of troopers (Leader/Manager)
-
-6. Merge auth and user services. Streamline the functions. User service should now contain register, login, logout
-
-7. Check when user is created, auth is also created
 
 8. Premptive order suggestion 
 
@@ -34,13 +26,15 @@
 
 16. get user orders
 
-17. 
+17. CRUD documents
 
 
 
-Priority: 
-    merge user and auth, implement register, login, logout, create auth when create user
-    access control
+
+Priority:     
+    RoleCheck.js
+        checkOwnerShip
+
 
 
 

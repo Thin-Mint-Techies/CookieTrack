@@ -14,9 +14,9 @@ const createTrooper = async (req, res) => {
 
 const getAllTroopers = async (req, res) => {
   try {
-    const troops = await troopService.getAllTroopers();
-    console.log('Fetch all troop successfully:', troopId);
-    res.status(200).json(troops);
+    const troopers = await troopService.getAllTroopers();
+    console.log('Fetch all troop successfully');
+    res.status(200).json(troopers);
   } catch (error) {
     console.error('Failed to fetch all troop', error.message);
     res.status(500).json({ message: error.message });

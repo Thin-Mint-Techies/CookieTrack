@@ -40,7 +40,6 @@ const createTrooperExp = async ({ name, email, assignedParent, saleData = [], co
   }
 };
 
-
 const createTrooper = async ({ name, email, assignedParent, saleData = [], contactDetail,rewardPoints }) => {
   try {
     const newTroopRef = Firestore.collection('troopers').doc();
@@ -74,7 +73,6 @@ const createTrooper = async ({ name, email, assignedParent, saleData = [], conta
 };
 
 
-
 // Service to get all troops
 const getAllTroopers = async () => {
   try {
@@ -84,8 +82,9 @@ const getAllTroopers = async () => {
     }
     throw new Error('No troops found');
   } catch (error) {
+    console.log("getAllTroopers Service", error);
     throw new Error(`Error fetching troops: ${error.message}`);
-
+    
   }
 };
 
@@ -142,6 +141,13 @@ const deleteTrooper = async (id) => {
     throw new Error(`Error deleting troop: ${error.message}`);
   }
 };
+
+
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+
 
 // create an entire troop that link to the leader
 const createTroop = async ({ name, email, assignedParent, saleData = [], contactDetail,rewardPoints }) => {

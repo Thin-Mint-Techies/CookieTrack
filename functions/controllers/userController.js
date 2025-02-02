@@ -5,7 +5,7 @@ const documentService = require('../services/documentService')
 // Controller for creating a new user
 const createUser = async (req, res) => {
   try {
-    const userId = await userService.createUser(req.body);
+    const userId = await userService.registerUser(req.body);
     console.log('User created successfully:', userId);
     res.status(201).json({ id: userId });
   } catch (error) {
