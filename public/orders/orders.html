@@ -190,11 +190,10 @@
                     <div class="flex items-center flex-wrap gap-6">
                         <div>
                             <h3 class="text-lg font-semibold text-green">
-                                Welcome back, John
+                                Orders
                             </h3>
                             <p class="text-xs text-gray-300">
-                                Streamlined dashboard layout featuring a welcoming header for user
-                                personalization.
+                                View your documents, current orders, completed orders, and input new ones.
                             </p>
                         </div>
                     </div>
@@ -353,10 +352,12 @@
                             class="min-w-full border-separate border-spacing-0 border-4 border-green rounded-default">
                             <thead class="bg-green whitespace-nowrap">
                                 <tr class="text-left text-lg text-white [&_th]:p-4 [&_th]:font-normal">
-                                    <th>Cookie Name</th>
-                                    <th>Amount In Stock</th>
-                                    <th>Amount Sold This Month</th>
-                                    <th>Actions</th>
+                                    <th>Name</th>
+                                    <th>Phone</th>
+                                    <th>Address</th>
+                                    <th>Order Total</th>                                    
+                                    <th>Thin Mints</th>
+                                    <th>Box Count</th>
                                 </tr>
                             </thead>
                             <tbody class="whitespace-nowrap">
@@ -391,7 +392,13 @@
                                     </td>
                                 </tr>
                             </tbody>
-                        </table>
+                        </table>           
+                    </div>
+                    <div class="flex justify-end mt-2">
+                        <button id="upload-files" type="button"
+                            class="w-auto shadow-default py-3 px-4 text-xl tracking-wide rounded-default text-white bg-orange hover:bg-orange-light accent-green">
+                            <i class="fa-solid fa-cart-plus"></i> Add New Order
+                        </button>
                     </div>
                 </div>
                 <div class=" bg-white py-6 px-4 max-w-7xl relative shadow-default mx-auto rounded-default">
