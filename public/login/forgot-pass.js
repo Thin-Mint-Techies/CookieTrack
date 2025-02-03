@@ -1,4 +1,7 @@
-//Forgot password functions ------------------------------------------------
+import { auth } from "../utils/auth.js";
+import { sendPasswordResetEmail } from 'https://www.gstatic.com/firebasejs/11.2.0/firebase-auth.js';
+import { showToast, STATUS_COLOR } from "../utils/toasts.js";
+
 const forgotPassEmail = document.getElementById("forgot-pass-email");
 const resetPasswordBtn = document.getElementById("reset-password");
 

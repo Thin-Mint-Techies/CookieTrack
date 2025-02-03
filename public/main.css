@@ -1100,6 +1100,10 @@ video {
 .p-\[2px\] {
   padding: 2px;
 }
+.\!py-\[11px\] {
+  padding-top: 11px !important;
+  padding-bottom: 11px !important;
+}
 .px-16 {
   padding-left: 4rem;
   padding-right: 4rem;
@@ -1164,13 +1168,11 @@ video {
   padding-top: 2rem;
   padding-bottom: 2rem;
 }
-.py-\[11px\] {
-  padding-top: 11px;
-  padding-bottom: 11px;
+.\!pl-\[18px\] {
+  padding-left: 18px !important;
 }
-.\!py-\[11px\] {
-  padding-top: 11px !important;
-  padding-bottom: 11px !important;
+.\!pr-\[6px\] {
+  padding-right: 6px !important;
 }
 .pb-2 {
   padding-bottom: 0.5rem;
@@ -1187,23 +1189,11 @@ video {
 .pl-4 {
   padding-left: 1rem;
 }
-.pl-\[18px\] {
-  padding-left: 18px;
-}
 .pr-10 {
   padding-right: 2.5rem;
 }
-.pr-\[6px\] {
-  padding-right: 6px;
-}
 .pt-6 {
   padding-top: 1.5rem;
-}
-.\!pl-\[18px\] {
-  padding-left: 18px !important;
-}
-.\!pr-\[6px\] {
-  padding-right: 6px !important;
 }
 .text-left {
   text-align: left;
