@@ -1,4 +1,4 @@
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js';
+import { initializeApp, getApps } from 'https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js';
 import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/11.2.0/firebase-auth.js';
 import { getFirestore } from 'https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js';
 import { callApi } from "../utils/apiCall.js";
@@ -14,7 +14,7 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
+const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
@@ -23,7 +23,7 @@ export { auth, db };
 onAuthStateChanged(auth, (user) => {
     //If already logged in and on login page, head to dashboard
     if (user) {
-        if (window.location.href.includes("/login/sign-in") && !localStorage.getItem("pendingRedirect")) {
+        if (window.location.href.includes("/login/sign-in") && !localStorage.getItem("creatingAccount")) {
             window.location.href = "../dashboard/dashboard.html";
         }
     } else {

@@ -1,4 +1,9 @@
-//Sign up functions ------------------------------------------------
+import { auth, db } from "../utils/auth.js";
+import { createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/11.2.0/firebase-auth.js';
+import { doc, setDoc } from 'https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js';
+import { manageLoader } from "../utils/loader.js";
+import { showToast, STATUS_COLOR } from "../utils/toasts.js";
+
 const createFName = document.getElementById("create-fname");
 const createLName = document.getElementById("create-lname");
 const createEmail = document.getElementById("create-email");
@@ -55,26 +60,31 @@ function createUserAccount() {
     }
 
     // Show loader then try to create account
-    loader.style = "";
-
+    manageLoader(true);
+    localStorage.setItem("creatingAccount", true);
     createUserWithEmailAndPassword(auth, createEmail.value.trim(), createPassword.value.trim())
         .then((userCredential) => {
             // Signed up 
             const user = userCredential.user;
 
-            //Upload user to database
-            set(ref_db(database, 'Users/' + user.uid), {
-                FirstName: createFName.value.trim(),
-                LastName: createLName.value.trim(),
-                Email: createEmail.value.trim(),
-                Role: "user",
+            // Upload user to database
+            setDoc(doc(db, "users", user.uid), {
+                name: createFName.value.trim() + " " + createLName.value.trim(),
+                email: createEmail.value.trim(),
+                role: "parent"
             }).then(() => {
-                //Successfully uploaded, head to dashboard
-                window.location.href = "../dashboard/dashboard-user.html";
+                // Successful upload, head to dashboard
+                localStorage.removeItem("creatingAccount");
+                window.location.href = "../dashboard/dashboard.html";
+            }).catch((error) => {
+                manageLoader(false);
+                console.log(error.code + ": " + error.message);
+                showToast("Account Creation Error", "There was an error while trying to create your account. Please try again.", STATUS_COLOR.RED, true, 10);
             });
         })
         .catch((error) => {
-            loader.style.display = "none";
+            manageLoader(false);
+            localStorage.removeItem("creatingAccount");
             console.log(error.code + ": " + error.message);
             showToast("Account Creation Error", "There was an error while trying to create your account. Please try again.", STATUS_COLOR.RED, true, 10);
         });
