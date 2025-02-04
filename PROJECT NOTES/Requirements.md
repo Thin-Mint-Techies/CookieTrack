@@ -24,3 +24,45 @@
 6. Preemtive ordering suggestions
     a. Fetch img and data of 3 most sold cookies each month, based on amount sold
     b. Update frontend
+
+//////////NEW REQUIREMENT//////////
+
+7. Documents: Financial aggreement
+
+8. Membership voucher
+
+9. Shirt and jacket size selection
+
+10. Parent cookies selections
+
+11. Submit orders (can be multiples) via https://docs.google.com/forms/d/e/1FAIpQLScf0nElJbi9kRmq9S_AEBpZeVQDKuuMmUmZ2QiEJcnbY7FubA/viewform
+
+12. Email confirmation to parents after they ordered
+
+13. Order from council (maybe not a req)
+
+14. Pull data from all orders combined in a certain range
+
+15. Booth management and recommendation: 
+    Cookie cases/Booth: will create an order
+    Booth cookies orders should be labled as it could be return to council
+
+16. Cookies picked up from council -> add to troop inventory
+
+17. Notify parents when cookies orders are ready to be pick up
+
+18. Issues receipt for pick up: this is orders
+    Condition: parent verified orders is correct
+    {
+        troopName:
+        troopNumber:
+        orderContent:
+        pickupDate: 
+        reveivedBy: 
+        receivedFrom:
+    }
+    
+
+
+
+

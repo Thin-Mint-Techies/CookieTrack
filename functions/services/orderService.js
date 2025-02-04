@@ -54,7 +54,6 @@ const deleteOrder = async (id) => {
 };
 
 //have not tested
-// this function check for login first
 const getUserOrders = async (userId) => {
   try {
     // Verify the Firebase ID token

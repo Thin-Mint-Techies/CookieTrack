@@ -2,70 +2,22 @@ const { Firestore } = require('../firebaseConfig');
 const notificationService = require('./notificationService');
 
 // Need to link to parent immediately, the parent or leader need to call this
-const createTrooperExp = async ({ name, email, assignedParent, saleData = [], contactDetail,rewardPoints }) => {
+const createTrooper = async ({ name, email, assignedParent, contactDetail }) => {
   try {
     const newTroopRef = Firestore.collection('troopers').doc();
+    const accessId = [assignedParent];
     const troopData = {
       name,
       email,
-      assignedParent, //need to be id
+      assignedParent, // uid of parent
+      accessId, // uid of parent
       contactDetail: {
         address: contactDetail?.address || null,
         phone: contactDetail?.phone || null
       },
     };
 
-    // optional fields
-    if (saleData.length > 0) {
-      troopData.saleData = saleData; // Array of objects containing "cookieNameAndID": "amountSold"
-    }
-    if (currentReward) {
-      troopData.currentReward = currentReward; // need to be id
-    }
-
     await newTroopRef.set(troopData);
-
-    // Need notification service to notify the parent
-    // Mabe in controller instead of here?
-    // Have not test
-    await notificationService.sendNotificationToUser(
-      assignedParent,
-      'New Trooper Assigned',
-      `You have been assigned a new trooper: ${name}`
-    );
-
-    return newTroopRef.id;
-  } catch (error) {
-    throw new Error(error, `Error creating troop: ${error.message}`);
-  }
-};
-
-const createTrooper = async ({ name, email, assignedParent, saleData = [], contactDetail,rewardPoints }) => {
-  try {
-    const newTroopRef = Firestore.collection('troopers').doc();
-    const troopData = {
-      name,
-      email,
-      assignedParent, //need to be id
-      contactDetail: {
-        address: contactDetail?.address || null,
-        phone: contactDetail?.phone || null
-      },
-    };
-
-    // optional fields
-    if (saleData.length > 0) {
-      troopData.saleData = saleData; // Array of objects containing "cookieNameAndID": "amountSold"
-    }
-    if (currentReward) {
-      troopData.currentReward = currentReward; // need to be id
-    }
-
-    await newTroopRef.set(troopData);
-
-    // Need notification service to notify the parent
-    // Mabe in controller instead of here?
-    // Have not test
     return newTroopRef.id;
   } catch (error) {
     throw new Error(error, `Error creating troop: ${error.message}`);
@@ -84,7 +36,7 @@ const getAllTroopers = async () => {
   } catch (error) {
     console.log("getAllTroopers Service", error);
     throw new Error(`Error fetching troops: ${error.message}`);
-    
+
   }
 };
 
@@ -142,65 +94,45 @@ const deleteTrooper = async (id) => {
   }
 };
 
-
-////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////
-
-
-// create an entire troop that link to the leader
-const createTroop = async ({ name, email, assignedParent, saleData = [], contactDetail,rewardPoints }) => {
+const addTrooperAccessId = async (troopId, accessId) => {
   try {
-    const newTroopRef = Firestore.collection('troops').doc();
-    await newTroopRef.set({
-      troopName,
-      leader, // need to be id
-      troopers: [],
-      totalSaleData: [], // get all data from the trooopers
-    });
-    return newTroopRef.id;
-  } catch (error) {
-    throw new Error(error, `Error creating troop: ${error.message}`);
-  }
-};
+    const troopRef = Firestore.collection('troopers').doc(troopId);
+    const troopDoc = await troopRef.get();
 
-
-// Read a troop by ID
-const getTroopById = async (id) => {
-  try {
-    const troopRef = Firestore.collection('troops').doc(id);
-    const doc = await troopRef.get();
-    if (!doc.exists) {
+    if (!troopDoc.exists) {
       throw new Error('Troop not found');
     }
-    return doc.data();
+
+    let { accessId: currentAccessIds } = troopDoc.data();
+
+    if (!currentAccessIds.includes(accessId)) {
+      currentAccessIds.push(accessId);
+    }
+
+    await troopRef.update({ accessId: currentAccessIds });
   } catch (error) {
-    throw new Error(`Error fetching troop: ${error.message}`);
+    throw new Error(`Error adding accessId: ${error.message}`);
   }
 };
 
-// Update a troop by ID
-const updateTroop = async (id, updateData) => {
+const deleteTrooperAccessId = async (troopId, accessId) => {
   try {
-    const troopRef = Firestore.collection('troops').doc(id);
-    await troopRef.update(updateData);
-    return { message: 'Troop updated successfully' };
+    const troopRef = Firestore.collection('troopers').doc(troopId);
+    const troopDoc = await troopRef.get();
+
+    if (!troopDoc.exists) {
+      throw new Error('Troop not found');
+    }
+
+    let { accessId: currentAccessIds } = troopDoc.data();
+    currentAccessIds = currentAccessIds.filter(id => id !== accessId);
+
+    await troopRef.update({ accessId: currentAccessIds });
   } catch (error) {
-    throw new Error(`Error updating troop: ${error.message}`);
+    throw new Error(`Error deleting accessId: ${error.message}`);
   }
 };
 
-// Delete a troop by ID
-const deleteTroop = async (id) => {
-  try {
-    const troopRef = Firestore.collection('troops').doc(id);
-    await troopRef.delete();
-    return { message: 'Troop deleted successfully' };
-  } catch (error) {
-    throw new Error(`Error deleting troop: ${error.message}`);
-  }
-};
 
 module.exports = {
   createTrooper,
@@ -209,9 +141,4 @@ module.exports = {
   updateTrooper,
   updateTrooperSales,
   deleteTrooper,
-  
-  createTroop,
-  getTroopById,
-  updateTroop,
-  deleteTroop,
 };

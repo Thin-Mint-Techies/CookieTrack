@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const trooperController = require('../controllers/trooperController');
-const { requireLogin, checkRole } = require('../utils/roleCheck');
+const { requireLogin, checkRole, checkUserOwnership } = require('../utils/roleCheck');
 
 
 
@@ -12,7 +12,7 @@ router.post('/trooper', trooperController.createTrooper);
     //requireLogin,
     //checkRole,
     //trooperController.createTroop2Controller);
-router.get('/troopers',checkRole('parent'), trooperController.getAllTroopers);
+router.get('/troopers',requireLogin, checkRole(['parent','leader']),checkUserOwnership(), trooperController.getAllTroopers);
 router.get('/trooper/:id', trooperController.getTrooperById);
 router.put('/trooper/:id', trooperController.updateTrooper);
 router.delete('/trooper/:id', trooperController.deleteTrooper);

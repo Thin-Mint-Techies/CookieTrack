@@ -13,7 +13,7 @@ const requireLogin = async (req, res, next) => {
   try {
     const decodedToken = await admin.auth().verifyIdToken(idToken); //verify the login token
     req.user = decodedToken;
-    console.log('decodedToken:', decodedToken);
+    //console.log('decodedToken:', decodedToken);
     next();
   } catch (error) {
     console.error('Error verifying Firebase ID token:', error);
@@ -52,24 +52,40 @@ const checkRole = (allowedRoles) => {
   };
 };
 
-
-
-//Only for field, not references
-const checkUserOwnership = (userIdParam = 'userId') => {
-  return (req, res, next) => {
+// use doc accessId array
+// have not test
+const checkUserOwnershipRef = (collectionName, docIdParam = 'id') => {
+  return async (req, res, next) => {
     const { uid } = req.user;
+    const docId = req.params[docIdParam] || req.body[docIdParam];
 
-    // remove xss if not needed or it's causing issues
-    const userIdFromRequest = xss(req.params[userIdParam] || req.body[userIdParam]);
-
-    if (!userIdFromRequest || uid !== userIdFromRequest) {
-      return res.status(403).json({ success: false, message: 'Permission denied. You can only access your own data.' });
+    if (!docId) {
+      return res.status(403).json({ success: false, message: 'Permission denied. Invalid document ID.' });
     }
-    next(); // Proceed to the next middleware or controller
+
+    try {
+      const doc = await Firestore.collection(collectionName).doc(docId).get();
+      if (!doc.exists) {
+        return res.status(403).json({ success: false, message: 'Permission denied. Document not found.' });
+      }
+
+      const docData = doc.data();
+      const accessIds = docData.accessId || [];
+
+      if (!accessIds.includes(uid)) {
+        return res.status(403).json({ success: false, message: 'Permission denied. You do not have access to this document.' });
+      }
+
+      next(); // Proceed to the next middleware or controller
+    } catch (error) {
+      console.error('Error checking document ownership:', error);
+      return res.status(500).json({ success: false, message: 'Internal server error.' });
+    }
   };
 };
 
-const checkUserOwnershipReference = (userIdParam = 'userId', itemType) => {
+// use user refId array
+const checkUserOwnership = (userIdParam = 'userId', itemType) => {
   return async (req, res, next) => {
     const { uid } = req.user;
     const itemIdFromRequest = xss(req.params[userIdParam] || req.body[userIdParam]);

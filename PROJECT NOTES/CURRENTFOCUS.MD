@@ -16,9 +16,9 @@
 
 10. OCR
 
-11. get troopers from user
+11. get all troopers belong to user
 
-12. get troops from leader
+12. get all squads belong to leader
 
 14. get total cookie sold from troop
 
@@ -31,16 +31,9 @@
 
 
 
-Priority:     
-    RoleCheck.js
-        checkOwnerShip
+Priority: 
+    get all troopers belong to user using id
+    checkOwnerShip
+        create a field in each doc with creatorId
+        (user, data): check for data.creatorId == user.id
 
-
-
-
-Information needed from Brandon: 
-1. preferred json format for each: user, trooper, reward, order, cookie
-2. how client is sending login, logout, register information
-3. Notification references, what trigger it
-4. Initial historical data archive
-5. Initial preemptive cookie data
