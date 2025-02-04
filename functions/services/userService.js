@@ -6,7 +6,7 @@ const auth = require('../firebaseConfig').auth;
 
 const registerUser = async ({ name, email, role, secretCode, password }) => {
   try {
-    // Validate role and secret code
+    // check for secret code for elevated roles
     if (role === 'leader' || role === 'manager') {
       if (secretCode !== SECRET_CODE) {
         throw new Error('Invalid secret code for elevated roles. Cannot create account');
@@ -19,7 +19,7 @@ const registerUser = async ({ name, email, role, secretCode, password }) => {
     const userRecord = await auth.createUser({ email, password });
     await auth.setCustomUserClaims(userRecord.uid, { role });
 
-    // Save user details in Firestore
+    // Save user details in Firestore, the docId is the uid of the user
     const newUserRef = Firestore.collection('users').doc(userRecord.uid);
     await newUserRef.set({
       name,

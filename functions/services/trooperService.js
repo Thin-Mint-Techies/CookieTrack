@@ -1,7 +1,7 @@
 const { Firestore } = require('../firebaseConfig');
 const notificationService = require('./notificationService');
+const admin = require('firebase-admin');
 
-// Need to link to parent immediately, the parent or leader need to call this
 const createTrooper = async ({ name, email, assignedParent, contactDetail }) => {
   try {
     const newTroopRef = Firestore.collection('troopers').doc();
@@ -18,6 +18,13 @@ const createTrooper = async ({ name, email, assignedParent, contactDetail }) => 
     };
 
     await newTroopRef.set(troopData);
+
+    // Update the user's trooperIds array
+    const userRef = Firestore.collection('users').doc(assignedParent);
+    await userRef.update({
+      trooperIds: admin.firestore.FieldValue.arrayUnion(newTroopRef.id)
+    });
+
     return newTroopRef.id;
   } catch (error) {
     throw new Error(error, `Error creating troop: ${error.message}`);

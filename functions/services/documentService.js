@@ -28,11 +28,11 @@ async function uploadFileToStorage(file) {
   }
 }
 
-// fetch specific documents based on the userId and document name
+// TODO: fetch specific documents based on the userId and document name
 
-// delete specific documents based on userId and document name
+// TODO: delete specific documents based on userId and document name
 
-async function fetchUserDocuments(userId){
+async function fetchUserDocuments(userId) {
   try {
     const bucket = storage.bucket(process.env.FIREBASE_STORAGE_BUCKET);
 

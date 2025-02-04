@@ -3,6 +3,7 @@ const { Firestore } = require('../firebaseConfig');
 const xss = require('xss');
 
 
+// Working, next will pass the req.user to the next middleware, token is decoded
 const requireLogin = async (req, res, next) => {
   const idToken = req.headers.authorization?.split('Bearer ')[1];
 
@@ -21,7 +22,6 @@ const requireLogin = async (req, res, next) => {
   }
 };
 
-
 //inital version of checkrole
 const checkRoleInit = (allowedRoles) => {
   return (req, res, next) => {
@@ -33,14 +33,8 @@ const checkRoleInit = (allowedRoles) => {
   };
 };
 
-//working
 const checkRole = (allowedRoles) => {
-  return async (req, res, next) => {
-
-    const idToken = req.headers.authorization?.split('Bearer ')[1];
-    const decodedToken = await admin.auth().verifyIdToken(idToken); 
-    req.user = decodedToken;
-
+  return (req, res, next) => {
     if (!req.user || !req.user.role) {
       return res.status(403).json({ status: false, message: 'Permission denied. No role found.' });
     }
@@ -52,9 +46,37 @@ const checkRole = (allowedRoles) => {
   };
 };
 
-// use doc accessId array
+//working
+/** 
+const checkRole = (allowedRoles) => {
+  return async (req, res, next) => {
+    // if there are no auth headers, return an error
+    if(!req.headers.authorization) {
+      return res.status(403).json({ status: false, message: 'No authorization header' });
+    }
+
+    // get the token from the header
+    const idToken = req.headers.authorization?.split('Bearer ')[1];
+    const decodedToken = await admin.auth().verifyIdToken(idToken); 
+    req.user = decodedToken;
+
+    // if there is no user or role, return an error
+    if (!req.user || !req.user.role) {
+      return res.status(403).json({ status: false, message: 'Permission denied. No role found.' });
+    }
+    const { role } = req.user;
+    if (!allowedRoles.includes(role)) {
+      return res.status(403).json({ status: false, message: 'Permission denied. Insufficient role.' });
+    }
+    next(); // Proceed to the next middleware or controller
+  };
+};
+*/
+
+
+// use doc accessId array, use for single document
 // have not test
-const checkUserOwnershipRef = (collectionName, docIdParam = 'id') => {
+const checkUserOwnership = (collectionName, docIdParam = 'id') => {
   return async (req, res, next) => {
     const { uid } = req.user;
     const docId = req.params[docIdParam] || req.body[docIdParam];
@@ -79,37 +101,6 @@ const checkUserOwnershipRef = (collectionName, docIdParam = 'id') => {
       next(); // Proceed to the next middleware or controller
     } catch (error) {
       console.error('Error checking document ownership:', error);
-      return res.status(500).json({ success: false, message: 'Internal server error.' });
-    }
-  };
-};
-
-// use user refId array
-const checkUserOwnership = (userIdParam = 'userId', itemType) => {
-  return async (req, res, next) => {
-    const { uid } = req.user;
-    const itemIdFromRequest = xss(req.params[userIdParam] || req.body[userIdParam]);
-
-    if (!itemIdFromRequest) {
-      return res.status(403).json({ success: false, message: 'Permission denied. Invalid item ID.' });
-    }
-
-    try {
-      const userDoc = await Firestore.collection('users').doc(uid).get();
-      if (!userDoc.exists) {
-        return res.status(403).json({ success: false, message: 'Permission denied. User not found.' });
-      }
-
-      const userData = userDoc.data();
-      const itemIds = userData[`${itemType}Ids`] || [];
-
-      if (!itemIds.includes(itemIdFromRequest)) {
-        return res.status(403).json({ success: false, message: `Permission denied. You do not own this ${itemType}.` });
-      }
-
-      next(); // Proceed to the next middleware or controller
-    } catch (error) {
-      console.error('Error checking user ownership:', error);
       return res.status(500).json({ success: false, message: 'Internal server error.' });
     }
   };

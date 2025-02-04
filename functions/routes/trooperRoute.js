@@ -12,8 +12,8 @@ router.post('/trooper', trooperController.createTrooper);
     //requireLogin,
     //checkRole,
     //trooperController.createTroop2Controller);
-router.get('/troopers',requireLogin, checkRole(['parent','leader']),checkUserOwnership(), trooperController.getAllTroopers);
-router.get('/trooper/:id', trooperController.getTrooperById);
+router.get('/troopers', trooperController.getAllTroopers);
+router.get('/trooper/:id',requireLogin, checkRole(['parent']),checkUserOwnership('troopers'), trooperController.getTrooperById);
 router.put('/trooper/:id', trooperController.updateTrooper);
 router.delete('/trooper/:id', trooperController.deleteTrooper);
 router.delete('/troopers', trooperController.deleteAllTroopers);

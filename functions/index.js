@@ -95,18 +95,22 @@ const initializeFirebase = async () => {
     process.exit(1); // Exit if Firebase initialization fails
   }
 
-  /* Use this to get a Bearer token for testing purposes
+  //Use this to get a Bearer token for testing purposes
+  
   // Create a custom token
+  /** 
   const uid = 'DDy2oZjpTUSVBLIVAPE7XnwBxJ52'; // Replace with the UID of the user you want to authenticate
-  const customToken = await admin.auth().createCustomToken(uid);
+  const uidAuthTest = 'w1BExPKXsLPn9VBXxLp9XSaFg6a2';
+  const customToken = await admin.auth().createCustomToken(uidAuthTest);
   // Exchange the custom token for an ID token
   const response = await axios.post(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=${process.env.COOKIETRACK_FIREBASE_API_KEY}`, {
     token: customToken,
     returnSecureToken: true
   });
-  const idToken = response.data.idToken;
-  console.log('Bearer Token:', idToken);
+  console.log('Bearer Token:', response.data.idToken);
   */
+  
+  
   
 
 };

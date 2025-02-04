@@ -18,7 +18,6 @@ const createSquad = async ({ squadName, creatorId, }) => {
     }
 };
 
-
 const getSquad = async (id) => {
     try {
         const squadRef = Firestore.collection('squad').doc(id);

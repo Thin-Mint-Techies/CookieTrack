@@ -54,7 +54,6 @@ const deleteCookie = async (id) => {
 };
 
 
-
 //Have not test
 const getMonthlyCookies = async () => {
   try {
@@ -79,8 +78,6 @@ const getMonthlyCookies = async () => {
     throw new Error(`Error fetching monthly cookies: ${error.message}`);
   }
 };
-
-
 
 //Have not test
 const updateMonthlySales = async () => {

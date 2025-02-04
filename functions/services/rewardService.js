@@ -52,31 +52,6 @@ const deleteReward = async (id) => {
   }
 };
 
-const createRewardManager = async (idToken, { title, pointsRequired }) => {
-  try {
-    // Verify Firebase ID token
-    const decodedToken = await auth.verifyIdToken(idToken);
-    const userRole = decodedToken.role;
-
-    // Check if the user is a manager
-    if (userRole !== 'manager') {
-      throw new Error('Unauthorized: Only managers can create rewards');
-    }
-
-    // Add the reward to Firestore
-    const newRewardRef = Firestore.collection('rewards').doc();
-    await newRewardRef.set({
-      title,
-      pointsRequired,
-      createdAt: new Date().toISOString(),
-    });
-
-    return newRewardRef.id;
-  } catch (error) {
-    throw new Error('Error creating reward: ' + error.message);
-  }
-};
-
 
 // Allow user to select a reward for a specific troop
 const selectRewardForTroop = async (idToken, troopId, rewardId) => {
@@ -129,6 +104,5 @@ module.exports = {
   getAllRewards,
   updateReward,
   deleteReward,
-  createRewardManager,
   selectRewardForTroop
 };
