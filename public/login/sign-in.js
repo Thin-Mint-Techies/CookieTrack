@@ -55,27 +55,18 @@ googleLoginBtn?.addEventListener('click', () => {
 
         //Save profile to database if new user, otherwise go to dashboard
         if (isNewUser) {
-            // The signed-in user info.
-            const user = result.user;
-            const email = user.email;
-            const displayName = user.displayName;
-
-            setDoc(doc(db, "users", user.uid), {
-                name: displayName,
-                email: email,
+            setDoc(doc(db, "users", result.user.uid), {
                 role: "parent"
             }).then(() => {
-                //Successful upload, head to dashboard
+                //Successful upload
                 localStorage.removeItem("creatingAccount");
-                window.location.href = "../dashboard/dashboard.html";
             }).catch((error) => {
                 console.log(error.code + ": " + error.message);
                 showToast("Unable to Sign In", "There was an error during account creation. Please try again.", STATUS_COLOR.RED, true, 6);
             });
         } else {
-            //Signed in, head to dashboard
+            //Signed in
             localStorage.removeItem("creatingAccount");
-            window.location.href = "../dashboard/dashboard.html"
         }
     }).catch((error) => {
         manageLoader(false);

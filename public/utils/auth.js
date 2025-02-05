@@ -18,14 +18,23 @@ const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-export { auth, db };
-
 onAuthStateChanged(auth, (user) => {
-    //If already logged in and on login page, head to dashboard
+    //If logged in and on login page, head to dashboard
     if (user) {
         if (window.location.href.includes("/login/sign-in") && !localStorage.getItem("creatingAccount")) {
             window.location.href = "../dashboard/dashboard.html";
         }
+
+        // Load user info into sidebars
+        let navUserName = document.getElementById("nav-username");
+        let navUserEmail = document.getElementById("nav-useremail");
+        let navUserPhoto = document.getElementById("nav-userphoto");
+        let navSmUserPhoto = document.getElementById("nav-sm-userphoto");
+
+        navUserName.textContent = user.displayName;
+        navUserEmail.textContent = user.email;
+        /* navUserPhoto.src = user.photoUrl;
+        navSmUserPhoto.src = user.photoUrl; */
     } else {
         if (!window.location.href.includes("/login/sign-in") && !window.location.href.includes("/login/sign-up")
             && !window.location.href.includes("/login/forgot-pass") && !window.location.href.includes("/login/terms")) {
@@ -50,9 +59,14 @@ onAuthStateChanged(auth, (user) => {
 }); */
 
 //Sign out functions ------------------------------------------------
-/* const signoutBtn = document.getElementById("sign-out");
+const navSignOut = document.getElementById("nav-signout");
+const navSmSignOut = document.getElementById("nav-sm-signout");
 
-signoutBtn?.addEventListener("click", () => {
+navSignOut?.addEventListener("click", () => {
+    signOutUser();
+});
+
+navSmSignOut?.addEventListener("click", () => {
     signOutUser();
 });
 
@@ -62,4 +76,6 @@ function signOutUser() {
     }).catch((error) => {
         showToast(error.code, error.message, STATUS_COLOR.RED, true, 10);
     });
-} */
+}
+
+export { auth, db };
