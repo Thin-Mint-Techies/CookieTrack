@@ -63,18 +63,39 @@ const squadDataFormat = {
 };
 
 const orderDataFormat = {
-    buyer: '',
-    seller: '',
+    troopName: '',
+    troopNumber: '',
+    dateCreated: '',
+    SU: '',
+    orderContent: [
+        {
+            type: "",
+            cases: 0,
+            packages: 0,
+        },
+        {
+            totalMoney: 0,
+            owe: 0,
+            totalPackages: 0,
+            totalCases: 0,
+        }
+    ],
+    pickupDetails:[
+        {
+            receivedBy: '',
+            troopNumber:'',
+        },
+        {
+            receivedFrom: '',
+            troopNumber:'',
+        }
+    ],
     accessId:[],
-    descriptions: [], // address, delivery, etc...
-    totalPayment: 0,
-    amountOfCookies: 0,
-    cookies: [] // Array of objects containing "cookieNameAndID": "amountSold"
 };
 
 const saleDataformat = {
     accessId:[],
-    cookieNameAndID: [],
+    orderId: [],
     amountSold: 0
 };
 
