@@ -19,6 +19,9 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 onAuthStateChanged(auth, (user) => {
+    //Send out a doc event to trigger other functions when auth is ready
+    document.dispatchEvent(new CustomEvent("authStateReady", {detail: user}));
+    
     //If logged in and on login page, head to dashboard
     if (user) {
         if (window.location.href.includes("/login/sign-in") && !localStorage.getItem("creatingAccount")) {
@@ -31,10 +34,10 @@ onAuthStateChanged(auth, (user) => {
         let navUserPhoto = document.getElementById("nav-userphoto");
         let navSmUserPhoto = document.getElementById("nav-sm-userphoto");
 
-        navUserName.textContent = user.displayName;
-        navUserEmail.textContent = user.email;
-        /* navUserPhoto.src = user.photoUrl;
-        navSmUserPhoto.src = user.photoUrl; */
+        if (navUserName) navUserName.textContent = user.displayName;
+        if (navUserEmail) navUserEmail.textContent = user.email;
+        /* if (navUserPhoto) navUserPhoto.src = user.photoUrl;
+        if (navSmUserPhoto) navSmUserPhoto.src = user.photoUrl; */
     } else {
         if (!window.location.href.includes("/login/sign-in") && !window.location.href.includes("/login/sign-up")
             && !window.location.href.includes("/login/forgot-pass") && !window.location.href.includes("/login/terms")) {

@@ -116,8 +116,8 @@
                                 <img id="nav-userphoto" src="/public/resources/images/avatar.png" alt="Profile picture"
                                     class="w-9 h-9 rounded-full border-2 border-black shrink-0" />
                                 <div class="ml-4">
-                                    <p id="nav-username" class="text-sm text-black whitespace-nowrap">John Doe</p>
-                                    <p id="nav-useremail" class="text-xs text-black whitespace-nowrap">johndoe@gmail.com
+                                    <p id="nav-username" class="text-sm text-black whitespace-nowrap">Username</p>
+                                    <p id="nav-useremail" class="text-xs text-black whitespace-nowrap">User Email
                                     </p>
                                 </div>
                             </a>
@@ -207,7 +207,7 @@
 
             <section class="main-content w-full p-6">
                 <div>
-                    <div class="flex items-center flex-wrap gap-6">
+                    <div class="flex items-center flex-wrap gap-6 max-lg:ml-3">
                         <div>
                             <h3 class="text-lg font-semibold text-green">
                                 Your Account
@@ -222,7 +222,7 @@
                     <div class="bg-white max-w-7xl shadow-default mx-auto rounded-default overflow-hidden mb-8">
                         <div class="bg-green h-32 w-full">
                             <div class="relative top-[45px] m-auto h-40 w-40 rounded-full shadow-default">
-                                <img src="/public/resources/images/avatar.png"
+                                <img id="user-photo" src="/public/resources/images/avatar.png"
                                     class="w-full h-full rounded-full object-contain border-2 border-white bg-white"
                                     alt="Profile Picture" />
                             </div>
@@ -259,7 +259,7 @@
                             </div>
                             <div>
                                 <label class="text-base text-black mb-2 block">Upload New Profile Picture</label>
-                                <input id="user-photo" type="file" accept=".png,.jpeg,.svg,.webp,.gif"
+                                <input id="user-upload-photo" type="file" accept=".png,.jpeg,.svg,.webp,.gif"
                                     class="bg-white border border-gray w-full text-base text-black cursor-pointer file:border-0 file:py-3 file:px-4 file:mr-4 file:bg-gray file:hover:bg-off-white file:text-black file:font-sans rounded accent-green" />
                                 <p class="text-xs text-orange mt-2">Only PNG, JPG, SVG, WEBP, and GIF are Allowed.</p>
                             </div>
