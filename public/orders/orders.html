@@ -15,7 +15,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/public/resources/pwa/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/public/resources/pwa/favicon-16x16.png">
     <link rel="manifest" href="/public/resources/pwa/site.webmanifest">
-    <script type="module" src="../utils/hideDoc.js"></script>
+
     <script type="module" src="../utils/auth.js"></script>
 </head>
 
@@ -103,15 +103,22 @@
                                         Settings
                                     </a>
                                 </li>
-                                <SignOut />
+                                <li>
+                                    <button id="nav-signout"
+                                        class="w-full gap-1 text-black text-lg flex items-center cursor-pointer hover:bg-green-light rounded-default px-3 py-2.5 transition-all duration-300">
+                                        <i class="fa-solid fa-right-from-bracket -ml-1"></i>
+                                        Sign Out
+                                    </button>
+                                </li>
                             </ul>
                             <a href="/public/user/account.html"
                                 class="mt-2 flex items-center cursor-pointer hover:bg-green-light rounded-default px-3 py-2.5 transition-all duration-300">
-                                <img src="/public/resources/images/avatar.png" alt="Profile picture"
+                                <img id="nav-userphoto" src="/public/resources/images/avatar.png" alt="Profile picture"
                                     class="w-9 h-9 rounded-full border-2 border-black shrink-0" />
                                 <div class="ml-4">
-                                    <p class="text-sm text-black whitespace-nowrap">John Doe</p>
-                                    <p class="text-xs text-black whitespace-nowrap">johndoe@gmail.com</p>
+                                    <p id="nav-username" class="text-sm text-black whitespace-nowrap">Username</p>
+                                    <p id="nav-useremail" class="text-xs text-black whitespace-nowrap">User Email
+                                    </p>
                                 </div>
                             </a>
                         </div>
@@ -176,11 +183,17 @@
                                         <i class="fa-solid fa-gear"></i>
                                     </a>
                                 </li>
+                                <li>
+                                    <button id="nav-sm-signout"
+                                        class="w-full gap-1 text-black text-lg flex items-center cursor-pointer hover:bg-green-light rounded-default px-3 py-2.5 transition-all duration-300">
+                                        <i class="fa-solid fa-right-from-bracket"></i>
+                                    </button>
+                                </li>
                             </ul>
                             <a href="/public/user/account.html"
                                 class="mt-2 py-1 flex items-center justify-center cursor-pointer hover:bg-green-light rounded-default transition-all duration-300">
-                                <img src="/public/resources/images/avatar.png" alt="Profile picture"
-                                    class="w-9 h-9 rounded-full border-2 border-black shrink-0" />
+                                <img id="nav-sm-userphoto" src="/public/resources/images/avatar.png"
+                                    alt="Profile picture" class="w-9 h-9 rounded-full border-2 border-black shrink-0" />
                             </a>
                         </div>
                     </div>
@@ -194,7 +207,7 @@
 
             <section class="main-content w-full p-6">
                 <div>
-                    <div class="flex items-center flex-wrap gap-6">
+                    <div class="flex items-center flex-wrap gap-6 max-lg:ml-3">
                         <div>
                             <h3 class="text-lg font-semibold text-green">
                                 Orders
@@ -362,7 +375,7 @@
                                     <th>Name</th>
                                     <th>Phone</th>
                                     <th>Address</th>
-                                    <th>Order Total</th>                                    
+                                    <th>Order Total</th>
                                     <th>Thin Mints</th>
                                     <th>Box Count</th>
                                 </tr>
@@ -399,7 +412,7 @@
                                     </td>
                                 </tr>
                             </tbody>
-                        </table>           
+                        </table>
                     </div>
                     <div class="flex justify-end mt-2">
                         <button id="upload-files" type="button"

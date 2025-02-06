@@ -15,7 +15,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/public/resources/pwa/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/public/resources/pwa/favicon-16x16.png">
     <link rel="manifest" href="/public/resources/pwa/site.webmanifest">
-    <script type="module" src="../utils/hideDoc.js"></script>
+
     <script type="module" src="../utils/auth.js"></script>
 </head>
 
@@ -103,15 +103,22 @@
                                         Settings
                                     </a>
                                 </li>
-                                <SignOut />
+                                <li>
+                                    <button id="nav-signout"
+                                        class="w-full gap-1 text-black text-lg flex items-center cursor-pointer hover:bg-green-light rounded-default px-3 py-2.5 transition-all duration-300">
+                                        <i class="fa-solid fa-right-from-bracket -ml-1"></i>
+                                        Sign Out
+                                    </button>
+                                </li>
                             </ul>
                             <a href="/public/user/account.html"
                                 class="mt-2 flex items-center cursor-pointer hover:bg-green-light rounded-default px-3 py-2.5 transition-all duration-300">
-                                <img src="/public/resources/images/avatar.png" alt="Profile picture"
+                                <img id="nav-userphoto" src="/public/resources/images/avatar.png" alt="Profile picture"
                                     class="w-9 h-9 rounded-full border-2 border-black shrink-0" />
                                 <div class="ml-4">
-                                    <p class="text-sm text-black whitespace-nowrap">John Doe</p>
-                                    <p class="text-xs text-black whitespace-nowrap">johndoe@gmail.com</p>
+                                    <p id="nav-username" class="text-sm text-black whitespace-nowrap">Username</p>
+                                    <p id="nav-useremail" class="text-xs text-black whitespace-nowrap">User Email
+                                    </p>
                                 </div>
                             </a>
                         </div>
@@ -176,11 +183,17 @@
                                         <i class="fa-solid fa-gear"></i>
                                     </a>
                                 </li>
+                                <li>
+                                    <button id="nav-sm-signout"
+                                        class="w-full gap-1 text-black text-lg flex items-center cursor-pointer hover:bg-green-light rounded-default px-3 py-2.5 transition-all duration-300">
+                                        <i class="fa-solid fa-right-from-bracket"></i>
+                                    </button>
+                                </li>
                             </ul>
                             <a href="/public/user/account.html"
                                 class="mt-2 py-1 flex items-center justify-center cursor-pointer hover:bg-green-light rounded-default transition-all duration-300">
-                                <img src="/public/resources/images/avatar.png" alt="Profile picture"
-                                    class="w-9 h-9 rounded-full border-2 border-black shrink-0" />
+                                <img id="nav-sm-userphoto" src="/public/resources/images/avatar.png"
+                                    alt="Profile picture" class="w-9 h-9 rounded-full border-2 border-black shrink-0" />
                             </a>
                         </div>
                     </div>
@@ -194,7 +207,7 @@
 
             <section class="main-content w-full p-6">
                 <div>
-                    <div class="flex items-center flex-wrap gap-6">
+                    <div class="flex items-center flex-wrap gap-6 max-lg:ml-3">
                         <div>
                             <h3 class="text-lg font-semibold text-green">
                                 Your Account
@@ -207,11 +220,11 @@
                 </div>
                 <div class="mt-12 mb-6 px-2">
                     <div class="bg-white max-w-7xl shadow-default mx-auto rounded-default overflow-hidden mb-8">
-                        <div class="bg-green h-48 w-full">
-                            <div class="relative top-[105px] m-auto h-40 w-40 rounded-full shadow-default">
-                                <img src="/public/resources/images/avatar.png"
+                        <div class="bg-green h-32 w-full">
+                            <div class="relative top-[45px] m-auto h-40 w-40 rounded-full shadow-default">
+                                <img id="user-photo" src="/public/resources/images/avatar.png"
                                     class="w-full h-full rounded-full object-contain border-2 border-white bg-white"
-                                    alt="Monthly Cookie" />
+                                    alt="Profile Picture" />
                             </div>
                         </div>
 
@@ -220,7 +233,7 @@
                             <div>
                                 <label class="text-black text-base mb-2 block">First Name</label>
                                 <div class="relative flex items-center">
-                                    <input id="create-fname" name="fname" type="text" required
+                                    <input id="user-fname" name="fname" type="text" required
                                         class="bg-white border border-gray w-full text-base text-black pl-4 pr-10 py-2.5 rounded-default accent-green"
                                         placeholder="Enter your first name" />
                                     <i class="fa-solid fa-user w-[18px] h-[18px] absolute right-4"></i>
@@ -229,7 +242,7 @@
                             <div>
                                 <label class="text-black text-base mb-2 block">Last Name</label>
                                 <div class="relative flex items-center">
-                                    <input id="create-lname" name="lname" type="text" required
+                                    <input id="user-lname" name="lname" type="text" required
                                         class="bg-white border border-gray w-full text-base text-black pl-4 pr-10 py-2.5 rounded-default accent-green"
                                         placeholder="Enter your last name" />
                                     <i class="fa-solid fa-user w-[18px] h-[18px] absolute right-4"></i>
@@ -238,7 +251,7 @@
                             <div>
                                 <label class="text-black text-base mb-2 block">Email Address</label>
                                 <div class="relative flex items-center">
-                                    <input id="create-email" name="email" type="email" required
+                                    <input id="user-email" name="email" type="email" required
                                         class="bg-white border border-gray w-full text-base text-black pl-4 pr-10 py-2.5 rounded-default accent-green"
                                         placeholder="Enter your email address" />
                                     <i class="fa-solid fa-envelope w-[18px] h-[18px] absolute right-4"></i>
@@ -246,7 +259,7 @@
                             </div>
                             <div>
                                 <label class="text-base text-black mb-2 block">Upload New Profile Picture</label>
-                                <input type="file" accept=".png,.jpeg,.svg,.webp,.gif"
+                                <input id="user-upload-photo" type="file" accept=".png,.jpeg,.svg,.webp,.gif"
                                     class="bg-white border border-gray w-full text-base text-black cursor-pointer file:border-0 file:py-3 file:px-4 file:mr-4 file:bg-gray file:hover:bg-off-white file:text-black file:font-sans rounded accent-green" />
                                 <p class="text-xs text-orange mt-2">Only PNG, JPG, SVG, WEBP, and GIF are Allowed.</p>
                             </div>
@@ -265,6 +278,7 @@
     </div>
 
     <script src="../utils/sidebarNav.js"></script>
+    <script type="module" src="./account.js"></script>
 </body>
 
 </html>

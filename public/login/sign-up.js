@@ -1,5 +1,5 @@
 import { auth, db } from "../utils/auth.js";
-import { createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/11.2.0/firebase-auth.js';
+import { createUserWithEmailAndPassword, updateProfile } from 'https://www.gstatic.com/firebasejs/11.2.0/firebase-auth.js';
 import { doc, setDoc } from 'https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js';
 import { manageLoader } from "../utils/loader.js";
 import { showToast, STATUS_COLOR } from "../utils/toasts.js";
@@ -66,16 +66,21 @@ function createUserAccount() {
         .then((userCredential) => {
             // Signed up 
             const user = userCredential.user;
-
-            // Upload user to database
-            setDoc(doc(db, "users", user.uid), {
-                name: createFName.value.trim() + " " + createLName.value.trim(),
-                email: createEmail.value.trim(),
-                role: "parent"
+            // Update profile with name and photo?
+            updateProfile(userCredential.user, {
+                displayName: createFName.value.trim() + " " + createLName.value.trim()
             }).then(() => {
-                // Successful upload, head to dashboard
-                localStorage.removeItem("creatingAccount");
-                window.location.href = "../dashboard/dashboard.html";
+                // Upload user role to database
+                setDoc(doc(db, "users", user.uid), {
+                    role: "parent"
+                }).then(() => {
+                    // Successful upload
+                    localStorage.removeItem("creatingAccount");
+                }).catch((error) => {
+                    manageLoader(false);
+                    console.log(error.code + ": " + error.message);
+                    showToast("Account Creation Error", "There was an error while trying to create your account. Please try again.", STATUS_COLOR.RED, true, 10);
+                });
             }).catch((error) => {
                 manageLoader(false);
                 console.log(error.code + ": " + error.message);
