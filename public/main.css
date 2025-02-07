@@ -1051,10 +1051,6 @@ video {
   --tw-border-opacity: 1;
   border-top-color: rgb(235 86 0 / var(--tw-border-opacity));
 }
-.bg-blue-600 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(37 99 235 / var(--tw-bg-opacity));
-}
 .bg-gray {
   --tw-bg-opacity: 1;
   background-color: rgb(209 213 219 / var(--tw-bg-opacity));
@@ -1307,14 +1303,6 @@ video {
   --tw-text-opacity: 1;
   color: rgb(52 52 52 / var(--tw-text-opacity));
 }
-.text-blue-500 {
-  --tw-text-opacity: 1;
-  color: rgb(59 130 246 / var(--tw-text-opacity));
-}
-.text-blue-600 {
-  --tw-text-opacity: 1;
-  color: rgb(37 99 235 / var(--tw-text-opacity));
-}
 .text-green {
   --tw-text-opacity: 1;
   color: rgb(26 153 136 / var(--tw-text-opacity));
@@ -1334,6 +1322,10 @@ video {
 .text-white {
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity));
+}
+.text-blue {
+  --tw-text-opacity: 1;
+  color: rgb(26 106 153 / var(--tw-text-opacity));
 }
 .underline {
   text-decoration-line: underline;
@@ -1596,11 +1588,6 @@ h2>i {
   background-color: rgb(209 213 219 / var(--tw-bg-opacity));
 }
 
-.hover\:bg-blue-700:hover {
-  --tw-bg-opacity: 1;
-  background-color: rgb(29 78 216 / var(--tw-bg-opacity));
-}
-
 .hover\:bg-green-light:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(72 173 160 / var(--tw-bg-opacity));
@@ -1614,11 +1601,6 @@ h2>i {
 .hover\:bg-orange-light:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(239 120 51 / var(--tw-bg-opacity));
-}
-
-.hover\:text-blue-700:hover {
-  --tw-text-opacity: 1;
-  color: rgb(29 78 216 / var(--tw-text-opacity));
 }
 
 .hover\:text-green:hover {
@@ -1636,6 +1618,16 @@ h2>i {
   color: rgb(217 217 217 / var(--tw-text-opacity));
 }
 
+.hover\:text-red-light:hover {
+  --tw-text-opacity: 1;
+  color: rgb(226 119 119 / var(--tw-text-opacity));
+}
+
+.hover\:text-blue-light:hover {
+  --tw-text-opacity: 1;
+  color: rgb(95 151 184 / var(--tw-text-opacity));
+}
+
 .hover\:underline:hover {
   text-decoration-line: underline;
 }
@@ -1648,11 +1640,6 @@ h2>i {
 .focus\:ring-orange:focus {
   --tw-ring-opacity: 1;
   --tw-ring-color: rgb(235 86 0 / var(--tw-ring-opacity));
-}
-
-.active\:bg-blue-600:active {
-  --tw-bg-opacity: 1;
-  background-color: rgb(37 99 235 / var(--tw-bg-opacity));
 }
 
 .group:hover .group-hover\:pointer-events-auto {
