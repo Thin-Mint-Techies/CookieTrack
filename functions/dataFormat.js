@@ -18,8 +18,16 @@ const userDataFormat = { // for this, attach a 'role' custom claim to the uid wh
         address: null,
         phone: null
     },
-    trooperIds: [], // Array of trooper IDs
-    parents: [] // Only for leaders, array of parent IDs
+    troopers: [
+        {
+            trooperId: "",
+            name: "",
+        },
+    ], // Array of troopers under user
+    documents:[{}], // Array of document under user
+    orders:[{}], // Array of orders under user
+    parents: [{}], // Only for leaders, array of parent IDs
+    squads:[],// Only for leaders and manager
 };
 
 const rewardDataFormat = {
@@ -45,7 +53,8 @@ const trooperDataFormat = {
     email: '',
     assignedParent: '',
     accessId: [], // Array of access IDs
-    saleData: [], // Array of objects containing "cookieNameAndID": "amountSold"
+    orders:[{}],
+    saleData: [{}], // Array of objects containing "cookieNameAndID": "amountSold"
     contactDetail: {
         address: null,
         phone: null
@@ -58,13 +67,19 @@ const squadDataFormat = {
     squadName: '',
     creatorId: '',
     accessId: [], // Array of access IDs
-    troopersId: [], // Array of trooper IDs
-    totalSaleData: [] // Array of objects containing "cookieNameAndID": "amountSold"
+    troopers: [
+        {
+            trooperId: "",
+            name: "",
+        },
+    ], // Array of trooper IDs
+    totalSaleData: [] 
 };
 
 const orderDataFormat = {
     troopName: '',
     troopNumber: '',
+    ownerId:'',
     dateCreated: '',
     SU: '',
     orderContent: [

@@ -6,9 +6,14 @@
     Orders: Troopers
     Documents: Orders
 
-2. Notification service (check with frontend)
+16. get user orders
 
-5. Create a troops CRUD, consist of troopers (Leader/Manager)
+14. get total cookie sold from troop
+    need to make a util function for calculation
+
+15. get trooper sale data
+
+2. Notification service, send via email or phone (check with frontend)
 
 8. Premptive order suggestion 
 
@@ -16,24 +21,10 @@
 
 10. OCR
 
-11. get all troopers belong to user
-
-12. get all squads belong to leader
-
-14. get total cookie sold from troop
-
-15. get trooper sale data
-
-16. get user orders
-
-17. CRUD documents
-
-
-
 
 Priority: 
-    get all troopers belong to user using id
-    checkOwnerShip
-        create a field in each doc with creatorId
-        (user, data): check for data.creatorId == user.id
+    orderService rework
+    saleDataService
+    double check everything for data consistency
+
 

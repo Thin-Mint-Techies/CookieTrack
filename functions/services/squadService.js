@@ -51,6 +51,22 @@ const deleteSquad = async (id) => {
     }
 };
 
+const getSquadsByLeaderId = async (leaderId) => {
+    try {
+        const snapshot = await Firestore.collection('squad').where('creatorId', '==', leaderId).get();
+        if (snapshot.empty) {
+            throw new Error('No squads found for this leader');
+        }
+        const squads = [];
+        snapshot.forEach(doc => {
+            squads.push({ id: doc.id, ...doc.data() });
+        });
+        return squads;
+    } catch (error) {
+        throw new Error(`Error fetching squads: ${error.message}`);
+    }
+};
+
 module.exports = {
     createSquad,
     getSquad,

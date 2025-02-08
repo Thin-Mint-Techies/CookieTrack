@@ -141,6 +141,24 @@ const deleteTrooperAccessId = async (troopId, accessId) => {
 };
 
 
+
+const getTroopersByAssignedParent = async (userId) => {
+  try {
+    // Query the troopers collection where assignedParent matches the userId
+    const snapshot = await Firestore.collection('troopers').where('assignedParent', '==', userId).get();
+    if (snapshot.empty) {
+      throw new Error('No troopers found for the given user ID');
+    }
+
+    // Map the fetched documents to an array of trooper data
+    const troopers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+    return troopers;
+  } catch (error) {
+    throw new Error(`Error fetching troopers by assigned parent: ${error.message}`);
+  }
+};
+
 module.exports = {
   createTrooper,
   getAllTroopers,
@@ -148,4 +166,7 @@ module.exports = {
   updateTrooper,
   updateTrooperSales,
   deleteTrooper,
+  addTrooperAccessId,
+  deleteTrooperAccessId,
+  getTroopersByAssignedParent,
 };

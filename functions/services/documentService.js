@@ -1,12 +1,11 @@
-const { storage } = require('../firebaseConfig'); // Import Firebase config
+const { storage, Firestore } = require('../firebaseConfig'); // Import Firebase config
 
-
-//TODO: Create a folder based on user id, create a folder call documents inside this folder, 
-// then push the file into it, return the Url or name 
-async function uploadFileToStorage(file) {
+// Create a document
+async function createDoc(file, userId) {
   try {
     const bucket = storage.bucket(process.env.FIREBASE_STORAGE_BUCKET);
-    const fileRef = bucket.file(file.originalname);
+    const filePath = `users/${userId}/documents/${file.originalname}`;
+    const fileRef = bucket.file(filePath);
 
     // Save the file buffer to the bucket
     await fileRef.save(file.buffer);
@@ -21,6 +20,16 @@ async function uploadFileToStorage(file) {
       expires: expirationDate,
     });
 
+    // Update the user's document field in Firestore
+    const userRef = Firestore.collection('users').doc(userId);
+    await userRef.update({
+      documents: Firestore.FieldValue.arrayUnion({
+        name: file.originalname,
+        url: downloadURL,
+        owner: userId,
+      }),
+    });
+
     return downloadURL;
   } catch (error) {
     console.error('Error uploading file:', error);
@@ -28,16 +37,13 @@ async function uploadFileToStorage(file) {
   }
 }
 
-// TODO: fetch specific documents based on the userId and document name
-
-// TODO: delete specific documents based on userId and document name
-
-async function fetchUserDocuments(userId) {
+// Fetch specific documents based on the userId
+async function fetchUserDoc(userId) {
   try {
     const bucket = storage.bucket(process.env.FIREBASE_STORAGE_BUCKET);
 
     // List all files in the user's directory
-    const [files] = await bucket.getFiles({ prefix: `users/${userId}/` });
+    const [files] = await bucket.getFiles({ prefix: `users/${userId}/documents/` });
 
     // Check if there are any files
     if (!files.length) {
@@ -64,7 +70,74 @@ async function fetchUserDocuments(userId) {
   }
 }
 
+// Update a document's metadata or content
+async function updateDoc(userId, oldFileName, newFile) {
+  try {
+    const bucket = storage.bucket(process.env.FIREBASE_STORAGE_BUCKET);
+    const oldFileRef = bucket.file(`users/${userId}/documents/${oldFileName}`);
+    const newFileRef = bucket.file(`users/${userId}/documents/${newFile.originalname}`);
+
+    // Delete the old file
+    await oldFileRef.delete();
+
+    // Save the new file buffer to the bucket
+    await newFileRef.save(newFile.buffer);
+
+    // Generate an expiration date for the signed URL (1 week from now)
+    const expirationDate = new Date();
+    expirationDate.setDate(expirationDate.getDate() + 7); // Set expiration to 7 days in the future
+
+    // Generate a signed URL for downloading the new file
+    const [downloadURL] = await newFileRef.getSignedUrl({
+      action: 'read',
+      expires: expirationDate,
+    });
+
+    // Update the user's document field in Firestore
+    const userRef = Firestore.collection('users').doc(userId);
+    await userRef.update({
+      documents: Firestore.FieldValue.arrayRemove({ name: oldFileName }),
+    });
+    await userRef.update({
+      documents: Firestore.FieldValue.arrayUnion({
+        name: newFile.originalname,
+        url: downloadURL,
+        owner: userId,
+      }),
+    });
+
+    return downloadURL;
+  } catch (error) {
+    console.error('Error updating document:', error);
+    throw error;
+  }
+}
+
+// Delete a document
+async function deleteDoc(userId, fileName) {
+  try {
+    const bucket = storage.bucket(process.env.FIREBASE_STORAGE_BUCKET);
+    const fileRef = bucket.file(`users/${userId}/documents/${fileName}`);
+
+    // Delete the file from the bucket
+    await fileRef.delete();
+
+    // Update the user's document field in Firestore
+    const userRef = Firestore.collection('users').doc(userId);
+    await userRef.update({
+      documents: Firestore.FieldValue.arrayRemove({ name: fileName }),
+    });
+
+    return { message: 'Document deleted successfully' };
+  } catch (error) {
+    console.error('Error deleting document:', error);
+    throw error;
+  }
+}
+
 module.exports = {
-  uploadFileToStorage,
-  fetchUserDocuments,
+  createDoc,
+  fetchUserDoc,
+  updateDoc,
+  deleteDoc,
 };
