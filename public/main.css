@@ -1303,6 +1303,10 @@ video {
   --tw-text-opacity: 1;
   color: rgb(52 52 52 / var(--tw-text-opacity));
 }
+.text-blue {
+  --tw-text-opacity: 1;
+  color: rgb(26 106 153 / var(--tw-text-opacity));
+}
 .text-green {
   --tw-text-opacity: 1;
   color: rgb(26 153 136 / var(--tw-text-opacity));
@@ -1322,10 +1326,6 @@ video {
 .text-white {
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity));
-}
-.text-blue {
-  --tw-text-opacity: 1;
-  color: rgb(26 106 153 / var(--tw-text-opacity));
 }
 .underline {
   text-decoration-line: underline;
@@ -1403,7 +1403,6 @@ nav button>i {
 h2>i {
     margin-right: 10px;
 }
-
 /*#endregion GENERAL CSS*/
 
 /*#region NOTIFICATION TOAST*/
@@ -1603,6 +1602,11 @@ h2>i {
   background-color: rgb(239 120 51 / var(--tw-bg-opacity));
 }
 
+.hover\:text-blue-light:hover {
+  --tw-text-opacity: 1;
+  color: rgb(95 151 184 / var(--tw-text-opacity));
+}
+
 .hover\:text-green:hover {
   --tw-text-opacity: 1;
   color: rgb(26 153 136 / var(--tw-text-opacity));
@@ -1621,11 +1625,6 @@ h2>i {
 .hover\:text-red-light:hover {
   --tw-text-opacity: 1;
   color: rgb(226 119 119 / var(--tw-text-opacity));
-}
-
-.hover\:text-blue-light:hover {
-  --tw-text-opacity: 1;
-  color: rgb(95 151 184 / var(--tw-text-opacity));
 }
 
 .hover\:underline:hover {
