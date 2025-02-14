@@ -282,43 +282,32 @@
                                         Upload your order documents
                                     </p>
                                 </div>
-                                <i id="upload-files-close" class="fa-solid fa-xmark text-xl text-black hover:text-black-light shrink-0 ml-2 w-3 cursor-pointer"></i>
+                                <i id="upload-files-close"
+                                    class="fa-solid fa-xmark text-xl text-black hover:text-black-light shrink-0 ml-2 w-3 cursor-pointer"></i>
                             </div>
                             <div class="rounded-default border-2 border-gray border-dashed mt-6">
                                 <div
                                     class="p-4 min-h-[180px] flex flex-col items-center justify-center text-center cursor-pointer">
-                                    <i class="fa-solid fa-cloud-arrow-up w-10 mb-4 text-black text-4xl inline-block"></i>
+                                    <i
+                                        class="fa-solid fa-cloud-arrow-up w-10 mb-4 text-black text-4xl inline-block"></i>
                                     <h4 class="text-sm text-black">
                                         Drag &amp; Drop or
-                                        <label htmlFor="chooseFile" class="text-green cursor-pointer">
+                                        <label for="upload-files-input" class="text-green cursor-pointer">
                                             Choose file
                                         </label>
                                         to upload
                                     </h4>
-                                    <input type="file" id="chooseFile" class="hidden" />
+                                    <input type="file" id="upload-files-input" multiple class="hidden" />
                                 </div>
                             </div>
-                            <div class="flex flex-col bg-gray-50 p-4 rounded-lg mt-4">
-                                <div class="flex">
-                                    <p class="text-xs text-black flex-1">
-                                        <i class="fa-solid fa-file-lines w-5 mr-2 inline-block text-lg"></i>
-                                        document.file <span class="ml-2">1.5 mb</span>
-                                    </p>
-                                    <i class="fa-solid fa-xmark text-xl text-black hover:text-black-light shrink-0 w-3 cursor-pointer"></i>
-                                </div>
-                                <div class="bg-black rounded-full w-full h-2 my-2">
-                                    <div class="w-1/3 h-full rounded-full bg-green flex items-center relative">
-                                        <span class="absolute text-xs right-0 bg-white w-2 h-2 rounded-full"></span>
-                                    </div>
-                                </div>
-                                <p class="text-xs text-green flex-1">35% done</p>
+                            <div id="upload-files-prog-list">
                             </div>
                             <div class="border-t border-gray pt-6 flex justify-between gap-4 mt-6">
-                                <button type="button"
+                                <button id="upload-files-cancel" type="button"
                                     class="w-full px-4 py-2 rounded-default text-black text-sm border-none outline-none tracking-wide bg-white hover:bg-gray">
                                     Cancel
                                 </button>
-                                <button type="button"
+                                <button id="upload-files-submit" type="button"
                                     class="w-full px-4 py-2 rounded-default text-white text-sm border-none outline-none tracking-wide bg-green hover:bg-green-light">
                                     Submit
                                 </button>
