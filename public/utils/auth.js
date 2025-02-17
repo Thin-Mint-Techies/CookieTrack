@@ -18,6 +18,13 @@ const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+const allowedURLs = [
+    "/login/sign-in",
+    "/login/sign-up",
+    "/login/forgot-pass",
+    "/login/terms"
+]
+
 onAuthStateChanged(auth, (user) => {
     //Send out a doc event to trigger other functions when auth is ready
     document.dispatchEvent(new CustomEvent("authStateReady", {detail: user}));
@@ -39,8 +46,7 @@ onAuthStateChanged(auth, (user) => {
         /* if (navUserPhoto) navUserPhoto.src = user.photoUrl;
         if (navSmUserPhoto) navSmUserPhoto.src = user.photoUrl; */
     } else {
-        if (!window.location.href.includes("/login/sign-in") && !window.location.href.includes("/login/sign-up")
-            && !window.location.href.includes("/login/forgot-pass") && !window.location.href.includes("/login/terms")) {
+        if (!allowedURLs.some(url => window.location.href.includes(url))) {
             window.location.href = "../login/sign-in.html";
         }
     }
