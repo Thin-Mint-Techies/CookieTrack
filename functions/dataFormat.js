@@ -1,14 +1,17 @@
 /**
 Stand alone data
-    User
-    Cookie
-    Reward
-Need accessId field
-    trooper
+    User // references: troopers, squads, documents, orders, inventory, booths, parents, ACL
+    Cookie 
+    Reward 
+Need ownerId field: 
+    trooper 
     squad
     documents
     orders
+    inventory
+    saleData
  */
+
 
 
 const userDataFormat = { // for this, attach a 'role' custom claim to the uid when creating the user
@@ -18,16 +21,6 @@ const userDataFormat = { // for this, attach a 'role' custom claim to the uid wh
         address: null,
         phone: null
     },
-    troopers: [
-        {
-            trooperId: "",
-            name: "",
-        },
-    ], // Array of troopers under user
-    documents:[{}], // Array of document under user
-    orders:[{}], // Array of orders under user
-    parents: [{}], // Only for leaders, array of parent IDs
-    squads:[],// Only for leaders and manager
 };
 
 const rewardDataFormat = {
@@ -37,7 +30,7 @@ const rewardDataFormat = {
 };
 
 const cookieDataFormat = {
-    name: '',
+    variety: '',
     description: '',
     price: '',
 };
@@ -46,73 +39,95 @@ const cookieDataFormat = {
 //////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////
-// need accessId array for each
+// need ownerId
 
 const trooperDataFormat = {
     name: '',
-    email: '',
-    assignedParent: '',
-    accessId: [], // Array of access IDs
-    orders:[{}],
-    saleData: [{}], // Array of objects containing "cookieNameAndID": "amountSold"
+    ownerId: '',
+    squad: '',
     contactDetail: {
         address: null,
-        phone: null
+        phone: null,
+        email: '',
     },
     rewardPoints: 0,
-    currentReward: null // Optional field, can be null
+    currentBalance: 0.0,
+    currentReward: [],
+
 };
 
 const squadDataFormat = {
     squadName: '',
-    creatorId: '',
-    accessId: [], // Array of access IDs
-    troopers: [
-        {
-            trooperId: "",
-            name: "",
-        },
-    ], // Array of trooper IDs
-    totalSaleData: [] 
+    ownerId: '',
+    saleData: [],
 };
 
 const orderDataFormat = {
-    troopName: '',
-    troopNumber: '',
-    ownerId:'',
+    trooperName: '',
+    trooperId: '',
+    trooperNumber: '',
+    ownerId: '', // id of the parent of the trooper
     dateCreated: '',
     SU: '',
-    orderContent: [
-        {
-            type: "",
+    paymentType:{
+        cash: 0,
+        credit:0,
+    },
+    orderContent: [{
+        cookies: [{
+            variety: "",
             cases: 0,
             packages: 0,
-        },
-        {
-            totalMoney: 0,
-            owe: 0,
-            totalPackages: 0,
-            totalCases: 0,
-        }
+        },],
+        totalMoney: 0,
+        owe: 0,
+        totalPackages: 0,
+        totalCases: 0,
+    }
     ],
-    pickupDetails:[
-        {
-            receivedBy: '',
-            troopNumber:'',
-        },
-        {
-            receivedFrom: '',
-            troopNumber:'',
-        }
-    ],
-    accessId:[],
+    pickupDetails: [{
+        receivedBy: '',
+        troopNumber: '',
+    }, {
+        receivedFrom: '',
+        troopNumber: '',
+    }],
 };
 
+// need to talk to advisor to see what he want
 const saleDataformat = {
-    accessId:[],
+    ownerId: '',
     orderId: [],
     amountSold: 0
 };
+
+const inventoryDataFormat = {
+    ownerId: '', // id of the parent of the trooper
+    trooperName: '',
+    trooperId: '',
+    trooperNumber: '',
+    inventory: [{
+        variety: '',
+        cases: 0,
+        packages: 0,
+    },],  
+};
+
+// not use for now, could be use to allow access to saleData
+const ACL = {
+    userId: "",
+    documentACL:[''], // id of the document
+    inventoryACL: [''],// id of the inventory
+    orderACL: [''],   // id of the order
+    saleDataACL: [''], // id of the saleData
+    squadACL:[''], //only for leader
+    trooperACL: [''], // id of the trooper
+    
+    boothACL:[''],  // id of the booth
+    parentACL:[''], //only for leader
+    
+};
+
 
 
 module.exports = {
@@ -122,5 +137,6 @@ module.exports = {
     saleDataformat,
     userDataFormat,
     rewardDataFormat,
-    cookieDataFormat
+    cookieDataFormat,
+    ACL
 };

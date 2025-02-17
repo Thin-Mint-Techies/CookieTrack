@@ -2,18 +2,17 @@ const { Firestore } = require('../firebaseConfig');
 const notificationService = require('./notificationService');
 const admin = require('firebase-admin');
 
-const createTrooper = async ({ name, email, assignedParent, contactDetail }) => {
+const createTrooper = async ({ name, ownerId, contactDetail }) => {
   try {
     const newTroopRef = Firestore.collection('troopers').doc();
     const accessId = [assignedParent];
     const troopData = {
       name,
-      email,
-      assignedParent, // uid of parent
-      accessId, // uid of parent
+      ownerId, // uid of parent
       contactDetail: {
         address: contactDetail?.address || null,
-        phone: contactDetail?.phone || null
+        phone: contactDetail?.phone || null,
+        email: contactDetail?.email || null,
       },
     };
 
@@ -62,11 +61,16 @@ const getTrooperById = async (id) => {
 };
 
 // Need to manage the fields
-const updateTrooperSales = async (troopId, saleData) => {
+const updateTrooper = async (troopId, name, contactDetail) => {
   try {
     const ref = Firestore.collection('troopers').doc(troopId);
     await ref.update({
-      saleData, // Replacing or updating sales data
+      name,
+      contactDetail: {
+        address: contactDetail?.address || null,
+        phone: contactDetail?.phone || null,
+        email: contactDetail?.email || null,
+      },
     });
     return { message: 'Sales data updated successfully' };
   } catch (error) {
@@ -74,22 +78,6 @@ const updateTrooperSales = async (troopId, saleData) => {
   }
 };
 
-// Need to manage the fields
-const updateTrooper = async (id, { name, email, assignedParent, saleData }) => {
-  try {
-    const ref = Firestore.collection('troopers').doc(id);
-    await ref.update({
-      name,
-      email,
-      assignedParent,
-      saleData,
-      currentReward,
-    });
-    return { message: 'Troop updated successfully' };
-  } catch (error) {
-    throw new Error(`Error updating troop by id: ${error.message}`);
-  }
-};
 
 const deleteTrooper = async (id) => {
   try {
@@ -101,51 +89,10 @@ const deleteTrooper = async (id) => {
   }
 };
 
-const addTrooperAccessId = async (troopId, accessId) => {
-  try {
-    const troopRef = Firestore.collection('troopers').doc(troopId);
-    const troopDoc = await troopRef.get();
-
-    if (!troopDoc.exists) {
-      throw new Error('Troop not found');
-    }
-
-    let { accessId: currentAccessIds } = troopDoc.data();
-
-    if (!currentAccessIds.includes(accessId)) {
-      currentAccessIds.push(accessId);
-    }
-
-    await troopRef.update({ accessId: currentAccessIds });
-  } catch (error) {
-    throw new Error(`Error adding accessId: ${error.message}`);
-  }
-};
-
-const deleteTrooperAccessId = async (troopId, accessId) => {
-  try {
-    const troopRef = Firestore.collection('troopers').doc(troopId);
-    const troopDoc = await troopRef.get();
-
-    if (!troopDoc.exists) {
-      throw new Error('Troop not found');
-    }
-
-    let { accessId: currentAccessIds } = troopDoc.data();
-    currentAccessIds = currentAccessIds.filter(id => id !== accessId);
-
-    await troopRef.update({ accessId: currentAccessIds });
-  } catch (error) {
-    throw new Error(`Error deleting accessId: ${error.message}`);
-  }
-};
-
-
-
-const getTroopersByAssignedParent = async (userId) => {
+const getTroopersByOwnerId = async (userId) => {
   try {
     // Query the troopers collection where assignedParent matches the userId
-    const snapshot = await Firestore.collection('troopers').where('assignedParent', '==', userId).get();
+    const snapshot = await Firestore.collection('troopers').where('ownerId', '==', userId).get();
     if (snapshot.empty) {
       throw new Error('No troopers found for the given user ID');
     }
@@ -164,9 +111,6 @@ module.exports = {
   getAllTroopers,
   getTrooperById,
   updateTrooper,
-  updateTrooperSales,
   deleteTrooper,
-  addTrooperAccessId,
-  deleteTrooperAccessId,
-  getTroopersByAssignedParent,
+  getTroopersByOwnerId,
 };

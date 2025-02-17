@@ -1,16 +1,13 @@
 const { Firestore } = require('../firebaseConfig');
 
 
-const createSquad = async ({ squadName, creatorId, }) => {
+const createSquad = async ({ squadName, ownerId }) => {
     try {
-        const newsquadRef = Firestore.collection('squad').doc();
+        const newsquadRef = Firestore.collection('squads').doc();
         const accessId = [creatorId];
         await newsquadRef.set({
             squadName,
-            creatorId, 
-            accessId,
-            troopersId: [],
-            totalSaleData: [], // get all data from the trooopers
+            ownerId, 
         });
         return newsquadRef.id;
     } catch (error) {
@@ -20,7 +17,7 @@ const createSquad = async ({ squadName, creatorId, }) => {
 
 const getSquad = async (id) => {
     try {
-        const squadRef = Firestore.collection('squad').doc(id);
+        const squadRef = Firestore.collection('squads').doc(id);
         const doc = await squadRef.get();
         if (!doc.exists) {
             throw new Error('Squad not found');
@@ -33,7 +30,7 @@ const getSquad = async (id) => {
 
 const updateSquad = async (id, updateData) => {
     try {
-        const squadRef = Firestore.collection('squad').doc(id);
+        const squadRef = Firestore.collection('squads').doc(id);
         await squadRef.update(updateData);
         return { message: 'Squad updated successfully' };
     } catch (error) {
@@ -43,7 +40,7 @@ const updateSquad = async (id, updateData) => {
 
 const deleteSquad = async (id) => {
     try {
-        const squadRef = Firestore.collection('squad').doc(id);
+        const squadRef = Firestore.collection('squads').doc(id);
         await squadRef.delete();
         return { message: 'Squad deleted successfully' };
     } catch (error) {
@@ -53,7 +50,7 @@ const deleteSquad = async (id) => {
 
 const getSquadsByLeaderId = async (leaderId) => {
     try {
-        const snapshot = await Firestore.collection('squad').where('creatorId', '==', leaderId).get();
+        const snapshot = await Firestore.collection('squads').where('ownerId', '==', leaderId).get();
         if (snapshot.empty) {
             throw new Error('No squads found for this leader');
         }

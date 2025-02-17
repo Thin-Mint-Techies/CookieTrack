@@ -58,7 +58,7 @@ const getUserById = async (id) => {
   }
 };
 
-const updateUser = async (id, { name, email, newTrooperIds, contactDetail,removeTrooperIds }) => {
+const updateUser = async (id, { name, email, contactDetail}) => {
   try {
     const ref = Firestore.collection('users').doc(id);
 
@@ -75,26 +75,15 @@ const updateUser = async (id, { name, email, newTrooperIds, contactDetail,remove
       contactDetail: {
         address: contactDetail?.address || null,
         phone: contactDetail?.phone || null,
-      },
-      parents: role === 'leader' ? [] : undefined, // Only leaders have "parents"
+      }
     });
 
-    // add new trooper, using array operations
-    if (newTrooperIds && newTrooperIds.length > 0) {
-      updateData.trooperIds = Firestore.FieldValue.arrayUnion(...newTrooperIds);
-    }
-
-    // remove trooper, using array operations
-    if (removeTrooperIds && removeTrooperIds.length > 0) {
-      updateData.trooperIds = Firestore.FieldValue.arrayRemove(...removeTrooperIds);
-    }
-    
     return { message: 'User updated successfully' };
   } catch (error) {
     throw new Error(`Error updating user: ${error.message}`);
   }
 };
-  
+
 const deleteUser = async (id) => {
   try {
     const ref = Firestore.collection('users').doc(id);
@@ -104,9 +93,6 @@ const deleteUser = async (id) => {
     throw new Error(`Error deleting user: ${error.message}`);
   }
 };
-
-
-
 
 
 

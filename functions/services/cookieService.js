@@ -106,8 +106,6 @@ const updateMonthlySales = async () => {
 };
 
 
-
-
 module.exports = {
   createCookie,
   getAllCookies,

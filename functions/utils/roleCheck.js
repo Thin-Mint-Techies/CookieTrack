@@ -74,30 +74,35 @@ const checkRole = (allowedRoles) => {
 */
 
 
-// use doc accessId array, use for single document
+// use doc ownerId, for multiple doc
 // have not test
+// might need to refactor
 const checkUserOwnership = (collectionName, docIdParam = 'id') => {
   return async (req, res, next) => {
     const { uid } = req.user;
-    const docId = req.params[docIdParam] || req.body[docIdParam];
+    const docIds = req.params[docIdParam] || req.body[docIdParam];
 
-    if (!docId) {
+    if (!docIds) {
       return res.status(403).json({ success: false, message: 'Permission denied. Invalid document ID.' });
     }
 
+    // check for multiple doc
+    const docIdArray = Array.isArray(docIds) ? docIds : [docIds];
+
     try {
-      const doc = await Firestore.collection(collectionName).doc(docId).get();
-      if (!doc.exists) {
-        return res.status(403).json({ success: false, message: 'Permission denied. Document not found.' });
+      for (const docId of docIdArray) {
+        const doc = await Firestore.collection(collectionName).doc(docId).get();
+        if (!doc.exists) {
+          return res.status(403).json({ success: false, message: 'Permission denied. Document not found.' });
+        }
+
+        const docData = doc.data();
+        const accessIds = docData.ownerId;
+
+        if (!accessIds.includes(uid)) {
+          return res.status(403).json({ success: false, message: 'Permission denied. You do not have access to this document.' });
+        }
       }
-
-      const docData = doc.data();
-      const accessIds = docData.accessId || [];
-
-      if (!accessIds.includes(uid)) {
-        return res.status(403).json({ success: false, message: 'Permission denied. You do not have access to this document.' });
-      }
-
       next(); // Proceed to the next middleware or controller
     } catch (error) {
       console.error('Error checking document ownership:', error);

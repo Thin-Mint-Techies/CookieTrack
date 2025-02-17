@@ -1,14 +1,14 @@
 const { Firestore } = require('../firebaseConfig');
 
-const createOrder = async ({ buyer,trooperSeller, descriptions, totalPayment ,amountOfCookies }) => {
+// need rework
+const createOrder = async ({ trooperName, trooperId,trooperNumber,ownerId }) => {
   try {
     const newOrderRef = Firestore.collection('orders').doc();
     await newOrderRef.set({
-      buyer,
-      trooperSeller,
-      descriptions, // address, delivery, etc...
-      totalPayment,
-      amountOfCookies,
+      trooperName: '',
+      trooperId: '',
+      trooperNumber: '',
+      ownerId: '',
     });
     return newOrderRef.id;
   } catch (error) {
@@ -61,9 +61,8 @@ const getUserOrders = async (userId) => {
     const userId = decodedToken.uid;
 
     const snapshot = await Firestore.collection('orders')
-      .where('userId', '==', userId)
+      .where('ownerId', '==', userId)
       .get();
-
     if (!snapshot.empty) {
       return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     }
