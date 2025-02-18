@@ -8,7 +8,7 @@ const monthlyCookie = {
 
 (function getCurrentMonthCookie() {
     const currentMonth = new Date().getMonth();
-    let currentCookie =  monthlyCookie[currentMonth] || { name: "Unknown", image: "/public/resources/images/cookie_icon.png" };
+    let currentCookie = monthlyCookie[currentMonth] || { name: "Unknown", image: "/public/resources/images/cookie_icon.png" };
 
     let monthlyCookieName = document.getElementById("monthly-cookie-name");
     let monthlyCookieImg = document.getElementById("monthly-cookie-img");
@@ -18,12 +18,20 @@ const monthlyCookie = {
 })();
 
 //Set the welcome greeting with users name
-document.addEventListener("authStateReady", (event) => {
-    const user = event.detail;
-    if (user) {
-        let welcome = document.getElementById("welcome-greeting");
-        const [fName, lName] = user.displayName ? user.displayName.split(" ") : ["", ""];
-        
-        welcome.textContent = `Welcome back, ${fName}`;
-    }
-});
+let welcome = document.getElementById("welcome-greeting");
+
+if (sessionStorage.getItem("userData")) {
+    const userData = JSON.parse(sessionStorage.getItem("userData"));
+
+    const [fName, lName] = userData.name ? userData.name.split(" ") : ["", ""];
+    welcome.textContent = `Welcome back, ${fName}`;
+} else {
+    document.addEventListener("authStateReady", () => {
+        const userData = JSON.parse(sessionStorage.getItem("userData"));
+
+        if (userData) {
+            const [fName, lName] = userData.name ? userData.name.split(" ") : ["", ""];
+            welcome.textContent = `Welcome back, ${fName}`;
+        }
+    });
+}

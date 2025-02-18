@@ -18,54 +18,61 @@ const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-const allowedURLs = [
+const allowedNotLoggedInURLs = [
     "/login/sign-in",
     "/login/sign-up",
     "/login/forgot-pass",
     "/login/terms"
 ]
 
-onAuthStateChanged(auth, (user) => {
-    //Send out a doc event to trigger other functions when auth is ready
-    document.dispatchEvent(new CustomEvent("authStateReady", {detail: user}));
-    
+onAuthStateChanged(auth, async (user) => {
     //If logged in and on login page, head to dashboard
     if (user) {
         if (window.location.href.includes("/login/sign-in") && !localStorage.getItem("creatingAccount")) {
             window.location.href = "../dashboard/dashboard.html";
         }
 
-        // Load user info into sidebars
-        let navUserName = document.getElementById("nav-username");
-        let navUserEmail = document.getElementById("nav-useremail");
-        let navUserPhoto = document.getElementById("nav-userphoto");
-        let navSmUserPhoto = document.getElementById("nav-sm-userphoto");
+        if (sessionStorage.getItem("userData") === null) {
+            console.log("First load");
+            try {
+                const userData = await callApi(`/user/${user.uid}`);
+                if (userData) sessionStorage.setItem("userData", JSON.stringify(userData));
+                updateSidebarWithUserData();
+            } catch (error) {
+                console.error("Error fetching user data: ", error);
+            }
+        }
 
-        if (navUserName) navUserName.textContent = user.displayName;
-        if (navUserEmail) navUserEmail.textContent = user.email;
-        /* if (navUserPhoto) navUserPhoto.src = user.photoUrl;
-        if (navSmUserPhoto) navSmUserPhoto.src = user.photoUrl; */
+        //Send out a doc event to trigger other functions when auth is ready
+        document.dispatchEvent(new CustomEvent("authStateReady"));
     } else {
-        if (!allowedURLs.some(url => window.location.href.includes(url))) {
+        if (!allowedNotLoggedInURLs.some(url => window.location.href.includes(url))) {
             window.location.href = "../login/sign-in.html";
         }
     }
 });
 
-/* document.addEventListener('DOMContentLoaded', () => {
-    document.addEventListener('keydown', (e) => {
-        if (e.key === '\\') {
-            console.log("here");
-            let accessToken = null;
-            auth.currentUser.getIdToken().then((token) => {
-                accessToken = token;
-                console.log(accessToken);
-                let response = callApi(`/trooper/9SkSYZ8u1TQ2hwqeBAre`, 'GET', accessToken);
-                console.log(response);
-            });
-        }
-    });
-}); */
+document.addEventListener('DOMContentLoaded', () => {
+    if (sessionStorage.getItem("userData")) {
+        updateSidebarWithUserData();
+    }
+});
+
+function updateSidebarWithUserData() {
+    // Load user info into sidebars
+    let navUserName = document.getElementById("nav-username");
+    let navUserEmail = document.getElementById("nav-useremail");
+    /* let navUserPhoto = document.getElementById("nav-userphoto");
+    let navSmUserPhoto = document.getElementById("nav-sm-userphoto"); */
+
+    //Get user data from session storage
+    const userData = JSON.parse(sessionStorage.getItem('userData'));
+
+    if (navUserName) navUserName.textContent = userData?.name || null;
+    if (navUserEmail) navUserEmail.textContent = userData?.email || null;
+    /* if (navUserPhoto) navUserPhoto.src = user.photoUrl;
+    if (navSmUserPhoto) navSmUserPhoto.src = user.photoUrl; */
+}
 
 //Sign out functions ------------------------------------------------
 const navSignOut = document.getElementById("nav-signout");

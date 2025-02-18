@@ -2,49 +2,49 @@ import { auth, db } from "../utils/auth.js";
 import { createUserWithEmailAndPassword, updateProfile } from 'https://www.gstatic.com/firebasejs/11.2.0/firebase-auth.js';
 import { doc, setDoc } from 'https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js';
 import { manageLoader } from "../utils/loader.js";
+import { regExpCalls } from "../utils/regex.js";
 import { showToast, STATUS_COLOR } from "../utils/toasts.js";
 
 const createFName = document.getElementById("create-fname");
 const createLName = document.getElementById("create-lname");
 const createEmail = document.getElementById("create-email");
+const createPhone = document.getElementById("create-phone");
 const createPassword = document.getElementById("create-password");
 const confirmPassword = document.getElementById("confirm-password");
 const acceptTerms = document.getElementById("accept-terms");
 const createAccount = document.getElementById("create-account");
 
-createAccount?.addEventListener('click', () => {
+createAccount?.addEventListener('click', (e) => {
+    e.preventDefault();
     createUserAccount();
 });
 
 function createUserAccount() {
-    const nameRegex = new RegExp(/^[a-zA-Z]+[a-zA-Z-]*$/);
-    const emailRegex = new RegExp(/^[A-Za-z0-9_!#$%&'*+\/=?`{|}~^.-]+@[A-Za-z0-9.-]+$/gm, "gm");
-    const passRegex = new RegExp(/^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,}$/gm, "gm");
-
-    const fNameResult = nameRegex.test(createFName.value.trim());
-    const lNameResult = nameRegex.test(createLName.value.trim());
-    const emailResult = emailRegex.test(createEmail.value.trim());
-    const passResult = passRegex.test(createPassword.value.trim());
     const confPass = (createPassword.value.trim() === confirmPassword.value.trim());
     const termsResult = acceptTerms.checked;
 
     //Check if results are good
-    if (!fNameResult) {
+    if (!regExpCalls.testName(createFName.value.trim())) {
         showToast("Missing Information", "Please make sure you have correctly entered your first name.", STATUS_COLOR.RED, true, 5);
         return;
     }
 
-    if (!lNameResult) {
+    if (!regExpCalls.testName(createLName.value.trim())) {
         showToast("Missing Information", "Please make sure you have correctly entered your last name.", STATUS_COLOR.RED, true, 5);
         return;
     }
 
-    if (!emailResult) {
+    if (!regExpCalls.testEmail(createEmail.value.trim())) {
         showToast("Invalid Email", "Please make sure you have entered a valid email.", STATUS_COLOR.RED, true, 5);
         return;
     }
 
-    if (!passResult) {
+    if (!regExpCalls.testPhone(createPhone.value)) {
+        showToast("Invalid Phone", "Please make sure you have entered a valid phone number.", STATUS_COLOR.RED, true, 5);
+        return;
+    }
+
+    if (!regExpCalls.testPassword(createPassword.value.trim())) {
         showToast("Invalid Password", "Password must be at least 6 characters and contain 1 special character, 1 uppercase, and 1 number.", STATUS_COLOR.RED, true, 8);
         return;
     }
@@ -63,24 +63,16 @@ function createUserAccount() {
     manageLoader(true);
     localStorage.setItem("creatingAccount", true);
     createUserWithEmailAndPassword(auth, createEmail.value.trim(), createPassword.value.trim())
-        .then((userCredential) => {
-            // Signed up 
-            const user = userCredential.user;
-            // Update profile with name and photo?
-            updateProfile(userCredential.user, {
-                displayName: createFName.value.trim() + " " + createLName.value.trim()
+        .then((userCredential) => {         
+            // Upload user information to database
+            setDoc(doc(db, "users", userCredential.user.uid), {
+                name: createFName.value.trim() + " " + createLName.value.trim(),
+                email: createEmail.value.trim(),
+                phone: createPhone.value.trim(),
+                role: "parent"
             }).then(() => {
-                // Upload user role to database
-                setDoc(doc(db, "users", user.uid), {
-                    role: "parent"
-                }).then(() => {
-                    // Successful upload
-                    localStorage.removeItem("creatingAccount");
-                }).catch((error) => {
-                    manageLoader(false);
-                    console.log(error.code + ": " + error.message);
-                    showToast("Account Creation Error", "There was an error while trying to create your account. Please try again.", STATUS_COLOR.RED, true, 10);
-                });
+                // Successful upload
+                localStorage.removeItem("creatingAccount");
             }).catch((error) => {
                 manageLoader(false);
                 console.log(error.code + ": " + error.message);
@@ -93,4 +85,25 @@ function createUserAccount() {
             console.log(error.code + ": " + error.message);
             showToast("Account Creation Error", "There was an error while trying to create your account. Please try again.", STATUS_COLOR.RED, true, 10);
         });
+}
+
+createPhone.addEventListener('keydown', disallowNonNumericInput);
+createPhone.addEventListener('keyup', formatToPhone);
+
+function disallowNonNumericInput(e) {
+    if (e.ctrlKey) { return; }
+    if (e.key.length > 1) { return; }
+    if (/[0-9.]/.test(e.key)) { return; }
+    e.preventDefault();
+}
+
+function formatToPhone(e) {
+    const digits = e.target.value.replace(/\D/g, '').substring(0, 10);
+    const areaCode = digits.substring(0, 3);
+    const prefix = digits.substring(3, 6);
+    const suffix = digits.substring(6, 10);
+
+    if (digits.length > 6) { e.target.value = `(${areaCode}) ${prefix} - ${suffix}`; }
+    else if (digits.length > 3) { e.target.value = `(${areaCode}) ${prefix}`; }
+    else if (digits.length > 0) { e.target.value = `(${areaCode}`; }
 }
