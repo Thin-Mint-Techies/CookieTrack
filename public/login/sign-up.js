@@ -2,7 +2,7 @@ import { auth, db } from "../utils/auth.js";
 import { createUserWithEmailAndPassword, updateProfile } from 'https://www.gstatic.com/firebasejs/11.2.0/firebase-auth.js';
 import { doc, setDoc } from 'https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js';
 import { manageLoader } from "../utils/loader.js";
-import { regExpCalls } from "../utils/regex.js";
+import { regExpCalls, setupPhoneInput } from "../utils/utils.js";
 import { showToast, STATUS_COLOR } from "../utils/toasts.js";
 
 const createFName = document.getElementById("create-fname");
@@ -13,6 +13,8 @@ const createPassword = document.getElementById("create-password");
 const confirmPassword = document.getElementById("confirm-password");
 const acceptTerms = document.getElementById("accept-terms");
 const createAccount = document.getElementById("create-account");
+
+setupPhoneInput(createPhone);
 
 createAccount?.addEventListener('click', (e) => {
     e.preventDefault();
@@ -85,25 +87,4 @@ function createUserAccount() {
             console.log(error.code + ": " + error.message);
             showToast("Account Creation Error", "There was an error while trying to create your account. Please try again.", STATUS_COLOR.RED, true, 10);
         });
-}
-
-createPhone.addEventListener('keydown', disallowNonNumericInput);
-createPhone.addEventListener('keyup', formatToPhone);
-
-function disallowNonNumericInput(e) {
-    if (e.ctrlKey) { return; }
-    if (e.key.length > 1) { return; }
-    if (/[0-9.]/.test(e.key)) { return; }
-    e.preventDefault();
-}
-
-function formatToPhone(e) {
-    const digits = e.target.value.replace(/\D/g, '').substring(0, 10);
-    const areaCode = digits.substring(0, 3);
-    const prefix = digits.substring(3, 6);
-    const suffix = digits.substring(6, 10);
-
-    if (digits.length > 6) { e.target.value = `(${areaCode}) ${prefix} - ${suffix}`; }
-    else if (digits.length > 3) { e.target.value = `(${areaCode}) ${prefix}`; }
-    else if (digits.length > 0) { e.target.value = `(${areaCode}`; }
 }

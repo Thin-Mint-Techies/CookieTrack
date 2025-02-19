@@ -635,9 +635,6 @@ video {
 .mb-8 {
   margin-bottom: 2rem;
 }
-.mb-\[78px\] {
-  margin-bottom: 78px;
-}
 .ml-1 {
   margin-left: 0.25rem;
 }
@@ -1872,6 +1869,10 @@ h2>i {
 }
 
 @media (min-width: 640px) {
+
+  .sm\:col-span-2 {
+    grid-column: span 2 / span 2;
+  }
 
   .sm\:grid-cols-2 {
     grid-template-columns: repeat(2, minmax(0, 1fr));

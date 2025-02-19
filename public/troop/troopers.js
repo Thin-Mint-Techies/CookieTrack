@@ -14,48 +14,6 @@ document.querySelectorAll('tr .show-row').forEach((btn) => {
     });
 });
 
-//Grade level dropdown functionality
-let addTrooperGradeBtn = document.getElementById('add-trooper-grade-btn');
-let addTrooperGradeDropdown = document.getElementById('add-trooper-grade-dropdown');
-
-addTrooperGradeBtn.addEventListener('click', () => {
-    if (addTrooperGradeDropdown.className.includes('block')) {
-        addTrooperGradeDropdown.classList.add('hidden')
-        addTrooperGradeDropdown.classList.remove('block')
-    } else {
-        addTrooperGradeDropdown.classList.add('block')
-        addTrooperGradeDropdown.classList.remove('hidden')
-    }
-});
-
-document.querySelectorAll("#add-trooper-grade-dropdown li").forEach(option => {
-    option.addEventListener("click", () => {
-        addTrooperGradeBtn.textContent = option.textContent;
-        addTrooperGradeBtn.click();
-    });
-});
-
-//Grade level dropdown functionality
-let addTrooperSizeBtn = document.getElementById('add-trooper-size-btn');
-let addTrooperSizeDropdown = document.getElementById('add-trooper-size-dropdown');
-
-addTrooperSizeBtn.addEventListener('click', () => {
-    if (addTrooperSizeDropdown.className.includes('block')) {
-        addTrooperSizeDropdown.classList.add('hidden')
-        addTrooperSizeDropdown.classList.remove('block')
-    } else {
-        addTrooperSizeDropdown.classList.add('block')
-        addTrooperSizeDropdown.classList.remove('hidden')
-    }
-});
-
-document.querySelectorAll("#add-trooper-size-dropdown li").forEach(option => {
-    option.addEventListener("click", () => {
-        addTrooperSizeBtn.textContent = option.textContent;
-        addTrooperSizeBtn.click();
-    });
-});
-
 //#region Add Trooper -------------------------------------------------
 let addTrooperBtn = document.getElementById('add-trooper');
 let addTrooperForm = document.getElementById('add-trooper-form');
@@ -76,5 +34,26 @@ addTrooperCancel.addEventListener('click', closeAddTrooperModal, false);
 function closeAddTrooperModal() {
     addTrooperForm.classList.remove('flex');
     addTrooperForm.classList.add('hidden');
+}
+
+//Dropdown functionality
+setupDropdown('add-trooper-grade-btn', 'add-trooper-grade-dropdown');
+setupDropdown('add-trooper-size-btn', 'add-trooper-size-dropdown');
+
+function setupDropdown(buttonId, dropdownId) {
+    let button = document.getElementById(buttonId);
+    let dropdown = document.getElementById(dropdownId);
+
+    button.addEventListener('click', () => {
+        dropdown.classList.toggle('block');
+        dropdown.classList.toggle('hidden');
+    });
+
+    dropdown.querySelectorAll("li").forEach(option => {
+        option.addEventListener("click", () => {
+            button.textContent = option.textContent;
+            button.click();
+        });
+    });
 }
 //#endregion ----------------------------------------------------------
