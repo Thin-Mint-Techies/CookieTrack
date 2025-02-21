@@ -236,29 +236,7 @@
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody class="whitespace-nowrap">
-                                    <tr class="even:bg-gray text-sm text-black [&_td]:p-4">
-                                        <td class="show-row !py-[11px] !pl-[18px] !pr-[6px] w-[10px] cursor-pointer"><i
-                                                class="fa-solid fa-caret-down text-xl"></i></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td>
-                                            <button class="mr-4" title="Delete">
-                                                <i
-                                                    class="fa-solid fa-trash-can text-xl text-red hover:text-red-700"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    <tr class="hidden-row hidden">
-                                        <td colspan="8" class="pl-12 text-sm">
-                                            <div class="p-4 border-2 border-gray rounded-default">Info about trooper.
-                                            </div>
-                                        </td>
-                                    </tr>
+                                <tbody id="your-troopers-tbody" class="whitespace-nowrap">
                                 </tbody>
                             </table>
                         </div>
@@ -313,8 +291,8 @@
                                         <label class="text-black text-base mb-2 block">Grade</label>
                                         <div class="relative flex items-center">
                                             <button id="add-trooper-grade-btn" type="button"
-                                                class="bg-white border border-gray outline-none w-full text-base text-black text-left pl-4 pr-10 py-2.5 rounded-default accent-green">
-                                                Select grade level                                               
+                                                class="bg-white border border-gray w-full text-base text-black text-left pl-4 pr-10 py-2.5 rounded-default accent-green">
+                                                Select Grade Level                                               
                                             </button>
                                             <i class="fa-solid fa-chevron-down absolute right-4"></i>
                                             <ul id="add-trooper-grade-dropdown"
@@ -339,8 +317,8 @@
                                         <label class="text-black text-base mb-2 block">Shirt/Jacket Size</label>
                                         <div class="relative flex items-center">
                                             <button id="add-trooper-size-btn" type="button"
-                                                class="bg-white border border-gray outline-none w-full text-base text-black text-left pl-4 pr-10 py-2.5 rounded-default accent-green">
-                                                Select shirt/jacket size                                               
+                                                class="bg-white border border-gray w-full text-base text-black text-left pl-4 pr-10 py-2.5 rounded-default accent-green">
+                                                Select Shirt/Jacket Size                                               
                                             </button>
                                             <i class="fa-solid fa-chevron-down absolute right-4"></i>
                                             <ul id="add-trooper-size-dropdown"
@@ -404,29 +382,8 @@
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody class="whitespace-nowrap">
+                                <tbody id="all-troopers-tbody" class="whitespace-nowrap">
                                     <tr class="even:bg-gray text-sm text-black [&_td]:p-4">
-                                        <td class="show-row !py-[11px] !pl-[18px] !pr-[6px] w-[10px] cursor-pointer"><i
-                                                class="fa-solid fa-caret-down text-xl"></i></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td>
-                                            <button class="mr-4" title="Delete">
-                                                <i
-                                                    class="fa-solid fa-trash-can text-xl text-red hover:text-red-700"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    <tr class="hidden-row hidden">
-                                        <td colspan="8" class="pl-12 text-sm">
-                                            <div class="p-4 border-2 border-gray rounded-default">Info about trooper.
-                                            </div>
-                                        </td>
-                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -437,7 +394,7 @@
     </div>
 
     <script src="../utils/sidebarNav.js"></script>
-    <script src="./troopers.js"></script>
+    <script type="module" src="./troopers.js"></script>
 </body>
 
 </html>

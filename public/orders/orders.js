@@ -1,6 +1,6 @@
 import { showToast, STATUS_COLOR } from "../utils/toasts.js";
 import { callApi } from "../utils/apiCall.js";
-import { regExpCalls, setupDropdown } from "../utils/utils.js";
+import { regExpCalls, setupDropdown, createTableRow } from "../utils/utils.js";
 
 //#region Add Order -------------------------------------------------
 let addOrderBtn = document.getElementById('add-order');
@@ -123,62 +123,18 @@ addOrderSubmit.addEventListener('click', (e) => {
         finacialAgreement: finacialAgreement === true ? "Agreed" : "Declined"
     }
 
-    addRowToCurrentOrders(orderData);
+    createTableRow.currentOrder(orderData);
     addOrderClose.click();
 });
 //#endregion --------------------------------------------------------
 
-//#region ADD TABLE ROW ---------------------------------------------
-function addRowToCurrentOrders(data) {
-    const tbody = document.getElementById("current-orders-tbody");
-    tbody.appendChild(createTableRow(data));
-}
-
-function createTableRow(data) {
-    // Create the table row
-    let tr = document.createElement("tr");
-    tr.className = "even:bg-gray text-sm text-black [&_td]:p-4";
-
-    // Data fields to display
-    let fields = [
-        "dateCreated", "trooperName", "parentName", "adventurefuls", "toastyays", "lemonades",
-        "trefoils", "thinMints", "pbPatties", "caramelDelites", "pbSandwich", "gfChocChip", "pickup",
-        "contact", "finacialAgreement"
-    ];
-
-    // Populate the row with data fields
-    fields.forEach(field => {
-        let td = document.createElement("td");
-        // If field exists in orderContent, get it from orderContent, otherwise get it from the main data object
-        td.textContent = data.orderContent?.[field] || data[field] || ""; // Handle missing or undefined fields
-        tr.appendChild(td);
-    });
-
-    // Create the action buttons column
-    let actionTd = document.createElement("td");
-
-    // Button configurations
-    let buttons = [
-        { title: "Complete", iconClass: "fa-clipboard-check text-green hover:text-green-light" },
-        { title: "Edit", iconClass: "fa-pen-to-square text-blue hover:text-blue-light" },
-        { title: "Delete", iconClass: "fa-trash-can text-red hover:text-red-light" }
-    ];
-
-    buttons.forEach(btn => {
-        let button = document.createElement("button");
-        button.className = "mr-4";
-        button.title = btn.title;
-
-        let icon = document.createElement("i");
-        icon.className = `fa-solid ${btn.iconClass} text-xl`;
-
-        button.appendChild(icon);
-        actionTd.appendChild(button);
-    });
-
-    tr.appendChild(actionTd);
-
-    return tr;
-}
-
-//#endregion --------------------------------------------------------
+//#region TABLE ACTIONS ---------------------------------------------
+document.addEventListener('click', (e) => {
+    const elem = e.target;
+    const elemTitle = elem.parentElement.getAttribute("title");
+    if (elemTitle === "Delete") {
+        const rowElem = elem.parentElement.parentElement.parentElement;
+        rowElem.remove();
+    }
+});
+//#endregion TABLE ACTIONS ------------------------------------------

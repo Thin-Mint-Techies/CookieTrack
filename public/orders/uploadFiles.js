@@ -1,3 +1,5 @@
+import { createTableRow } from "../utils/utils.js";
+
 //Variables -------------------------------------------------------------
 let uploadFilesBtn = document.getElementById('upload-files');
 let uploadFilesForm = document.getElementById('upload-files-form');
@@ -42,6 +44,14 @@ uploadFilesSubmit.addEventListener("click", () => {
             uploadedFiles.forEach((file, index) => uploadFiles(file, index));
         }
     } else if (uploadFilesSubmit.textContent === "Done") {
+        uploadedFiles.forEach((file) => {
+            let fileData = {
+                fileName: file.name,
+                fileSize: formatFileSize(file.size),
+                dateUploaded: new Date().toLocaleDateString("en-US")
+            }
+            createTableRow.yourDocuments(fileData);
+        });
         closeFileUploadModal();
     }
 });
@@ -92,7 +102,7 @@ function renderFileProgress() {
             <div class="flex">
                 <p class="text-xs text-black flex-1">
                     <i class="fa-solid fa-file-lines w-5 mr-2 inline-block text-lg"></i>
-                    ${file.name} <span class="ml-2">(${(file.size / 1024 / 1024).toFixed(2)} MB)</span>
+                    ${file.name} <span class="ml-2">(${formatFileSize(file.size)})</span>
                 </p>
                 <i data-index="${index}" class="remove-file fa-solid fa-xmark text-xl text-black hover:text-black-light shrink-0 w-3 cursor-pointer"></i>
             </div>
@@ -117,6 +127,11 @@ function renderFileProgress() {
     });
 };
 
+function formatFileSize(bytes) {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1048576) return `${(bytes / 1024).toFixed(2)} KB`;
+    return `${(bytes / 1048576).toFixed(2)} MB`;
+}
 //Upload the files to the cloud and show progress
 function uploadFiles(file, index) {
     //First remove the option to remove files

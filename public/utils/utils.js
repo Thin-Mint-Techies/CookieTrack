@@ -88,4 +88,132 @@ function setupDropdown(buttonId, dropdownId) {
 }
 //#endregion --------------------------------------------------------
 
-export { regExpCalls, setupPhoneInput, setupDropdown }
+//#region TABLE ROWS ------------------------------------------------
+const createTableRow = {
+    currentOrder: (data) => addOrderRow(data, true),
+    completedOrder: (data) => addOrderRow(data, false),
+    yourTrooper: (data) => addTrooperRow(data),
+    yourDocuments: (data) => addFileRow(data)
+}
+
+function setupRowFields(tr, hasDropdown, fields, data, buttons) {
+    if (hasDropdown) {
+        //Create the dropdown td
+        let arrowTd = document.createElement("td");
+        arrowTd.className = "show-row !py-[11px] !pl-[18px] !pr-[6px] w-[10px] cursor-pointer";
+
+        let icon = document.createElement("i");
+        icon.className = "fa-solid fa-caret-down text-xl";
+
+        arrowTd.appendChild(icon);
+        tr.appendChild(arrowTd);
+    }
+
+    // Populate the row with data fields
+    fields.forEach(field => {
+        let td = document.createElement("td");
+        // If field exists in orderContent, get it from orderContent, otherwise get it from the main data object
+        td.textContent = data.orderContent?.[field] || data[field] || ""; // Handle missing or undefined fields
+        tr.appendChild(td);
+    });
+
+    // Create the action buttons column
+    let actionTd = document.createElement("td");
+
+    buttons.forEach(btn => {
+        let button = document.createElement("button");
+        button.className = "mr-4";
+        button.title = btn.title;
+
+        let icon = document.createElement("i");
+        icon.className = `fa-solid ${btn.iconClass} text-xl`;
+
+        button.appendChild(icon);
+        actionTd.appendChild(button);
+    });
+
+    tr.appendChild(actionTd);
+}
+
+function addOrderRow(data, isCurrentOrder) {
+    const tableName = isCurrentOrder ? "current" : "completed";
+    const tbody = document.getElementById(`${tableName}-orders-tbody`);
+    let tr = document.createElement("tr");
+    tr.className = "even:bg-gray text-sm text-black [&_td]:p-4";
+
+    // Data fields to display
+    let fields = [
+        "dateCreated", "trooperName", "parentName", "adventurefuls", "toastyays", "lemonades",
+        "trefoils", "thinMints", "pbPatties", "caramelDelites", "pbSandwich", "gfChocChip", "pickup",
+        "contact", "finacialAgreement"
+    ];
+
+    // Button configurations
+    let buttons = [
+        !isCurrentOrder && { title: "Complete", iconClass: "fa-clipboard-check text-green hover:text-green-light" },
+        { title: "Edit", iconClass: "fa-pen-to-square text-blue hover:text-blue-light" },
+        { title: "Delete", iconClass: "fa-trash-can text-red hover:text-red-light" }
+    ].filter(Boolean); // Removes `false` values if `isCurrentOrder` is true
+
+    setupRowFields(tr, false, fields, data, buttons);
+    tbody.appendChild(tr);
+}
+
+function addTrooperRow(data) {
+    const tbody = document.getElementById("your-troopers-tbody");
+    let tr = document.createElement("tr");
+    tr.className = "even:bg-gray text-sm text-black [&_td]:p-4";
+
+    // Data fields to display
+    let fields = [
+        "trooperNumber", "trooperName", "age", "grade", "shirtSize", "troopLeader"
+    ];
+
+    // Button configurations
+    let buttons = [
+        { title: "Edit", iconClass: "fa-pen-to-square text-blue hover:text-blue-light" },
+        { title: "Delete", iconClass: "fa-trash-can text-red hover:text-red-light" }
+    ];
+
+    setupRowFields(tr, true, fields, data, buttons);
+    tbody.appendChild(tr);
+
+    //Now add a hidden row after the main row
+    let hiddenTr = document.createElement("tr");
+    hiddenTr.className = "hidden-row hidden";
+
+    let hiddenTd = document.createElement("td");
+    hiddenTd.className = "pl-12 text-sm";
+    hiddenTd.colSpan = fields.length + 1;
+
+    let hiddenDiv = document.createElement("div");
+    hiddenDiv.className = "p-4 border-2 border-gray rounded-default";
+    hiddenDiv.textContent = "Info about trooper.";
+
+    hiddenTd.appendChild(hiddenDiv);
+    hiddenTr.appendChild(hiddenTd);
+    tbody.appendChild(hiddenTr);
+}
+
+function addFileRow(data) {
+    const tbody = document.getElementById("your-documents-tbody");
+    let tr = document.createElement("tr");
+    tr.className = "even:bg-gray text-sm text-black [&_td]:p-4";
+
+    // Data fields to display
+    let fields = [
+        "fileName", "fileSize", "dateUploaded"
+    ];
+
+    // Button configurations
+    let buttons = [
+        { title: "Download", iconClass: "fa-cloud-arrow-down text-blue hover:text-blue-light" },
+        { title: "Delete", iconClass: "fa-trash-can text-red hover:text-red-light" }
+    ];
+
+    setupRowFields(tr, false, fields, data, buttons);
+    tbody.appendChild(tr);
+}
+//#endregion TABLE ROWS ---------------------------------------------
+
+export { regExpCalls, setupPhoneInput, setupDropdown, createTableRow }

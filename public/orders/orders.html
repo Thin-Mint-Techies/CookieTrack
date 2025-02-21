@@ -234,7 +234,7 @@
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody class="whitespace-nowrap">
+                            <tbody id="your-documents-tbody" class="whitespace-nowrap">
                                 <tr class="even:bg-gray text-sm text-black [&_td]:p-4">
                                     <td>Purchase Order - 2</td>
                                     <td>1.27Mb</td>
@@ -537,35 +537,7 @@
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody class="whitespace-nowrap">
-                                <tr class="even:bg-gray text-sm text-black [&_td]:p-4">
-                                    <td>Joey Joe</td>
-                                    <td>Darla Joe</td>
-                                    <td>darla.joe@gmail.com</td>
-                                    <td>(817) 555-5555</td>
-                                    <td>12</td>
-                                    <td>1</td>
-                                    <td>0</td>
-                                    <td>1</td>
-                                    <td>0</td>
-                                    <td>3</td>
-                                    <td>2</td>
-                                    <td>3</td>
-                                    <td>0</td>
-                                    <td>2</td>
-                                    <td>Shawn's House</td>
-                                    <td>Phone</td>
-                                    <td>Agreed</td>
-                                    <td>
-                                        <button class="mr-4" title="Edit">
-                                            <i
-                                                class="fa-solid fa-pen-to-square text-xl text-blue hover:text-blue-light"></i>
-                                        </button>
-                                        <button class="mr-4" title="Delete">
-                                            <i class="fa-solid fa-trash-can text-xl text-red hover:text-red-light"></i>
-                                        </button>
-                                    </td>
-                                </tr>
+                            <tbody id="completed-orders-tbody" class="whitespace-nowrap">
                             </tbody>
                         </table>
                     </div>
@@ -576,7 +548,7 @@
 
     <script src="../utils/sidebarNav.js"></script>
     <script type="module" src="./orders.js"></script>
-    <script src="uploadFiles.js"></script>
+    <script type="module" src="uploadFiles.js"></script>
 </body>
 
 </html>
