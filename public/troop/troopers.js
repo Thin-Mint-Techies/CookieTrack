@@ -1,6 +1,6 @@
 import { showToast, STATUS_COLOR } from "../utils/toasts.js";
 import { callApi } from "../utils/apiCall.js";
-import { regExpCalls, setupDropdown, createTableRow } from "../utils/utils.js";
+import { regExpCalls, setupDropdown, handleTableRow } from "../utils/utils.js";
 
 //Table dropdown for individual troopers
 document.querySelectorAll('tr .show-row').forEach((btn) => {
@@ -89,7 +89,7 @@ addTrooperSubmit.addEventListener('click', (e) => {
         showToast("Missing Information", "Please make sure you have selected a grade level and shirt size.", STATUS_COLOR.RED, true, 5);
         return;
     }
-    
+
     const trooperData = {
         trooperNumber: number,
         trooperName: name,
@@ -102,7 +102,7 @@ addTrooperSubmit.addEventListener('click', (e) => {
         currentBalance: 0.0
     }
 
-    createTableRow.yourTrooper(trooperData);
+    handleTableRow.yourTrooper(trooperData);
     addTrooperClose.click();
 });
 //#endregion ----------------------------------------------------------

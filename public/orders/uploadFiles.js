@@ -1,4 +1,4 @@
-import { createTableRow } from "../utils/utils.js";
+import { handleTableRow } from "../utils/utils.js";
 
 //Variables -------------------------------------------------------------
 let uploadFilesBtn = document.getElementById('upload-files');
@@ -50,7 +50,7 @@ uploadFilesSubmit.addEventListener("click", () => {
                 fileSize: formatFileSize(file.size),
                 dateUploaded: new Date().toLocaleDateString("en-US")
             }
-            createTableRow.yourDocuments(fileData);
+            handleTableRow.yourDocuments(fileData);
         });
         closeFileUploadModal();
     }
@@ -162,8 +162,6 @@ function uploadFiles(file, index) {
 //Makes sure all uploads are done before allowing modal closure
 function checkUploadsComplete() {
     const allDone = Object.values(uploadProgress).every((val) => val === 100);
-    console.log(allDone);
-    console.log(uploadProgress);
     if (allDone) {
         uploadFilesSubmit.disabled = false;
         uploadFilesSubmit.textContent = "Done";

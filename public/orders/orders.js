@@ -1,84 +1,113 @@
 import { showToast, STATUS_COLOR } from "../utils/toasts.js";
 import { callApi } from "../utils/apiCall.js";
-import { regExpCalls, setupDropdown, createTableRow } from "../utils/utils.js";
+import { regExpCalls, setupDropdown, handleTableRow } from "../utils/utils.js";
 
-//#region Add Order -------------------------------------------------
+//#region Add/Edit Orders -------------------------------------------------
 let addOrderBtn = document.getElementById('add-order');
-let addOrderForm = document.getElementById('add-order-form');
-let addOrderCancel = document.getElementById('add-order-cancel');
-let addOrderSubmit = document.getElementById('add-order-submit');
-let addOrderClose = document.getElementById('add-order-close');
-
-//Show the add order modal
-addOrderBtn.addEventListener('click', () => {
-    addOrderForm.classList.remove('hidden');
-    addOrderForm.classList.add('flex');
-});
-
-//Close/Cancel the file upload modal
-addOrderClose.addEventListener('click', closeAddOrderModal, false);
-addOrderCancel.addEventListener('click', closeAddOrderModal, false);
-
-function closeAddOrderModal() {
-    addOrderForm.classList.remove('flex');
-    addOrderForm.classList.add('hidden');
-    addOrderTName.value = "";
-    addOrderAdventurefuls.value = "";
-    addOrderToastyays.value = "";
-    addOrderLemonades.value = "";
-    addOrderTrefoils.value = "";
-    addOrderThinMints.value = "";
-    addOrderPBPatties.value = "";
-    addOrderCaramelDelites.value = "";
-    addOrderPBSandwich.value = "";
-    addOrderGFChocChip.value = "";
-    addOrderPickup.textContent = "Select Location";
-    addOrderContact.textContent = "Select Preference";
-    addOrderAgreement.checked = false;
-}
+let orderForm = document.getElementById('order-form');
+let orderTitle = document.getElementById('order-title');
+let orderSubtitle = document.getElementById('order-subtitle');
+let orderCancel = document.getElementById('order-cancel');
+let orderSubmit = document.getElementById('order-submit');
+let orderClose = document.getElementById('order-close');
+let currentRowEditing = null;
 
 //Input variables
-const addOrderTName = document.getElementById("add-order-tname");
-const addOrderAdventurefuls = document.getElementById("add-order-adventurefuls");
-const addOrderToastyays = document.getElementById("add-order-toastyays");
-const addOrderLemonades = document.getElementById("add-order-lemonades");
-const addOrderTrefoils = document.getElementById("add-order-trefoils");
-const addOrderThinMints = document.getElementById("add-order-thinmints");
-const addOrderPBPatties = document.getElementById("add-order-pbpatties");
-const addOrderCaramelDelites = document.getElementById("add-order-carameldelites");
-const addOrderPBSandwich = document.getElementById("add-order-pbsandwich");
-const addOrderGFChocChip = document.getElementById("add-order-gfchocchip");
-const addOrderPickup = document.getElementById("add-order-pickup-btn");
-const addOrderContact = document.getElementById("add-order-contact-btn");
-const addOrderAgreement = document.getElementById("add-order-agreement");
+const orderTName = document.getElementById("order-tname");
+const orderAdventurefuls = document.getElementById("order-adventurefuls");
+const orderToastyays = document.getElementById("order-toastyays");
+const orderLemonades = document.getElementById("order-lemonades");
+const orderTrefoils = document.getElementById("order-trefoils");
+const orderThinMints = document.getElementById("order-thinmints");
+const orderPBPatties = document.getElementById("order-pbpatties");
+const orderCaramelDelites = document.getElementById("order-carameldelites");
+const orderPBSandwich = document.getElementById("order-pbsandwich");
+const orderGFChocChip = document.getElementById("order-gfchocchip");
+const orderPickup = document.getElementById("order-pickup-btn");
+const orderContact = document.getElementById("order-contact-btn");
+const orderAgreement = document.getElementById("order-agreement");
 
 //Setup dropdowns
-setupDropdown('add-order-pickup-btn', 'add-order-pickup-dropdown');
-setupDropdown('add-order-contact-btn', 'add-order-contact-dropdown');
+setupDropdown('order-pickup-btn', 'order-pickup-dropdown');
+setupDropdown('order-contact-btn', 'order-contact-dropdown');
+
+//Show the add order modal version
+addOrderBtn.addEventListener('click', () => {
+    openOrderModal();
+});
+
+function openOrderModal(mode = "add", orderData) {
+    if (mode === "edit") {
+        orderTitle.textContent = "Edit Order";
+        orderSubtitle.textContent = "Edit the selected order to make changes";
+        orderTName.value = orderData.trooperName;
+        orderAdventurefuls.value = orderData.orderContent.adventurefuls;
+        orderToastyays.value = orderData.orderContent.toastyays;
+        orderLemonades.value = orderData.orderContent.lemonades;
+        orderTrefoils.value = orderData.orderContent.trefoils;
+        orderThinMints.value = orderData.orderContent.thinMints;
+        orderPBPatties.value = orderData.orderContent.pbPatties;
+        orderCaramelDelites.value = orderData.orderContent.caramelDelites;
+        orderPBSandwich.value = orderData.orderContent.pbSandwich;
+        orderGFChocChip.value = orderData.orderContent.gfChocChip;
+        orderPickup.textContent = orderData.pickup;
+        orderContact.textContent = regExpCalls.testPhone(orderData.contact) ? "Phone" : "Email";
+        orderAgreement.checked = orderData.finacialAgreement === "Agreed" ? true : false;
+    }
+
+    orderForm.setAttribute('data-mode', mode);
+    orderForm.classList.remove('hidden');
+    orderForm.classList.add('flex');
+}
+
+//Close/Cancel the file upload modal
+orderClose.addEventListener('click', closeOrderModal, false);
+orderCancel.addEventListener('click', closeOrderModal, false);
+
+function closeOrderModal() {
+    orderTitle.textContent = "Add Order";
+    orderSubtitle.textContent = "Add a new order to your account";
+    orderForm.setAttribute('data-mode', "add");
+    orderForm.classList.remove('flex');
+    orderForm.classList.add('hidden');
+    orderTName.value = "";
+    orderAdventurefuls.value = "";
+    orderToastyays.value = "";
+    orderLemonades.value = "";
+    orderTrefoils.value = "";
+    orderThinMints.value = "";
+    orderPBPatties.value = "";
+    orderCaramelDelites.value = "";
+    orderPBSandwich.value = "";
+    orderGFChocChip.value = "";
+    orderPickup.textContent = "Select Location";
+    orderContact.textContent = "Select Preference";
+    orderAgreement.checked = false;
+}
 
 //Verify input and submit new order
-addOrderSubmit.addEventListener('click', (e) => {
+orderSubmit.addEventListener('click', (e) => {
     e.preventDefault();
-    const tName = addOrderTName.value.trim();
+    const tName = orderTName.value.trim();
     const userData = JSON.parse(sessionStorage.getItem('userData'));
     const pUid = userData.id;
     const pName = userData.name;
     const email = userData.email;
     const phone = userData.phone;
 
-    const adventurefuls = parseInt(addOrderAdventurefuls.value, 10) || 0;
-    const toastyays = parseInt(addOrderToastyays.value, 10) || 0;
-    const lemonades = parseInt(addOrderLemonades.value, 10) || 0;
-    const trefoils = parseInt(addOrderTrefoils.value, 10) || 0;
-    const thinMints = parseInt(addOrderThinMints.value, 10) || 0;
-    const pbPatties = parseInt(addOrderPBPatties.value, 10) || 0;
-    const caramelDelites = parseInt(addOrderCaramelDelites.value, 10) || 0;
-    const pbsandwich = parseInt(addOrderPBSandwich.value, 10) || 0;
-    const gfChocChip = parseInt(addOrderGFChocChip.value, 10) || 0;
+    const adventurefuls = parseInt(orderAdventurefuls.value, 10) || 0;
+    const toastyays = parseInt(orderToastyays.value, 10) || 0;
+    const lemonades = parseInt(orderLemonades.value, 10) || 0;
+    const trefoils = parseInt(orderTrefoils.value, 10) || 0;
+    const thinMints = parseInt(orderThinMints.value, 10) || 0;
+    const pbPatties = parseInt(orderPBPatties.value, 10) || 0;
+    const caramelDelites = parseInt(orderCaramelDelites.value, 10) || 0;
+    const pbsandwich = parseInt(orderPBSandwich.value, 10) || 0;
+    const gfChocChip = parseInt(orderGFChocChip.value, 10) || 0;
 
-    const pickup = addOrderPickup.textContent;
-    const contact = addOrderContact.textContent;
-    const finacialAgreement = addOrderAgreement.checked;
+    const pickup = orderPickup.textContent.trim();
+    const contact = orderContact.textContent.trim();
+    const finacialAgreement = orderAgreement.checked;
 
     if (!regExpCalls.testFullName(tName)) {
         showToast("Invalid Trooper Name", "Please make sure you have correctly entered the trooper name.", STATUS_COLOR.RED, true, 5);
@@ -102,29 +131,39 @@ addOrderSubmit.addEventListener('click', (e) => {
         return;
     }
 
+    const orderBoxes = {
+        adventurefuls: adventurefuls,
+        toastyays: toastyays,
+        lemonades: lemonades,
+        trefoils: trefoils,
+        thinMints: thinMints,
+        pbPatties: pbPatties,
+        caramelDelites: caramelDelites,
+        pbSandwich: pbsandwich,
+        gfChocChip: gfChocChip
+    };
+
+    const currentMode = orderForm.getAttribute('data-mode');
+
     const orderData = {
-        dateCreated: new Date().toLocaleDateString("en-US"),
+        dateCreated: currentMode === "add" ? new Date().toLocaleDateString("en-US") : null,
         trooperName: tName,
-        parentName: pName,
-        ownerId: pUid,
-        orderContent: {
-            adventurefuls: adventurefuls,
-            toastyays: toastyays,
-            lemonades: lemonades,
-            trefoils: trefoils,
-            thinMints: thinMints,
-            pbPatties: pbPatties,
-            caramelDelites: caramelDelites,
-            pbSandwich: pbsandwich,
-            gfChocChip: gfChocChip
-        },
+        parentName: currentMode === "add" ? pName : null,
+        ownerId: currentMode === "add" ? pUid : null,
+        boxTotal: Object.values(orderBoxes).reduce((sum, num) => sum + num, 0),
+        ...(currentMode === "add" ? { orderContent: orderBoxes } : orderBoxes),
         pickup: pickup,
         contact: contact === "Phone" ? phone : email,
         finacialAgreement: finacialAgreement === true ? "Agreed" : "Declined"
     }
 
-    createTableRow.currentOrder(orderData);
-    addOrderClose.click();
+    if (currentMode === "add") {
+        handleTableRow.currentOrder(orderData);
+    } else if (currentMode === "edit") {
+        handleTableRow.updateOrderRow(currentRowEditing, orderData);
+    }
+
+    orderClose.click();
 });
 //#endregion --------------------------------------------------------
 
@@ -132,9 +171,54 @@ addOrderSubmit.addEventListener('click', (e) => {
 document.addEventListener('click', (e) => {
     const elem = e.target;
     const elemTitle = elem.parentElement.getAttribute("title");
+    const rowElem = elem.parentElement.parentElement.parentElement;
+
     if (elemTitle === "Delete") {
-        const rowElem = elem.parentElement.parentElement.parentElement;
         rowElem.remove();
     }
+    else if (elemTitle === "Edit") {
+        currentRowEditing = rowElem;
+        const isCompletedOrders = rowElem.parentElement.getAttribute('id') === "completed-orders-tbody";
+        openOrderModal("edit", getRowData(currentRowEditing, isCompletedOrders));
+    } else if (elemTitle === "Complete") {
+        handleTableRow.completedOrder(getRowData(rowElem, true, true));
+        rowElem.remove();
+    } else if (elemTitle === "Download") {
+        alert("Downloading!");
+    }
 });
+
+
+function getRowData(row, isCompletedOrders = false, needsDate = false) {
+    // Exclude the last <td> (actions)
+    let tds = Array.from(row.children).slice(0, -1);
+    let index = 0;
+
+    let orderData = {
+        dateCreated: tds[index++]?.textContent.trim(),
+        ...(isCompletedOrders ? { 
+            dateCompleted: needsDate ? new Date().toLocaleDateString('en-US') : tds[index++]?.textContent.trim()
+        } : null),
+        trooperName: tds[index++]?.textContent.trim(),
+        parentName: tds[index++]?.textContent.trim(),
+        boxTotal: Number(tds[index++]?.textContent.trim()) || 0,
+        orderContent: {
+            adventurefuls: Number(tds[index++]?.textContent.trim()) || 0,
+            toastyays: Number(tds[index++]?.textContent.trim()) || 0,
+            lemonades: Number(tds[index++]?.textContent.trim()) || 0,
+            trefoils: Number(tds[index++]?.textContent.trim()) || 0,
+            thinMints: Number(tds[index++]?.textContent.trim()) || 0,
+            pbPatties: Number(tds[index++]?.textContent.trim()) || 0,
+            caramelDelites: Number(tds[index++]?.textContent.trim()) || 0,
+            pbSandwich: Number(tds[index++]?.textContent.trim()) || 0,
+            gfChocChip: Number(tds[index++]?.textContent.trim()) || 0
+        },
+        pickup: tds[index++]?.textContent.trim(),
+        contact: tds[index++]?.textContent.trim(),
+        finacialAgreement: tds[index++]?.textContent.trim()
+    };
+
+    return orderData;
+}
+
 //#endregion TABLE ACTIONS ------------------------------------------

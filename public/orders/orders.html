@@ -328,6 +328,7 @@
                                     <th>Date Created</th>
                                     <th>Girl Name</th>
                                     <th>Parent Name</th>
+                                    <th>Box Total</th>
                                     <th># Adventurefuls</th>
                                     <th># Toast-Yays!</th>
                                     <th># Lemonades</th>
@@ -354,159 +355,6 @@
                             <i class="fa-solid fa-cart-plus"></i> Add New Order
                         </button>
                     </div>
-                    <div id="add-order-form"
-                        class="hidden fixed inset-0 p-4 flex-wrap justify-center items-center w-full h-full z-[1000] before:fixed before:inset-0 before:w-full before:h-full before:bg-black-overlay shadow-default overflow-auto">
-                        <form class="w-full max-w-lg bg-white shadow-default rounded-default p-6 relative">
-                            <div class="flex items-center pb-3 border-b border-gray">
-                                <div class="flex-1">
-                                    <h3 class="text-green text-xl font-bold">Add Order</h3>
-                                    <p class="text-black text-sm mt-1">
-                                        Add a new order to your account
-                                    </p>
-                                </div>
-                                <i id="add-order-close"
-                                    class="fa-solid fa-xmark text-xl text-black hover:text-black-light shrink-0 ml-2 w-3 cursor-pointer"></i>
-                            </div>
-                            <div class="grid sm:grid-cols-2 gap-4 mt-6">
-                                <div>
-                                    <label class="text-black text-base mb-2 block">Trooper Name</label>
-                                    <div class="relative flex items-center">
-                                        <input id="add-order-tname" type="text" required
-                                            class="bg-white border border-gray w-full text-base text-black px-4 py-2.5 rounded-default accent-green"
-                                            placeholder="Enter the trooper name" />
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="text-black text-base mb-2 block"># Adventurefuls</label>
-                                    <div class="relative flex items-center">
-                                        <input id="add-order-adventurefuls" type="number" min="0"
-                                            class="bg-white border border-gray w-full text-base text-black px-4 py-2.5 rounded-default accent-green"
-                                            placeholder="# of Adventurefuls" />
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="text-black text-base mb-2 block"># Toast-Yays!</label>
-                                    <div class="relative flex items-center">
-                                        <input id="add-order-toastyays" type="number" min="0"
-                                            class="bg-white border border-gray w-full text-base text-black px-4 py-2.5 rounded-default accent-green"
-                                            placeholder="# of Toast-Yays!" />
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="text-black text-base mb-2 block"># Lemonades</label>
-                                    <div class="relative flex items-center">
-                                        <input id="add-order-lemonades" type="number" min="0"
-                                            class="bg-white border border-gray w-full text-base text-black px-4 py-2.5 rounded-default accent-green"
-                                            placeholder="# of Lemonades" />
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="text-black text-base mb-2 block"># Trefoil</label>
-                                    <div class="relative flex items-center">
-                                        <input id="add-order-trefoils" type="number" min="0"
-                                            class="bg-white border border-gray w-full text-base text-black px-4 py-2.5 rounded-default accent-green"
-                                            placeholder="# of Trefoil" />
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="text-black text-base mb-2 block"># Thin Mints</label>
-                                    <div class="relative flex items-center">
-                                        <input id="add-order-thinmints" type="number" min="0"
-                                            class="bg-white border border-gray w-full text-base text-black px-4 py-2.5 rounded-default accent-green"
-                                            placeholder="# of Thin Mints" />
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="text-black text-base mb-2 block"># PB Patties</label>
-                                    <div class="relative flex items-center">
-                                        <input id="add-order-pbpatties" type="number" min="0"
-                                            class="bg-white border border-gray w-full text-base text-black px-4 py-2.5 rounded-default accent-green"
-                                            placeholder="# of PB Patties" />
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="text-black text-base mb-2 block"># Caramel deLites</label>
-                                    <div class="relative flex items-center">
-                                        <input id="add-order-carameldelites" type="number" min="0"
-                                            class="bg-white border border-gray w-full text-base text-black px-4 py-2.5 rounded-default accent-green"
-                                            placeholder="# of Caramel deLites" />
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="text-black text-base mb-2 block"># PB Sandwich</label>
-                                    <div class="relative flex items-center">
-                                        <input id="add-order-pbsandwich" type="number" min="0"
-                                            class="bg-white border border-gray w-full text-base text-black px-4 py-2.5 rounded-default accent-green"
-                                            placeholder="# of PB Sandwich" />
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="text-black text-base mb-2 block"># GF Caramel Choc Chip</label>
-                                    <div class="relative flex items-center">
-                                        <input id="add-order-gfchocchip" type="number" min="0"
-                                            class="bg-white border border-gray w-full text-base text-black px-4 py-2.5 rounded-default accent-green"
-                                            placeholder="# of GF CC Chip" />
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="text-black text-base mb-2 block">Pickup Location</label>
-                                    <div class="relative flex items-center">
-                                        <button id="add-order-pickup-btn" type="button"
-                                            class="bg-white border border-gray w-full text-base text-black text-left px-4 py-2.5 rounded-default accent-green">
-                                            Select Location
-                                        </button>
-                                        <i class="fa-solid fa-chevron-down absolute right-4"></i>
-                                        <ul id="add-order-pickup-dropdown"
-                                            class='absolute hidden top-full shadow-default bg-white py-2 z-[1000] min-w-full w-max rounded-default max-h-40 overflow-auto'>
-                                            <li class='py-2.5 px-5 hover:bg-green text-black text-sm cursor-pointer'>
-                                                Shawn's House (5 Raintree Ct, Mansfield)</li>
-                                            <li class='py-2.5 px-5 hover:bg-green text-black text-sm cursor-pointer'>
-                                                Amanda's House (7840 Townsend Rd, Mansfield)</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="text-black text-base mb-2 block">Contact Preference</label>
-                                    <div class="relative flex items-center">
-                                        <button id="add-order-contact-btn" type="button"
-                                            class="bg-white border border-gray w-full text-base text-black text-left px-4 py-2.5 rounded-default accent-green">
-                                            Select Preference
-                                        </button>
-                                        <i class="fa-solid fa-chevron-down absolute right-4"></i>
-                                        <ul id="add-order-contact-dropdown"
-                                            class='absolute hidden top-full shadow-default bg-white py-2 z-[1000] min-w-full w-max rounded-default max-h-40 overflow-auto'>
-                                            <li class='py-2.5 px-5 hover:bg-green text-black text-sm cursor-pointer'>
-                                                Phone</li>
-                                            <li class='py-2.5 px-5 hover:bg-green text-black text-sm cursor-pointer'>
-                                                Email</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <div class="sm:col-span-2">
-                                    <label class="text-black text-base mb-2 block">Financial Agreement</label>
-                                    <div class="relative flex items-center">
-                                        <input id="add-order-agreement" type="checkbox"
-                                            class="h-4 w-4 shrink-0 text-black focus:ring-orange border-gray rounded accent-orange cursor-pointer"
-                                            required />
-                                        <label for="add-order-agreement" class="text-orange-light ml-3 block text-base cursor-pointer">
-                                            By submitting this order I understand that
-                                            I will be financially responsible for these cookies.
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="border-t border-gray pt-6 flex justify-between gap-4 mt-6">
-                                <button id="add-order-cancel" type="button"
-                                    class="w-full px-4 py-2 rounded-default text-black text-sm border-none tracking-wide bg-white hover:bg-gray accent-green">
-                                    Cancel
-                                </button>
-                                <button id="add-order-submit" type="submit"
-                                    class="w-full px-4 py-2 rounded-default text-white text-sm border-none tracking-wide bg-green hover:bg-green-light accent-orange">
-                                    Submit
-                                </button>
-                            </div>
-                        </form>
-                    </div>
                 </div>
                 <div class=" bg-white py-6 px-4 max-w-7xl relative shadow-default mx-auto rounded-default">
                     <h2 class="text-green text-4xl max-sm:text-2xl font-extrabold mb-8">
@@ -517,10 +365,10 @@
                             class="min-w-full border-separate border-spacing-0 border-4 border-green rounded-default">
                             <thead class="bg-green whitespace-nowrap">
                                 <tr class="text-left text-lg text-white [&_th]:p-4 [&_th]:font-normal">
+                                    <th>Date Created</th>
+                                    <th>Date Completed</th>
                                     <th>Girl Name</th>
                                     <th>Parent Name</th>
-                                    <th>Email</th>
-                                    <th>Phone</th>
                                     <th>Box Total</th>
                                     <th># Adventurefuls</th>
                                     <th># Toast-Yays!</th>
@@ -541,6 +389,161 @@
                             </tbody>
                         </table>
                     </div>
+                </div>
+
+                <div id="order-form"
+                    class="hidden fixed inset-0 p-4 flex-wrap justify-center items-center w-full h-full z-[1000] before:fixed before:inset-0 before:w-full before:h-full before:bg-black-overlay shadow-default overflow-auto">
+                    <form class="w-full max-w-4xl bg-white shadow-default rounded-default p-6 relative">
+                        <div class="flex items-center pb-3 border-b border-gray">
+                            <div class="flex-1">
+                                <h3 id="order-title" class="text-green text-xl font-bold">Add Order</h3>
+                                <p id="order-subtitle" class="text-black text-sm mt-1">
+                                    Add a new order to your account
+                                </p>
+                            </div>
+                            <i id="order-close"
+                                class="fa-solid fa-xmark text-xl text-black hover:text-black-light shrink-0 ml-2 w-3 cursor-pointer"></i>
+                        </div>
+                        <div class="grid sm:grid-cols-2 gap-4 mt-6">
+                            <div>
+                                <label class="text-black text-base mb-2 block">Trooper Name</label>
+                                <div class="relative flex items-center">
+                                    <input id="order-tname" type="text" required
+                                        class="bg-white border border-gray w-full text-base text-black px-4 py-2.5 rounded-default accent-green"
+                                        placeholder="Enter the trooper name" />
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-black text-base mb-2 block"># Adventurefuls</label>
+                                <div class="relative flex items-center">
+                                    <input id="order-adventurefuls" type="number" min="0"
+                                        class="bg-white border border-gray w-full text-base text-black px-4 py-2.5 rounded-default accent-green"
+                                        placeholder="# of Adventurefuls" />
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-black text-base mb-2 block"># Toast-Yays!</label>
+                                <div class="relative flex items-center">
+                                    <input id="order-toastyays" type="number" min="0"
+                                        class="bg-white border border-gray w-full text-base text-black px-4 py-2.5 rounded-default accent-green"
+                                        placeholder="# of Toast-Yays!" />
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-black text-base mb-2 block"># Lemonades</label>
+                                <div class="relative flex items-center">
+                                    <input id="order-lemonades" type="number" min="0"
+                                        class="bg-white border border-gray w-full text-base text-black px-4 py-2.5 rounded-default accent-green"
+                                        placeholder="# of Lemonades" />
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-black text-base mb-2 block"># Trefoil</label>
+                                <div class="relative flex items-center">
+                                    <input id="order-trefoils" type="number" min="0"
+                                        class="bg-white border border-gray w-full text-base text-black px-4 py-2.5 rounded-default accent-green"
+                                        placeholder="# of Trefoil" />
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-black text-base mb-2 block"># Thin Mints</label>
+                                <div class="relative flex items-center">
+                                    <input id="order-thinmints" type="number" min="0"
+                                        class="bg-white border border-gray w-full text-base text-black px-4 py-2.5 rounded-default accent-green"
+                                        placeholder="# of Thin Mints" />
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-black text-base mb-2 block"># PB Patties</label>
+                                <div class="relative flex items-center">
+                                    <input id="order-pbpatties" type="number" min="0"
+                                        class="bg-white border border-gray w-full text-base text-black px-4 py-2.5 rounded-default accent-green"
+                                        placeholder="# of PB Patties" />
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-black text-base mb-2 block"># Caramel deLites</label>
+                                <div class="relative flex items-center">
+                                    <input id="order-carameldelites" type="number" min="0"
+                                        class="bg-white border border-gray w-full text-base text-black px-4 py-2.5 rounded-default accent-green"
+                                        placeholder="# of Caramel deLites" />
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-black text-base mb-2 block"># PB Sandwich</label>
+                                <div class="relative flex items-center">
+                                    <input id="order-pbsandwich" type="number" min="0"
+                                        class="bg-white border border-gray w-full text-base text-black px-4 py-2.5 rounded-default accent-green"
+                                        placeholder="# of PB Sandwich" />
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-black text-base mb-2 block"># GF Caramel Choc Chip</label>
+                                <div class="relative flex items-center">
+                                    <input id="order-gfchocchip" type="number" min="0"
+                                        class="bg-white border border-gray w-full text-base text-black px-4 py-2.5 rounded-default accent-green"
+                                        placeholder="# of GF CC Chip" />
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-black text-base mb-2 block">Pickup Location</label>
+                                <div class="relative flex items-center">
+                                    <button id="order-pickup-btn" type="button"
+                                        class="bg-white border border-gray w-full text-base text-black text-left px-4 py-2.5 rounded-default accent-green">
+                                        Select Location
+                                    </button>
+                                    <i class="fa-solid fa-chevron-down absolute right-4"></i>
+                                    <ul id="order-pickup-dropdown"
+                                        class='absolute hidden top-full shadow-default bg-white py-2 z-[1000] min-w-full w-max rounded-default max-h-40 overflow-auto'>
+                                        <li class='py-2.5 px-5 hover:bg-green text-black text-sm cursor-pointer'>
+                                            Shawn's House (5 Raintree Ct, Mansfield)</li>
+                                        <li class='py-2.5 px-5 hover:bg-green text-black text-sm cursor-pointer'>
+                                            Amanda's House (7840 Townsend Rd, Mansfield)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-black text-base mb-2 block">Contact Preference</label>
+                                <div class="relative flex items-center">
+                                    <button id="order-contact-btn" type="button"
+                                        class="bg-white border border-gray w-full text-base text-black text-left px-4 py-2.5 rounded-default accent-green">
+                                        Select Preference
+                                    </button>
+                                    <i class="fa-solid fa-chevron-down absolute right-4"></i>
+                                    <ul id="order-contact-dropdown"
+                                        class='absolute hidden top-full shadow-default bg-white py-2 z-[1000] min-w-full w-max rounded-default max-h-40 overflow-auto'>
+                                        <li class='py-2.5 px-5 hover:bg-green text-black text-sm cursor-pointer'>
+                                            Phone</li>
+                                        <li class='py-2.5 px-5 hover:bg-green text-black text-sm cursor-pointer'>
+                                            Email</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label class="text-black text-base mb-2 block">Financial Agreement</label>
+                                <div class="relative flex items-center">
+                                    <input id="order-agreement" type="checkbox"
+                                        class="h-4 w-4 shrink-0 text-black focus:ring-orange border-gray rounded accent-orange cursor-pointer"
+                                        required />
+                                    <label for="order-agreement"
+                                        class="text-orange-light ml-3 block text-base cursor-pointer">
+                                        By submitting this order I understand that
+                                        I will be financially responsible for these cookies.
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="border-t border-gray pt-6 flex justify-between gap-4 mt-6">
+                            <button id="order-cancel" type="button"
+                                class="w-full px-4 py-2 rounded-default text-black text-sm border-none tracking-wide bg-white hover:bg-gray accent-green">
+                                Cancel
+                            </button>
+                            <button id="order-submit" type="submit"
+                                class="w-full px-4 py-2 rounded-default text-white text-sm border-none tracking-wide bg-green hover:bg-green-light accent-orange">
+                                Submit
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </section>
         </div>

@@ -89,12 +89,31 @@ function setupDropdown(buttonId, dropdownId) {
 //#endregion --------------------------------------------------------
 
 //#region TABLE ROWS ------------------------------------------------
-const createTableRow = {
+const handleTableRow = {
     currentOrder: (data) => addOrderRow(data, true),
     completedOrder: (data) => addOrderRow(data, false),
     yourTrooper: (data) => addTrooperRow(data),
-    yourDocuments: (data) => addFileRow(data)
+    yourDocuments: (data) => addFileRow(data),
+    updateOrderRow: (row, data) => editRowData(row, orderFields, data)
 }
+
+const orderFields = [
+    "dateCreated", "trooperName", "parentName", "boxTotal", "adventurefuls", "toastyays", "lemonades",
+    "trefoils", "thinMints", "pbPatties", "caramelDelites", "pbSandwich", "gfChocChip", "pickup",
+    "contact", "finacialAgreement"
+];
+
+const completedOrderFields = [
+    orderFields[0], "dateCompleted", ...orderFields.slice(1)
+];
+
+const trooperFields = [
+    "trooperNumber", "trooperName", "age", "grade", "shirtSize", "troopLeader"
+];
+
+const fileFields = [
+    "fileName", "fileSize", "dateUploaded"
+];
 
 function setupRowFields(tr, hasDropdown, fields, data, buttons) {
     if (hasDropdown) {
@@ -113,7 +132,7 @@ function setupRowFields(tr, hasDropdown, fields, data, buttons) {
     fields.forEach(field => {
         let td = document.createElement("td");
         // If field exists in orderContent, get it from orderContent, otherwise get it from the main data object
-        td.textContent = data.orderContent?.[field] || data[field] || ""; // Handle missing or undefined fields
+        td.textContent = data.orderContent?.[field] ?? data[field] ?? ""; // Handle missing or undefined fields
         tr.appendChild(td);
     });
 
@@ -138,19 +157,13 @@ function setupRowFields(tr, hasDropdown, fields, data, buttons) {
 function addOrderRow(data, isCurrentOrder) {
     const tableName = isCurrentOrder ? "current" : "completed";
     const tbody = document.getElementById(`${tableName}-orders-tbody`);
+    const fields = isCurrentOrder ? orderFields : completedOrderFields;
     let tr = document.createElement("tr");
     tr.className = "even:bg-gray text-sm text-black [&_td]:p-4";
 
-    // Data fields to display
-    let fields = [
-        "dateCreated", "trooperName", "parentName", "adventurefuls", "toastyays", "lemonades",
-        "trefoils", "thinMints", "pbPatties", "caramelDelites", "pbSandwich", "gfChocChip", "pickup",
-        "contact", "finacialAgreement"
-    ];
-
     // Button configurations
     let buttons = [
-        !isCurrentOrder && { title: "Complete", iconClass: "fa-clipboard-check text-green hover:text-green-light" },
+        isCurrentOrder && { title: "Complete", iconClass: "fa-clipboard-check text-green hover:text-green-light" },
         { title: "Edit", iconClass: "fa-pen-to-square text-blue hover:text-blue-light" },
         { title: "Delete", iconClass: "fa-trash-can text-red hover:text-red-light" }
     ].filter(Boolean); // Removes `false` values if `isCurrentOrder` is true
@@ -164,18 +177,13 @@ function addTrooperRow(data) {
     let tr = document.createElement("tr");
     tr.className = "even:bg-gray text-sm text-black [&_td]:p-4";
 
-    // Data fields to display
-    let fields = [
-        "trooperNumber", "trooperName", "age", "grade", "shirtSize", "troopLeader"
-    ];
-
     // Button configurations
     let buttons = [
         { title: "Edit", iconClass: "fa-pen-to-square text-blue hover:text-blue-light" },
         { title: "Delete", iconClass: "fa-trash-can text-red hover:text-red-light" }
     ];
 
-    setupRowFields(tr, true, fields, data, buttons);
+    setupRowFields(tr, true, trooperFields, data, buttons);
     tbody.appendChild(tr);
 
     //Now add a hidden row after the main row
@@ -200,20 +208,34 @@ function addFileRow(data) {
     let tr = document.createElement("tr");
     tr.className = "even:bg-gray text-sm text-black [&_td]:p-4";
 
-    // Data fields to display
-    let fields = [
-        "fileName", "fileSize", "dateUploaded"
-    ];
-
     // Button configurations
     let buttons = [
         { title: "Download", iconClass: "fa-cloud-arrow-down text-blue hover:text-blue-light" },
         { title: "Delete", iconClass: "fa-trash-can text-red hover:text-red-light" }
     ];
 
-    setupRowFields(tr, false, fields, data, buttons);
+    setupRowFields(tr, false, fileFields, data, buttons);
     tbody.appendChild(tr);
+}
+
+function editRowData(row, fields, data) {
+    if (!row || !fields || !data || typeof data !== "object") {
+        console.error("Invalid parameters passed to updateTableRow");
+        return;
+    }
+
+    const tds = row.getElementsByTagName("td");
+    let tdIndex = 0; // Keep track of which <td> to update
+
+    fields.forEach(field => {
+        if (tdIndex >= tds.length) return; // Prevent out-of-bounds errors
+
+        // If field exists in orderContent, get it from orderContent; otherwise, get it from the main object
+        const value = data.orderContent?.[field] ?? data[field] ?? null;
+        if (value !== null) tds[tdIndex].textContent = value;
+        tdIndex++;
+    });
 }
 //#endregion TABLE ROWS ---------------------------------------------
 
-export { regExpCalls, setupPhoneInput, setupDropdown, createTableRow }
+export { regExpCalls, setupPhoneInput, setupDropdown, handleTableRow }
