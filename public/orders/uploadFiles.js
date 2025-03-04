@@ -1,3 +1,4 @@
+import { showToast, STATUS_COLOR } from "../utils/toasts.js";
 import { handleTableRow } from "../utils/utils.js";
 
 //Variables -------------------------------------------------------------
@@ -171,11 +172,12 @@ function checkUploadsComplete() {
 
 //#region TABLE ACTIONS ---------------------------------------------
 function downloadFile() {
-    alert("Downloading!");
+    showToast("File Downloaded", "The selected file has been downloaded.", STATUS_COLOR.GREEN, true, 5);
 }
 
 function deleteUploadedFile() {
     const rowElem = this.parentElement.parentElement;
     rowElem.remove();
+    showToast("File Deleted", "The selected file has been deleted.", STATUS_COLOR.GREEN, true, 5);
 }
 //#endregion TABLE ACTIONS ------------------------------------------

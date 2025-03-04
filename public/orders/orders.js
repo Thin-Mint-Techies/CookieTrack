@@ -1,6 +1,7 @@
 import { showToast, STATUS_COLOR } from "../utils/toasts.js";
 import { callApi } from "../utils/apiCall.js";
 import { regExpCalls, setupDropdown, handleTableRow } from "../utils/utils.js";
+import { createConfirmModal } from "../utils/confirmModal.js";
 
 //#region Add/Edit Orders -------------------------------------------------
 let addOrderBtn = document.getElementById('add-order');
@@ -158,9 +159,11 @@ orderSubmit.addEventListener('click', (e) => {
     }
 
     if (currentMode === "add") {
-        handleTableRow.currentOrder(orderData, editCurrentOrder, deleteCurrentOrder, completeCurrentOrder);
+        handleTableRow.currentOrder(orderData, editCurrentOrder, createConfirmModal(deleteCurrentOrder), completeCurrentOrder);
+        showToast("Order Added", "A new order has been created for your account.", STATUS_COLOR.GREEN, true, 5);
     } else if (currentMode === "edit") {
         handleTableRow.updateOrderRow(currentRowEditing, orderData);
+        showToast("Order Updated", "The selected order has been updated with the new information.", STATUS_COLOR.GREEN, true, 5);
     }
 
     orderClose.click();
@@ -170,8 +173,9 @@ orderSubmit.addEventListener('click', (e) => {
 //#region TABLE ACTIONS ---------------------------------------------
 function completeCurrentOrder() {
     const rowElem = this.parentElement.parentElement;
-    handleTableRow.completedOrder(getRowData(rowElem, true, true), editCompletedOrder, deleteCompletedOrder);
+    handleTableRow.completedOrder(getRowData(rowElem, true, true), editCompletedOrder, createConfirmModal(deleteCompletedOrder));
     rowElem.remove();
+    showToast("Order Completed", "The selected order has been completed and moved to the Completed Orders table.", STATUS_COLOR.GREEN, true, 5);
 }
 
 function editCurrentOrder() {
@@ -183,6 +187,7 @@ function editCurrentOrder() {
 function deleteCurrentOrder() {
     const rowElem = this.parentElement.parentElement;
     rowElem.remove();
+    showToast("Order Deleted", "The selected order has been deleted.", STATUS_COLOR.GREEN, true, 5);
 }
 
 function editCompletedOrder() {
@@ -194,15 +199,7 @@ function editCompletedOrder() {
 function deleteCompletedOrder() {
     const rowElem = this.parentElement.parentElement;
     rowElem.remove();
-}
-
-function downloadFile() {
-    alert("Downloading!");
-}
-
-function deleteUploadedFile() {
-    const rowElem = this.parentElement.parentElement;
-    rowElem.remove();
+    showToast("Order Deleted", "The selected order has been deleted.", STATUS_COLOR.GREEN, true, 5);
 }
 
 function getRowData(row, isCompletedOrders = false, needsDate = false) {
@@ -212,7 +209,7 @@ function getRowData(row, isCompletedOrders = false, needsDate = false) {
 
     let orderData = {
         dateCreated: tds[index++]?.textContent.trim(),
-        ...(isCompletedOrders ? { 
+        ...(isCompletedOrders ? {
             dateCompleted: needsDate ? new Date().toLocaleDateString('en-US') : tds[index++]?.textContent.trim()
         } : null),
         trooperName: tds[index++]?.textContent.trim(),
