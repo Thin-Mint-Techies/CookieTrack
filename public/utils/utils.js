@@ -90,30 +90,31 @@ function setupDropdown(buttonId, dropdownId) {
 
 //#region TABLE ROWS ------------------------------------------------
 const handleTableRow = {
-    currentOrder: (data) => addOrderRow(data, true),
-    completedOrder: (data) => addOrderRow(data, false),
-    yourTrooper: (data) => addTrooperRow(data),
-    yourDocuments: (data) => addFileRow(data),
-    updateOrderRow: (row, data) => editRowData(row, orderFields, data)
+    currentOrder: (data, editAction, deleteAction, completeAction) => addOrderRow(data, true, editAction, deleteAction, completeAction),
+    completedOrder: (data, editAction, deleteAction) => addOrderRow(data, false, editAction, deleteAction, null),
+    yourTrooper: (data, editAction, deleteAction) => addTrooperRow(data, editAction, deleteAction),
+    yourDocuments: (data, downloadAction, deleteAction) => addFileRow(data, downloadAction, deleteAction),
+    updateOrderRow: (row, data) => editRowData(row, rowFields.orders, data)
 }
 
-const orderFields = [
+const orders = [
     "dateCreated", "trooperName", "parentName", "boxTotal", "adventurefuls", "toastyays", "lemonades",
     "trefoils", "thinMints", "pbPatties", "caramelDelites", "pbSandwich", "gfChocChip", "pickup",
     "contact", "finacialAgreement"
 ];
 
-const completedOrderFields = [
-    orderFields[0], "dateCompleted", ...orderFields.slice(1)
-];
-
-const trooperFields = [
-    "trooperNumber", "trooperName", "age", "grade", "shirtSize", "troopLeader"
-];
-
-const fileFields = [
-    "fileName", "fileSize", "dateUploaded"
-];
+const rowFields = {
+    orders,
+    completedOrders: [
+        orders[0], "dateCompleted", ...orders.slice(1)
+    ],
+    troopers: [
+        "trooperNumber", "trooperName", "age", "grade", "shirtSize", "troopLeader"
+    ],
+    files: [
+        "fileName", "fileSize", "dateUploaded"
+    ]
+}
 
 function setupRowFields(tr, hasDropdown, fields, data, buttons) {
     if (hasDropdown) {
@@ -123,6 +124,19 @@ function setupRowFields(tr, hasDropdown, fields, data, buttons) {
 
         let icon = document.createElement("i");
         icon.className = "fa-solid fa-caret-down text-xl";
+
+        arrowTd.addEventListener('click', () => {
+            let arrow = arrowTd.querySelector('i');
+            let hiddenRow = arrowTd.parentElement.nextElementSibling;
+
+            if (arrow.classList.contains('fa-caret-down')) {
+                hiddenRow.classList.remove('hidden');
+                arrow.className = 'fa-solid fa-caret-up text-xl';
+            } else {
+                hiddenRow.classList.add('hidden');
+                arrow.className = 'fa-solid fa-caret-down text-xl';
+            }
+        });
 
         arrowTd.appendChild(icon);
         tr.appendChild(arrowTd);
@@ -147,6 +161,8 @@ function setupRowFields(tr, hasDropdown, fields, data, buttons) {
         let icon = document.createElement("i");
         icon.className = `fa-solid ${btn.iconClass} text-xl`;
 
+        button.addEventListener('click', btn.action);
+
         button.appendChild(icon);
         actionTd.appendChild(button);
     });
@@ -154,36 +170,36 @@ function setupRowFields(tr, hasDropdown, fields, data, buttons) {
     tr.appendChild(actionTd);
 }
 
-function addOrderRow(data, isCurrentOrder) {
+function addOrderRow(data, isCurrentOrder, editAction, deleteAction, completeAction) {
     const tableName = isCurrentOrder ? "current" : "completed";
     const tbody = document.getElementById(`${tableName}-orders-tbody`);
-    const fields = isCurrentOrder ? orderFields : completedOrderFields;
+    const fields = isCurrentOrder ? rowFields.orders : rowFields.completedOrders;
     let tr = document.createElement("tr");
     tr.className = "even:bg-gray text-sm text-black [&_td]:p-4";
 
     // Button configurations
     let buttons = [
-        isCurrentOrder && { title: "Complete", iconClass: "fa-clipboard-check text-green hover:text-green-light" },
-        { title: "Edit", iconClass: "fa-pen-to-square text-blue hover:text-blue-light" },
-        { title: "Delete", iconClass: "fa-trash-can text-red hover:text-red-light" }
+        isCurrentOrder && { title: "Complete", iconClass: "fa-clipboard-check text-green hover:text-green-light", action: completeAction },
+        { title: "Edit", iconClass: "fa-pen-to-square text-blue hover:text-blue-light", action: editAction },
+        { title: "Delete", iconClass: "fa-trash-can text-red hover:text-red-light", action: deleteAction }
     ].filter(Boolean); // Removes `false` values if `isCurrentOrder` is true
 
     setupRowFields(tr, false, fields, data, buttons);
     tbody.appendChild(tr);
 }
 
-function addTrooperRow(data) {
+function addTrooperRow(data, editAction, deleteAction) {
     const tbody = document.getElementById("your-troopers-tbody");
     let tr = document.createElement("tr");
     tr.className = "even:bg-gray text-sm text-black [&_td]:p-4";
 
     // Button configurations
     let buttons = [
-        { title: "Edit", iconClass: "fa-pen-to-square text-blue hover:text-blue-light" },
-        { title: "Delete", iconClass: "fa-trash-can text-red hover:text-red-light" }
+        { title: "Edit", iconClass: "fa-pen-to-square text-blue hover:text-blue-light", action: editAction},
+        { title: "Delete", iconClass: "fa-trash-can text-red hover:text-red-light", action: deleteAction}
     ];
 
-    setupRowFields(tr, true, trooperFields, data, buttons);
+    setupRowFields(tr, true, rowFields.troopers, data, buttons);
     tbody.appendChild(tr);
 
     //Now add a hidden row after the main row
@@ -192,7 +208,7 @@ function addTrooperRow(data) {
 
     let hiddenTd = document.createElement("td");
     hiddenTd.className = "pl-12 text-sm";
-    hiddenTd.colSpan = fields.length + 1;
+    hiddenTd.colSpan = rowFields.troopers.length + 1;
 
     let hiddenDiv = document.createElement("div");
     hiddenDiv.className = "p-4 border-2 border-gray rounded-default";
@@ -203,18 +219,18 @@ function addTrooperRow(data) {
     tbody.appendChild(hiddenTr);
 }
 
-function addFileRow(data) {
+function addFileRow(data, downloadAction, deleteAction) {
     const tbody = document.getElementById("your-documents-tbody");
     let tr = document.createElement("tr");
     tr.className = "even:bg-gray text-sm text-black [&_td]:p-4";
 
     // Button configurations
     let buttons = [
-        { title: "Download", iconClass: "fa-cloud-arrow-down text-blue hover:text-blue-light" },
-        { title: "Delete", iconClass: "fa-trash-can text-red hover:text-red-light" }
+        { title: "Download", iconClass: "fa-cloud-arrow-down text-blue hover:text-blue-light", action: downloadAction },
+        { title: "Delete", iconClass: "fa-trash-can text-red hover:text-red-light", action: deleteAction }
     ];
 
-    setupRowFields(tr, false, fileFields, data, buttons);
+    setupRowFields(tr, false, rowFields.files, data, buttons);
     tbody.appendChild(tr);
 }
 

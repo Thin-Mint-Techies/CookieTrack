@@ -102,7 +102,15 @@ addTrooperSubmit.addEventListener('click', (e) => {
         currentBalance: 0.0
     }
 
-    handleTableRow.yourTrooper(trooperData);
+    handleTableRow.yourTrooper(trooperData, testEdit, testDelete);
     addTrooperClose.click();
 });
+
+function testEdit() {
+    alert("edit");
+}
+
+function testDelete() {
+    alert("delete");
+}
 //#endregion ----------------------------------------------------------

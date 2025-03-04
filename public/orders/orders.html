@@ -317,9 +317,39 @@
                     </div>
                 </div>
                 <div class=" bg-white py-6 px-4 max-w-7xl relative shadow-default mx-auto mb-8 rounded-default">
-                    <h2 class="text-green text-4xl max-sm:text-2xl font-extrabold mb-8">
+                    <h2 class="text-green text-4xl max-sm:text-2xl font-extrabold mb-4">
                         <i class="fa-solid fa-hourglass-half"></i> Current Orders
                     </h2>
+                    <div id="current-orders-filters" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                        <div class="flex relative">
+                            <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                                <i class="fa-solid fa-magnifying-glass w-4 h-4 text-black"></i>
+                            </div>
+                            <input type="search" id="current-orders-search"
+                                class="block w-full p-2 ps-10 text-sm text-black border-2 border-gray rounded-default bg-white focus:ring-green focus:border-green outline-none"
+                                placeholder="Search by names" required />
+                        </div>
+                        <div class="flex items-center lg:justify-self-end gap-4 max-sm:w-full">
+                            <div class="relative flex-1 min-w-0">
+                                <label for="current-order-datestart"
+                                    class="absolute text-sm text-green left-1 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2">
+                                    Start date
+                                </label>
+                                <input id="current-order-datestart" name="start" type="date"
+                                    class="block w-full min-w-0 p-2.5 bg-white border-2 border-gray text-black text-sm rounded-default focus:ring-green focus:border-green outline-none appearance-none">
+                            </div>
+                            <span class="text-black">to</span>
+                            <div class="relative flex-1 min-w-0">
+                                <label for="current-order-dateend"
+                                    class="absolute text-sm text-green left-1 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2">
+                                    End date
+                                </label>
+                                <input id="current-order-dateend" name="end" type="date"
+                                    class="block w-full min-w-0 p-2.5 bg-white border-2 border-gray text-black text-sm rounded-default focus:ring-green focus:border-green outline-none appearance-none">
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="overflow-x-auto pb-4">
                         <table
                             class="min-w-full border-separate border-spacing-0 border-4 border-green rounded-default">
@@ -360,6 +390,36 @@
                     <h2 class="text-green text-4xl max-sm:text-2xl font-extrabold mb-8">
                         <i class="fa-solid fa-clipboard-check"></i> Completed Orders
                     </h2>
+                    <div id="completed-orders-filters" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                        <div class="flex relative">
+                            <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                                <i class="fa-solid fa-magnifying-glass w-4 h-4 text-black"></i>
+                            </div>
+                            <input type="search" id="completed-orders-search"
+                                class="block w-full p-2 ps-10 text-sm text-black border-2 border-gray rounded-default bg-white focus:ring-green focus:border-green outline-none"
+                                placeholder="Search by names" required />
+                        </div>
+                        <div class="flex items-center lg:justify-self-end gap-4 max-sm:w-full">
+                            <div class="relative flex-1 min-w-0">
+                                <label for="completed-order-datestart"
+                                    class="absolute text-sm text-green left-1 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2">
+                                    Start date
+                                </label>
+                                <input id="completed-order-datestart" name="start" type="date"
+                                    class="block w-full min-w-0 p-2.5 bg-white border-2 border-gray text-black text-sm rounded-default focus:ring-green focus:border-green outline-none appearance-none">
+                            </div>
+                            <span class="text-black">to</span>
+                            <div class="relative flex-1 min-w-0">
+                                <label for="completed-order-dateend"
+                                    class="absolute text-sm text-green left-1 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2">
+                                    End date
+                                </label>
+                                <input id="completed-order-dateend" name="end" type="date"
+                                    class="block w-full min-w-0 p-2.5 bg-white border-2 border-gray text-black text-sm rounded-default focus:ring-green focus:border-green outline-none appearance-none">
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="overflow-x-auto pb-4">
                         <table
                             class="min-w-full border-separate border-spacing-0 border-4 border-green rounded-default">

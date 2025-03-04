@@ -158,7 +158,7 @@ orderSubmit.addEventListener('click', (e) => {
     }
 
     if (currentMode === "add") {
-        handleTableRow.currentOrder(orderData);
+        handleTableRow.currentOrder(orderData, editCurrentOrder, deleteCurrentOrder, completeCurrentOrder);
     } else if (currentMode === "edit") {
         handleTableRow.updateOrderRow(currentRowEditing, orderData);
     }
@@ -168,26 +168,42 @@ orderSubmit.addEventListener('click', (e) => {
 //#endregion --------------------------------------------------------
 
 //#region TABLE ACTIONS ---------------------------------------------
-document.addEventListener('click', (e) => {
-    const elem = e.target;
-    const elemTitle = elem.parentElement.getAttribute("title");
-    const rowElem = elem.parentElement.parentElement.parentElement;
+function completeCurrentOrder() {
+    const rowElem = this.parentElement.parentElement;
+    handleTableRow.completedOrder(getRowData(rowElem, true, true), editCompletedOrder, deleteCompletedOrder);
+    rowElem.remove();
+}
 
-    if (elemTitle === "Delete") {
-        rowElem.remove();
-    }
-    else if (elemTitle === "Edit") {
-        currentRowEditing = rowElem;
-        const isCompletedOrders = rowElem.parentElement.getAttribute('id') === "completed-orders-tbody";
-        openOrderModal("edit", getRowData(currentRowEditing, isCompletedOrders));
-    } else if (elemTitle === "Complete") {
-        handleTableRow.completedOrder(getRowData(rowElem, true, true));
-        rowElem.remove();
-    } else if (elemTitle === "Download") {
-        alert("Downloading!");
-    }
-});
+function editCurrentOrder() {
+    const rowElem = this.parentElement.parentElement;
+    currentRowEditing = rowElem;
+    openOrderModal("edit", getRowData(currentRowEditing, false));
+}
 
+function deleteCurrentOrder() {
+    const rowElem = this.parentElement.parentElement;
+    rowElem.remove();
+}
+
+function editCompletedOrder() {
+    const rowElem = this.parentElement.parentElement;
+    currentRowEditing = rowElem;
+    openOrderModal("edit", getRowData(currentRowEditing, true));
+}
+
+function deleteCompletedOrder() {
+    const rowElem = this.parentElement.parentElement;
+    rowElem.remove();
+}
+
+function downloadFile() {
+    alert("Downloading!");
+}
+
+function deleteUploadedFile() {
+    const rowElem = this.parentElement.parentElement;
+    rowElem.remove();
+}
 
 function getRowData(row, isCompletedOrders = false, needsDate = false) {
     // Exclude the last <td> (actions)

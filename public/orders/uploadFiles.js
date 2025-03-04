@@ -50,7 +50,7 @@ uploadFilesSubmit.addEventListener("click", () => {
                 fileSize: formatFileSize(file.size),
                 dateUploaded: new Date().toLocaleDateString("en-US")
             }
-            handleTableRow.yourDocuments(fileData);
+            handleTableRow.yourDocuments(fileData, downloadFile, deleteUploadedFile);
         });
         closeFileUploadModal();
     }
@@ -168,3 +168,14 @@ function checkUploadsComplete() {
         uploadFilesCancel.classList.add("hidden");
     }
 }
+
+//#region TABLE ACTIONS ---------------------------------------------
+function downloadFile() {
+    alert("Downloading!");
+}
+
+function deleteUploadedFile() {
+    const rowElem = this.parentElement.parentElement;
+    rowElem.remove();
+}
+//#endregion TABLE ACTIONS ------------------------------------------
