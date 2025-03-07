@@ -29,6 +29,7 @@ h2>i {
 }
 
 .toast {
+    margin: 0 10px;
     border-radius: 10px;
     background: #ffffff;
     padding: 20px 35px 20px 25px;

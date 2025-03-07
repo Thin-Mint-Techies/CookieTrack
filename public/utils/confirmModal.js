@@ -1,10 +1,11 @@
 export function createConfirmModal(confirmAction) {
-    const modal = document.createElement('div');
-    modal.id = 'confirm-modal';
-    modal.className = 'flex fixed inset-0 p-4 flex-wrap justify-center items-center w-full h-full z-[1000] before:fixed before:inset-0 before:w-full before:h-full before:bg-black-overlay shadow-default overflow-auto';
-    
-    modal.innerHTML = `
-        <form class="w-full max-w-4xl bg-white shadow-default rounded-default p-6 relative">
+    return () => {
+        const modal = document.createElement('div');
+        modal.id = 'confirm-modal';
+        modal.className = 'flex fixed inset-0 p-4 flex-wrap justify-center items-center w-full h-full z-[1000] before:fixed before:inset-0 before:w-full before:h-full before:bg-black-overlay shadow-default overflow-auto';
+
+        modal.innerHTML = `
+        <form class="w-full max-w-xl bg-white shadow-default rounded-default p-6 relative">
             <div class="flex items-center pb-3 border-b border-gray">
                 <div class="flex-1">
                     <h3 id="confirm-modal-title" class="text-red text-xl font-bold">Confirm Deletion</h3>
@@ -21,11 +22,12 @@ export function createConfirmModal(confirmAction) {
             </div>
         </form>
     `;
-    
-    document.body.appendChild(modal);
-    
-    // Event listeners for closing the modal
-    document.getElementById('confirm-modal-close').addEventListener('click', () => modal.remove());
-    document.getElementById('confirm-modal-cancel').addEventListener('click', () => modal.remove());
-    document.getElementById('confirm-modal-submit').addEventListener('click', confirmAction);
+
+        document.body.appendChild(modal);
+
+        // Event listeners for closing the modal
+        document.getElementById('confirm-modal-close').addEventListener('click', () => modal.remove());
+        document.getElementById('confirm-modal-cancel').addEventListener('click', () => modal.remove());
+        document.getElementById('confirm-modal-submit').addEventListener('click', confirmAction);
+    }
 }
