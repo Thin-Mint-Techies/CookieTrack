@@ -1,15 +1,64 @@
 const { Firestore } = require('../firebaseConfig');
+const { sendEmail } = require('../utils/emailSender');
+
+const emailAuth = {
+  user: 'tao734509@gmail.com',
+  pass: '73450911Hh',
+};
 
 // need rework
-const createOrder = async ({ trooperName, trooperId,trooperNumber,ownerId }) => {
+const createOrder = async ({ trooperName, trooperId, trooperNumber, ownerId, dateCreated, SU, paymentType, orderContent, pickupDetails }) => {
   try {
     const newOrderRef = Firestore.collection('orders').doc();
     await newOrderRef.set({
-      trooperName: '',
-      trooperId: '',
-      trooperNumber: '',
-      ownerId: '',
+      trooperName,
+      trooperId,
+      trooperNumber,
+      ownerId, // id of the parent of the trooper
+      ownerEmail,
+      buyerEmail,
+      dateCreated: dateCreated || new Date().toISOString(),
+      SU,
+      paymentType: paymentType || {
+        cash: 0,
+        credit: 0,
+      },
+      orderContent: orderContent || [{
+        cookies: [{
+          variety: "",
+          cases: 0,
+          packages: 0,
+        }],
+        totalMoney: 0,
+        owe: 0,
+        totalPackages: 0,
+        totalCases: 0,
+      }],
+      pickupDetails: pickupDetails || [{
+        receivedBy: '',
+        troopNumber: '',
+      }, {
+        receivedFrom: '',
+        troopNumber: '',
+      }],
     });
+
+    // Send email to owner
+    /*
+    await sendEmail({
+      to: ownerEmail,
+      subject: 'Order Created',
+      text: `An order has been created for trooper ${trooperName}.`,
+    });
+
+    // Send email to buyer
+    await sendEmail({
+      to: buyerEmail,
+      subject: 'Order Created',
+      text: `You have created an order for trooper ${trooperName}.`,
+    });
+    */
+    
     return newOrderRef.id;
   } catch (error) {
     throw new Error(`Failed to create order: ${error.message}`);
@@ -29,12 +78,19 @@ const getAllOrders = async () => {
 };
 
 // Service to update a Order by ID
-const updateOrder = async (id, { name, description, price }) => {
+const updateOrder = async (id, { trooperName, trooperId, trooperNumber, ownerId, dateCreated, SU, paymentType, orderContent, pickupDetails }) => {
   try {
     const ref = Firestore.collection('orders').doc(id);
     await ref.update({
-      name,
-      description,
+      trooperName,
+      trooperId,
+      trooperNumber,
+      ownerId,
+      dateCreated,
+      SU,
+      paymentType,
+      orderContent,
+      pickupDetails,
     });
     return { message: 'Order updated successfully' };
   } catch (error) {

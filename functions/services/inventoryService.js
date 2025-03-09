@@ -1,5 +1,7 @@
 const { Firestore } = require('../firebaseConfig');
 
+
+//currently for trooper
 const createInventory = async ({ ownerId, trooperId, trooperName, trooperNumber, inventory }) => {
   try {
     const newInventoryRef = Firestore.collection('inventory').doc();
@@ -19,7 +21,6 @@ const createInventory = async ({ ownerId, trooperId, trooperName, trooperNumber,
     throw new Error(`Error creating Inventory: ${error.message}`);
   }
 };
-
 
 const getAllInventorys = async () => {
   try {
@@ -56,8 +57,6 @@ const deleteInventory = async (id) => {
     throw new Error(`Error deleting Inventory: ${error.message}`);
   }
 };
-
-
 
 
 module.exports = {

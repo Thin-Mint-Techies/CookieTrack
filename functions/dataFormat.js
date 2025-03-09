@@ -56,6 +56,7 @@ const trooperDataFormat = {
 
 };
 
+// might not need
 const squadDataFormat = {
     squadName: '',
     ownerId: '',
@@ -101,11 +102,11 @@ const saleDataformat = {
     amountSold: 0
 };
 
+// for trooper
 const inventoryDataFormat = {
     ownerId: '', // id of the parent of the trooper
     trooperName: '',
     trooperId: '',
-    trooperNumber: '',
     inventory: [{
         variety: '',
         cases: 0,
@@ -138,5 +139,6 @@ module.exports = {
     userDataFormat,
     rewardDataFormat,
     cookieDataFormat,
+    inventoryDataFormat,
     ACL
 };

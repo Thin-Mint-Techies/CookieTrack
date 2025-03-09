@@ -91,6 +91,7 @@ const checkUserOwnership = (collectionName, docIdParam = 'id') => {
 
     try {
       for (const docId of docIdArray) {
+        // this might need to be reduce, too much data fetching
         const doc = await Firestore.collection(collectionName).doc(docId).get();
         if (!doc.exists) {
           return res.status(403).json({ success: false, message: 'Permission denied. Document not found.' });
@@ -100,7 +101,7 @@ const checkUserOwnership = (collectionName, docIdParam = 'id') => {
         const accessIds = docData.ownerId;
 
         if (!accessIds.includes(uid)) {
-          return res.status(403).json({ success: false, message: 'Permission denied. You do not have access to this document.' });
+          return res.status(403).json({ success: false, message: 'Permission denied. You do not have access to these document.' });
         }
       }
       next(); // Proceed to the next middleware or controller

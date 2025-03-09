@@ -13,7 +13,6 @@ class NotificationService {
         data: data,
         token: await this.getUserDeviceToken(userId),
       };
-
       const response = await messaging.send(message);
       console.log('Successfully sent message:', response);
       return response;

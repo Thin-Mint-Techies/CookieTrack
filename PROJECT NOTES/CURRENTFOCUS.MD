@@ -24,14 +24,11 @@
 
 Priority: 
     -REFACTOR ALL DATA TO SUPPORT ACL (create and update): should create another collection for ACL
-        -
     -orderService rework: order take in parent of trooper as ownerId, 
         -still attach trooper as seller, mark order as complete or on going
-    -cookieService = inventoryService
-        -amount in stock, name, amount sold this month, edit, delete
     -rewardService: Name, price(boxes sold), picture
     -trooperService: boxes of cookie sold, reward available
-    -saleDataService CRUD
+    -saleDataService: CRUD
     -checkUserOwnership: check for multiple files, might need rework or another approach
     -double check everything for data consistency
 
