@@ -1,3 +1,6 @@
+import { showToast, STATUS_COLOR } from "../utils/toasts.js";
+import { handleTableRow } from "../utils/utils.js";
+
 //Variables -------------------------------------------------------------
 let uploadFilesBtn = document.getElementById('upload-files');
 let uploadFilesForm = document.getElementById('upload-files-form');
@@ -42,6 +45,14 @@ uploadFilesSubmit.addEventListener("click", () => {
             uploadedFiles.forEach((file, index) => uploadFiles(file, index));
         }
     } else if (uploadFilesSubmit.textContent === "Done") {
+        uploadedFiles.forEach((file) => {
+            let fileData = {
+                fileName: file.name,
+                fileSize: formatFileSize(file.size),
+                dateUploaded: new Date().toLocaleDateString("en-US")
+            }
+            handleTableRow.yourDocuments(fileData, downloadFile, deleteUploadedFile);
+        });
         closeFileUploadModal();
     }
 });
@@ -92,7 +103,7 @@ function renderFileProgress() {
             <div class="flex">
                 <p class="text-xs text-black flex-1">
                     <i class="fa-solid fa-file-lines w-5 mr-2 inline-block text-lg"></i>
-                    ${file.name} <span class="ml-2">(${(file.size / 1024 / 1024).toFixed(2)} MB)</span>
+                    ${file.name} <span class="ml-2">(${formatFileSize(file.size)})</span>
                 </p>
                 <i data-index="${index}" class="remove-file fa-solid fa-xmark text-xl text-black hover:text-black-light shrink-0 w-3 cursor-pointer"></i>
             </div>
@@ -117,6 +128,11 @@ function renderFileProgress() {
     });
 };
 
+function formatFileSize(bytes) {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1048576) return `${(bytes / 1024).toFixed(2)} KB`;
+    return `${(bytes / 1048576).toFixed(2)} MB`;
+}
 //Upload the files to the cloud and show progress
 function uploadFiles(file, index) {
     //First remove the option to remove files
@@ -147,11 +163,21 @@ function uploadFiles(file, index) {
 //Makes sure all uploads are done before allowing modal closure
 function checkUploadsComplete() {
     const allDone = Object.values(uploadProgress).every((val) => val === 100);
-    console.log(allDone);
-    console.log(uploadProgress);
     if (allDone) {
         uploadFilesSubmit.disabled = false;
         uploadFilesSubmit.textContent = "Done";
         uploadFilesCancel.classList.add("hidden");
     }
 }
+
+//#region TABLE ACTIONS ---------------------------------------------
+function downloadFile() {
+    showToast("File Downloaded", "The selected file has been downloaded.", STATUS_COLOR.GREEN, true, 5);
+}
+
+function deleteUploadedFile() {
+    const rowElem = this.parentElement.parentElement;
+    rowElem.remove();
+    showToast("File Deleted", "The selected file has been deleted.", STATUS_COLOR.GREEN, true, 5);
+}
+//#endregion TABLE ACTIONS ------------------------------------------

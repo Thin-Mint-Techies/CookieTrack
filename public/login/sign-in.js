@@ -11,7 +11,8 @@ const rememberMe = document.getElementById("remember-me");
 const loginBtn = document.getElementById("login");
 const googleLoginBtn = document.getElementById("login-google");
 
-loginBtn?.addEventListener('click', () => {
+loginBtn?.addEventListener('click', (e) => {
+    e.preventDefault();
     loginUserEmail();
 });
 
@@ -45,22 +46,22 @@ googleLoginBtn?.addEventListener('click', () => {
     manageLoader(true);
     localStorage.setItem("creatingAccount", true);
     signInWithPopup(auth, provider).then((result) => {
-        // This gives you a Google Access Token. You can use it to access Google APIs.
-        //const credential = GoogleAuthProvider.credentialFromResult(result);
-        //const token = credential.accessToken;
-
         // Access additional identity provider data
         const additionalUserInfo = getAdditionalUserInfo(result);
         const isNewUser = additionalUserInfo?.isNewUser;
 
         //Save profile to database if new user, otherwise go to dashboard
         if (isNewUser) {
-            setDoc(doc(db, "users", result.user.uid), {
+            const user = result.user;
+            setDoc(doc(db, "users", user.uid), {
+                name: user.displayName,
+                email: user.email,
                 role: "parent"
             }).then(() => {
                 //Successful upload
                 localStorage.removeItem("creatingAccount");
             }).catch((error) => {
+                manageLoader(false);
                 console.log(error.code + ": " + error.message);
                 showToast("Unable to Sign In", "There was an error during account creation. Please try again.", STATUS_COLOR.RED, true, 6);
             });

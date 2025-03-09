@@ -205,7 +205,7 @@
                 <i class="fa-solid fa-bars-staggered max-lg:text-lg text-xl text-black"></i>
             </button>
 
-            <section class="main-content w-full p-6 overflow-auto ">
+            <section class="main-content w-full p-6 overflow-auto">
                 <div>
                     <div class="flex items-center flex-wrap gap-6 max-lg:ml-3">
                         <div>
@@ -234,7 +234,7 @@
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody class="whitespace-nowrap">
+                            <tbody id="your-documents-tbody" class="whitespace-nowrap">
                                 <tr class="even:bg-gray text-sm text-black [&_td]:p-4">
                                     <td>Purchase Order - 2</td>
                                     <td>1.27Mb</td>
@@ -278,19 +278,20 @@
                             <div class="flex items-center pb-3 border-b border-gray">
                                 <div class="flex-1">
                                     <h3 class="text-green text-xl font-bold">Upload File(s)</h3>
-                                    <p class="text-black text-xs mt-1">
+                                    <p class="text-black text-sm mt-1">
                                         Upload your order documents
                                     </p>
                                 </div>
                                 <i id="upload-files-close"
                                     class="fa-solid fa-xmark text-xl text-black hover:text-black-light shrink-0 ml-2 w-3 cursor-pointer"></i>
                             </div>
-                            <div id="upload-files-drop-area" class="rounded-default border-2 border-gray border-dashed mt-6">
+                            <div id="upload-files-drop-area"
+                                class="rounded-default border-2 border-gray border-dashed mt-6">
                                 <div
                                     class="p-4 min-h-[180px] flex flex-col items-center justify-center text-center cursor-pointer">
                                     <i
                                         class="fa-solid fa-cloud-arrow-up w-10 mb-4 text-black text-4xl inline-block"></i>
-                                    <h4 class="text-sm text-black">
+                                    <h4 class="text-base text-black">
                                         Drag &amp; Drop or
                                         <label for="upload-files-input" class="text-green cursor-pointer">
                                             Choose file
@@ -315,19 +316,48 @@
                         </div>
                     </div>
                 </div>
-                <div class=" bg-white py-6 px-4 max-w-7xl relative shadow-default mx-auto mb-8 rounded-default">
-                    <h2 class="text-green text-4xl max-sm:text-2xl font-extrabold mb-8">
+                <div class="bg-white py-6 px-4 max-w-7xl relative shadow-default mx-auto mb-8 rounded-default">
+                    <h2 class="text-green text-4xl max-sm:text-2xl font-extrabold mb-4">
                         <i class="fa-solid fa-hourglass-half"></i> Current Orders
                     </h2>
-                    <div class="overflow-x-auto pb-4">
+                    <div id="current-orders-filters" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                        <div class="flex relative">
+                            <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                                <i class="fa-solid fa-magnifying-glass w-4 h-4 text-black"></i>
+                            </div>
+                            <input type="search" id="current-orders-search"
+                                class="block w-full p-2 ps-10 text-sm text-black border-2 border-gray rounded-default bg-white focus:ring-green focus:border-green outline-none"
+                                placeholder="Search by names" required />
+                        </div>
+                        <div class="flex items-center lg:justify-self-end gap-4 max-sm:w-full">
+                            <div class="relative flex-1 min-w-0">
+                                <label for="current-order-datestart"
+                                    class="absolute text-sm text-green left-1 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2">
+                                    Start date
+                                </label>
+                                <input id="current-order-datestart" name="start" type="date"
+                                    class="block w-full min-w-0 p-2.5 bg-white border-2 border-gray text-black text-sm rounded-default focus:ring-green focus:border-green outline-none appearance-none">
+                            </div>
+                            <span class="text-black">to</span>
+                            <div class="relative flex-1 min-w-0">
+                                <label for="current-order-dateend"
+                                    class="absolute text-sm text-green left-1 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2">
+                                    End date
+                                </label>
+                                <input id="current-order-dateend" name="end" type="date"
+                                    class="block w-full min-w-0 p-2.5 bg-white border-2 border-gray text-black text-sm rounded-default focus:ring-green focus:border-green outline-none appearance-none">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="overflow-auto pb-4 max-h-80">
                         <table
                             class="min-w-full border-separate border-spacing-0 border-4 border-green rounded-default">
-                            <thead class="bg-green whitespace-nowrap">
+                            <thead class="bg-green whitespace-nowrap sticky top-0">
                                 <tr class="text-left text-lg text-white [&_th]:p-4 [&_th]:font-normal">
+                                    <th>Date Created</th>
                                     <th>Girl Name</th>
                                     <th>Parent Name</th>
-                                    <th>Email</th>
-                                    <th>Phone</th>
                                     <th>Box Total</th>
                                     <th># Adventurefuls</th>
                                     <th># Toast-Yays!</th>
@@ -344,76 +374,13 @@
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody class="whitespace-nowrap">
-                                <tr class="even:bg-gray text-sm text-black [&_td]:p-4">
-                                    <td>Sarah Smith</td>
-                                    <td>Tammy Smith</td>
-                                    <td>tammy.smith@gmail.com</td>
-                                    <td>(817) 888-8888</td>
-                                    <td>12</td>
-                                    <td>1</td>
-                                    <td>0</td>
-                                    <td>1</td>
-                                    <td>0</td>
-                                    <td>3</td>
-                                    <td>2</td>
-                                    <td>3</td>
-                                    <td>0</td>
-                                    <td>2</td>
-                                    <td>Shawn's House</td>
-                                    <td>Phone</td>
-                                    <td>Agreed</td>
-                                    <td>
-                                        <button class="mr-4" title="Complete">
-                                            <i
-                                                class="fa-solid fa-clipboard-check text-xl text-green hover:text-green-light"></i>
-                                        </button>
-                                        <button class="mr-4" title="Edit">
-                                            <i
-                                                class="fa-solid fa-pen-to-square text-xl text-blue hover:text-blue-light"></i>
-                                        </button>
-                                        <button class="mr-4" title="Delete">
-                                            <i class="fa-solid fa-trash-can text-xl text-red hover:text-red-light"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr class="even:bg-gray text-sm text-black [&_td]:p-4">
-                                    <td>Hannah Bob</td>
-                                    <td>Lilly Bob</td>
-                                    <td>lilly.bob@gmail.com</td>
-                                    <td>(817) 777-7777</td>
-                                    <td>12</td>
-                                    <td>1</td>
-                                    <td>0</td>
-                                    <td>1</td>
-                                    <td>0</td>
-                                    <td>3</td>
-                                    <td>2</td>
-                                    <td>3</td>
-                                    <td>0</td>
-                                    <td>2</td>
-                                    <td>Shawn's House</td>
-                                    <td>Phone</td>
-                                    <td>Agreed</td>
-                                    <td>
-                                        <button class="mr-4" title="Complete">
-                                            <i
-                                                class="fa-solid fa-clipboard-check text-xl text-green hover:text-green-light"></i>
-                                        </button>
-                                        <button class="mr-4" title="Edit">
-                                            <i
-                                                class="fa-solid fa-pen-to-square text-xl text-blue hover:text-blue-light"></i>
-                                        </button>
-                                        <button class="mr-4" title="Delete">
-                                            <i class="fa-solid fa-trash-can text-xl text-red hover:text-red-light"></i>
-                                        </button>
-                                    </td>
-                                </tr>
+                            <tbody id="current-orders-tbody" class="whitespace-nowrap">
+
                             </tbody>
                         </table>
                     </div>
                     <div class="flex justify-end mt-2">
-                        <button id="upload-files" type="button"
+                        <button id="add-order" type="button"
                             class="w-auto shadow-default py-3 px-4 text-xl tracking-wide rounded-default text-white bg-orange hover:bg-orange-light accent-green">
                             <i class="fa-solid fa-cart-plus"></i> Add New Order
                         </button>
@@ -423,15 +390,45 @@
                     <h2 class="text-green text-4xl max-sm:text-2xl font-extrabold mb-8">
                         <i class="fa-solid fa-clipboard-check"></i> Completed Orders
                     </h2>
+                    <div id="completed-orders-filters" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                        <div class="flex relative">
+                            <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                                <i class="fa-solid fa-magnifying-glass w-4 h-4 text-black"></i>
+                            </div>
+                            <input type="search" id="completed-orders-search"
+                                class="block w-full p-2 ps-10 text-sm text-black border-2 border-gray rounded-default bg-white focus:ring-green focus:border-green outline-none"
+                                placeholder="Search by names" required />
+                        </div>
+                        <div class="flex items-center lg:justify-self-end gap-4 max-sm:w-full">
+                            <div class="relative flex-1 min-w-0">
+                                <label for="completed-order-datestart"
+                                    class="absolute text-sm text-green left-1 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2">
+                                    Start date
+                                </label>
+                                <input id="completed-order-datestart" name="start" type="date"
+                                    class="block w-full min-w-0 p-2.5 bg-white border-2 border-gray text-black text-sm rounded-default focus:ring-green focus:border-green outline-none appearance-none">
+                            </div>
+                            <span class="text-black">to</span>
+                            <div class="relative flex-1 min-w-0">
+                                <label for="completed-order-dateend"
+                                    class="absolute text-sm text-green left-1 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2">
+                                    End date
+                                </label>
+                                <input id="completed-order-dateend" name="end" type="date"
+                                    class="block w-full min-w-0 p-2.5 bg-white border-2 border-gray text-black text-sm rounded-default focus:ring-green focus:border-green outline-none appearance-none">
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="overflow-x-auto pb-4">
                         <table
                             class="min-w-full border-separate border-spacing-0 border-4 border-green rounded-default">
                             <thead class="bg-green whitespace-nowrap">
                                 <tr class="text-left text-lg text-white [&_th]:p-4 [&_th]:font-normal">
+                                    <th>Date Created</th>
+                                    <th>Date Completed</th>
                                     <th>Girl Name</th>
                                     <th>Parent Name</th>
-                                    <th>Email</th>
-                                    <th>Phone</th>
                                     <th>Box Total</th>
                                     <th># Adventurefuls</th>
                                     <th># Toast-Yays!</th>
@@ -448,38 +445,165 @@
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody class="whitespace-nowrap">
-                                <tr class="even:bg-gray text-sm text-black [&_td]:p-4">
-                                    <td>Joey Joe</td>
-                                    <td>Darla Joe</td>
-                                    <td>darla.joe@gmail.com</td>
-                                    <td>(817) 555-5555</td>
-                                    <td>12</td>
-                                    <td>1</td>
-                                    <td>0</td>
-                                    <td>1</td>
-                                    <td>0</td>
-                                    <td>3</td>
-                                    <td>2</td>
-                                    <td>3</td>
-                                    <td>0</td>
-                                    <td>2</td>
-                                    <td>Shawn's House</td>
-                                    <td>Phone</td>
-                                    <td>Agreed</td>
-                                    <td>
-                                        <button class="mr-4" title="Edit">
-                                            <i
-                                                class="fa-solid fa-pen-to-square text-xl text-blue hover:text-blue-light"></i>
-                                        </button>
-                                        <button class="mr-4" title="Delete">
-                                            <i class="fa-solid fa-trash-can text-xl text-red hover:text-red-light"></i>
-                                        </button>
-                                    </td>
-                                </tr>
+                            <tbody id="completed-orders-tbody" class="whitespace-nowrap">
                             </tbody>
                         </table>
                     </div>
+                </div>
+
+                <div id="order-form"
+                    class="hidden fixed inset-0 p-4 flex-wrap justify-center items-center w-full h-full z-[1000] before:fixed before:inset-0 before:w-full before:h-full before:bg-black-overlay shadow-default overflow-auto">
+                    <form class="w-full max-w-4xl bg-white shadow-default rounded-default p-6 relative">
+                        <div class="flex items-center pb-3 border-b border-gray">
+                            <div class="flex-1">
+                                <h3 id="order-title" class="text-green text-xl font-bold">Add Order</h3>
+                                <p id="order-subtitle" class="text-black text-sm mt-1">
+                                    Add a new order to your account
+                                </p>
+                            </div>
+                            <i id="order-close"
+                                class="fa-solid fa-xmark text-xl text-black hover:text-black-light shrink-0 ml-2 w-3 cursor-pointer"></i>
+                        </div>
+                        <div class="grid sm:grid-cols-2 gap-4 mt-6">
+                            <div>
+                                <label class="text-black text-base mb-2 block">Trooper Name</label>
+                                <div class="relative flex items-center">
+                                    <input id="order-tname" type="text" required
+                                        class="bg-white border border-gray w-full text-base text-black px-4 py-2.5 rounded-default accent-green"
+                                        placeholder="Enter the trooper name" />
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-black text-base mb-2 block"># Adventurefuls</label>
+                                <div class="relative flex items-center">
+                                    <input id="order-adventurefuls" type="number" min="0"
+                                        class="bg-white border border-gray w-full text-base text-black px-4 py-2.5 rounded-default accent-green"
+                                        placeholder="# of Adventurefuls" />
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-black text-base mb-2 block"># Toast-Yays!</label>
+                                <div class="relative flex items-center">
+                                    <input id="order-toastyays" type="number" min="0"
+                                        class="bg-white border border-gray w-full text-base text-black px-4 py-2.5 rounded-default accent-green"
+                                        placeholder="# of Toast-Yays!" />
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-black text-base mb-2 block"># Lemonades</label>
+                                <div class="relative flex items-center">
+                                    <input id="order-lemonades" type="number" min="0"
+                                        class="bg-white border border-gray w-full text-base text-black px-4 py-2.5 rounded-default accent-green"
+                                        placeholder="# of Lemonades" />
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-black text-base mb-2 block"># Trefoil</label>
+                                <div class="relative flex items-center">
+                                    <input id="order-trefoils" type="number" min="0"
+                                        class="bg-white border border-gray w-full text-base text-black px-4 py-2.5 rounded-default accent-green"
+                                        placeholder="# of Trefoil" />
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-black text-base mb-2 block"># Thin Mints</label>
+                                <div class="relative flex items-center">
+                                    <input id="order-thinmints" type="number" min="0"
+                                        class="bg-white border border-gray w-full text-base text-black px-4 py-2.5 rounded-default accent-green"
+                                        placeholder="# of Thin Mints" />
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-black text-base mb-2 block"># PB Patties</label>
+                                <div class="relative flex items-center">
+                                    <input id="order-pbpatties" type="number" min="0"
+                                        class="bg-white border border-gray w-full text-base text-black px-4 py-2.5 rounded-default accent-green"
+                                        placeholder="# of PB Patties" />
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-black text-base mb-2 block"># Caramel deLites</label>
+                                <div class="relative flex items-center">
+                                    <input id="order-carameldelites" type="number" min="0"
+                                        class="bg-white border border-gray w-full text-base text-black px-4 py-2.5 rounded-default accent-green"
+                                        placeholder="# of Caramel deLites" />
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-black text-base mb-2 block"># PB Sandwich</label>
+                                <div class="relative flex items-center">
+                                    <input id="order-pbsandwich" type="number" min="0"
+                                        class="bg-white border border-gray w-full text-base text-black px-4 py-2.5 rounded-default accent-green"
+                                        placeholder="# of PB Sandwich" />
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-black text-base mb-2 block"># GF Caramel Choc Chip</label>
+                                <div class="relative flex items-center">
+                                    <input id="order-gfchocchip" type="number" min="0"
+                                        class="bg-white border border-gray w-full text-base text-black px-4 py-2.5 rounded-default accent-green"
+                                        placeholder="# of GF CC Chip" />
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-black text-base mb-2 block">Pickup Location</label>
+                                <div class="relative flex items-center">
+                                    <button id="order-pickup-btn" type="button"
+                                        class="bg-white border border-gray w-full text-base text-black text-left px-4 py-2.5 rounded-default accent-green">
+                                        Select Location
+                                    </button>
+                                    <i class="fa-solid fa-chevron-down absolute right-4"></i>
+                                    <ul id="order-pickup-dropdown"
+                                        class='absolute hidden top-full shadow-default bg-white py-2 z-[1000] min-w-full w-max rounded-default max-h-40 overflow-auto'>
+                                        <li class='py-2.5 px-5 hover:bg-green text-black text-sm cursor-pointer'>
+                                            Shawn's House</li>
+                                        <li class='py-2.5 px-5 hover:bg-green text-black text-sm cursor-pointer'>
+                                            Amanda's House</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-black text-base mb-2 block">Contact Preference</label>
+                                <div class="relative flex items-center">
+                                    <button id="order-contact-btn" type="button"
+                                        class="bg-white border border-gray w-full text-base text-black text-left px-4 py-2.5 rounded-default accent-green">
+                                        Select Preference
+                                    </button>
+                                    <i class="fa-solid fa-chevron-down absolute right-4"></i>
+                                    <ul id="order-contact-dropdown"
+                                        class='absolute hidden top-full shadow-default bg-white py-2 z-[1000] min-w-full w-max rounded-default max-h-40 overflow-auto'>
+                                        <li class='py-2.5 px-5 hover:bg-green text-black text-sm cursor-pointer'>
+                                            Phone</li>
+                                        <li class='py-2.5 px-5 hover:bg-green text-black text-sm cursor-pointer'>
+                                            Email</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label class="text-black text-base mb-2 block">Financial Agreement</label>
+                                <div class="relative flex items-center">
+                                    <input id="order-agreement" type="checkbox"
+                                        class="h-4 w-4 shrink-0 text-black focus:ring-orange border-gray rounded accent-orange cursor-pointer"
+                                        required />
+                                    <label for="order-agreement"
+                                        class="text-orange-light ml-3 block text-base cursor-pointer">
+                                        By submitting this order I understand that
+                                        I will be financially responsible for these cookies.
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="border-t border-gray pt-6 flex justify-between gap-4 mt-6">
+                            <button id="order-cancel" type="button"
+                                class="w-full px-4 py-2 rounded-default text-black text-sm border-none tracking-wide bg-white hover:bg-gray accent-green">
+                                Cancel
+                            </button>
+                            <button id="order-submit" type="submit"
+                                class="w-full px-4 py-2 rounded-default text-white text-sm border-none tracking-wide bg-green hover:bg-green-light accent-orange">
+                                Submit
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </section>
         </div>
@@ -487,7 +611,7 @@
 
     <script src="../utils/sidebarNav.js"></script>
     <script type="module" src="./orders.js"></script>
-    <script src="uploadFiles.js"></script>
+    <script type="module" src="uploadFiles.js"></script>
 </body>
 
 </html>
