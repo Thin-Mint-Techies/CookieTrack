@@ -1,8 +1,8 @@
 /**
 Stand alone data
     User // references: troopers, squads, documents, orders, inventory, booths, parents, ACL
-    Cookie 
-    Reward 
+    Cookie: just list of cookie
+    Reward: just list of reward
 Need ownerId field: 
     trooper 
     squad
@@ -17,18 +17,17 @@ Need ownerId field:
 const userDataFormat = { // for this, attach a 'role' custom claim to the uid when creating the user
     name: '',
     email: '',
-    contactDetail: {
-        address: null,
-        phone: null
-    },
+    phone: '',
 };
 
 const rewardDataFormat = {
     name: '',
     description: '',
-    rewardPointsNeeded: 0,
+    imageLink: '',
+    boxesNeeded: 0,
 };
 
+// might need to remove
 const cookieDataFormat = {
     variety: '',
     description: '',
@@ -42,75 +41,111 @@ const cookieDataFormat = {
 // need ownerId
 
 const trooperDataFormat = {
-    name: '',
+    troopNumber: '',
+    trooperName: '',
     ownerId: '',
-    squad: '',
-    contactDetail: {
-        address: null,
-        phone: null,
-        email: '',
-    },
-    rewardPoints: 0,
+    troopLeader:'',
+    age: '',
+    grade: '',
+    shirtSize: '',
     currentBalance: 0.0,
+    boxesSold: 0,
+    // from here down is not sure
+    squad: '',
     currentReward: [],
-
 };
 
 // might not need
-const squadDataFormat = {
-    squadName: '',
+const troopDataFormat = {
+    troopName: '',
     ownerId: '',
     saleData: [],
 };
 
+// archive the order when dateCompleted is not null
+const completedOrderDataFormat = {};
+
+
+// take from inventory (of the trooper) when order made
 const orderDataFormat = {
-    trooperName: '',
-    trooperId: '',
-    trooperNumber: '',
-    ownerId: '', // id of the parent of the trooper
     dateCreated: '',
-    SU: '',
-    paymentType:{
-        cash: 0,
-        credit:0,
-    },
-    orderContent: [{
-        cookies: [{
-            variety: "",
-            cases: 0,
-            packages: 0,
-        },],
-        totalMoney: 0,
-        owe: 0,
-        totalPackages: 0,
-        totalCases: 0,
-    }
-    ],
+    trooperId: '',
+    trooperName: '',
+    ownerId: '', // id of the parent of the trooper
+    parentName:'',
     pickupDetails: [{
         receivedBy: '',
+        address: '',
         troopNumber: '',
     }, {
         receivedFrom: '',
         troopNumber: '',
     }],
+    contact: '',
+    financialAgreement: false,
+    dateCompleted: '', //Date.now()
+    //SU: '',
+
+    orderContent: [{
+        cookies: [{
+            varietyId: '',
+            variety: '',
+            boxes: 0,
+            boxPrice: 0.0,
+            cookieTotalCost: 0.0,
+            //cases: 0,
+        },],
+        totalCost: 0,
+        owe: 0,
+        boxTotal: 0,
+        //totalPackages: 0,
+    }],
+    paymentType: '',
 };
 
-// need to talk to advisor to see what he want
-const saleDataformat = {
-    ownerId: '',
-    orderId: [],
-    amountSold: 0
-};
-
-// for trooper
-const inventoryDataFormat = {
-    ownerId: '', // id of the parent of the trooper
-    trooperName: '',
+// parent can see sale data for their own trooper, 
+// leader can see every trooper saleData
+const saleDataformatforTrooper = {
     trooperId: '',
+    trooperName: '',
+    orderId: [],
+    cookieData: [
+        {varietyId: '', variety: '', boxTotal: 0, cookieTotalCost: 0.0,},
+    ],
+    totalMoneyMade: 0.0, 
+    totalBoxesSold: 0,
+};
+
+// for user (for all their troopers)
+// leaderInventory = for every parent in the troop, associate to leader, shared among parents
+// parentInventory = only for parent's own troopers
+// when order is made, take from inventory of both parent and leader
+const parentInventoryDataFormat = {
+    ownerId: '',
+    owe: 0.0,
     inventory: [{
+        varietyId: '',
         variety: '',
-        cases: 0,
-        packages: 0,
+        boxes: 0,
+        boxPrice: 0.0,
+    },],  
+};
+
+// when order is made and not in fulfilled, put the missing boxes in needToOrder
+const leaderInventoryDataFormat = {
+    ownerId: '',
+    inventory: [{
+        varietyId: '',
+        variety: '',
+        boxes: 0,
+        boxPrice: 0.0,
+    },],  
+
+    needToOrder: [{
+        varietyId: '',
+        variety: '',
+        boxes: 0,
+        boxPrice: 0.0,
     },],  
 };
 
