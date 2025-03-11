@@ -1,4 +1,26 @@
-export function createConfirmModal(confirmAction) {
+export const createModals = {
+    completeOrder: (confirmAction) => createModal(confirmAction, modalInfo.completeOrder),
+    deleteItem: (deleteAction) => createModal(deleteAction, modalInfo.deleteItem)
+}
+
+const modalInfo = {
+    completeOrder: {
+        title: "Oder Completion",
+        message: "Are you sure you want to complete this order?",
+        icon: "fa-clipboard-check",
+        color: "green",
+        action: "Complete"
+    },
+    deleteItem: {
+        title: "Deletion",
+        message: "Are you sure you want to delete?",
+        icon: "fa-trash-can",
+        color: "red",
+        action: "Delete"
+    }
+}
+
+function createModal(action, info) {
     return () => {
         const modal = document.createElement('div');
         modal.id = 'confirm-modal';
@@ -8,17 +30,17 @@ export function createConfirmModal(confirmAction) {
         <form class="w-full max-w-xl bg-white shadow-default rounded-default p-6 relative">
             <div class="flex items-center pb-3 border-b border-gray">
                 <div class="flex-1">
-                    <h3 id="confirm-modal-title" class="text-red text-xl font-bold">Confirm Deletion</h3>
+                    <h3 id="confirm-modal-title" class="text-${info.color} text-xl font-bold">Confirm ${info.title}</h3>
                 </div>
                 <i id="confirm-modal-close" class="fa-solid fa-xmark text-xl text-black hover:text-black-light shrink-0 ml-2 w-3 cursor-pointer"></i>
             </div>
             <div class="flex flex-col gap-4 mt-6 text-center">
-                <i class="fa-solid fa-trash-can text-red text-4xl"></i>
-                <p class="text-base text-black">Are you sure you wish to delete this item?</p>
+                <i class="fa-solid ${info.icon} text-${info.color} text-4xl"></i>
+                <p class="text-base text-black">${info.message}</p>
             </div>
             <div class="border-t border-gray pt-6 flex justify-between gap-4 mt-6">
                 <button id="confirm-modal-cancel" type="button" class="w-full px-4 py-2 rounded-default text-black text-sm border-none tracking-wide bg-white hover:bg-gray accent-green">Cancel</button>
-                <button id="confirm-modal-submit" type="button" class="w-full px-4 py-2 rounded-default text-white text-sm border-none tracking-wide bg-red hover:bg-red-light accent-black">Delete</button>
+                <button id="confirm-modal-submit" type="button" class="w-full px-4 py-2 rounded-default text-white text-sm border-none tracking-wide bg-${info.color} hover:bg-${info.color}-light accent-black">${info.action}</button>
             </div>
         </form>
     `;
@@ -28,6 +50,9 @@ export function createConfirmModal(confirmAction) {
         // Event listeners for closing the modal
         document.getElementById('confirm-modal-close').addEventListener('click', () => modal.remove());
         document.getElementById('confirm-modal-cancel').addEventListener('click', () => modal.remove());
-        document.getElementById('confirm-modal-submit').addEventListener('click', confirmAction);
+        document.getElementById('confirm-modal-submit').addEventListener('click', () => {
+            action();
+            modal.remove();
+        });
     }
 }

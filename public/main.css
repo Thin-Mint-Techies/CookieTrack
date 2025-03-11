@@ -765,14 +765,14 @@ video {
 .max-h-40 {
   max-height: 10rem;
 }
+.max-h-80 {
+  max-height: 20rem;
+}
 .max-h-\[500px\] {
   max-height: 500px;
 }
-.max-h-32 {
-  max-height: 8rem;
-}
-.max-h-80 {
-  max-height: 20rem;
+.max-h-96 {
+  max-height: 24rem;
 }
 .min-h-24 {
   min-height: 6rem;
@@ -1025,9 +1025,6 @@ video {
 .overflow-x-auto {
   overflow-x: auto;
 }
-.overflow-y-auto {
-  overflow-y: auto;
-}
 .overflow-x-hidden {
   overflow-x: hidden;
 }
@@ -1110,6 +1107,10 @@ video {
   --tw-bg-opacity: 1;
   background-color: rgb(52 52 52 / var(--tw-bg-opacity));
 }
+.bg-blue {
+  --tw-bg-opacity: 1;
+  background-color: rgb(26 106 153 / var(--tw-bg-opacity));
+}
 .bg-gray {
   --tw-bg-opacity: 1;
   background-color: rgb(209 213 219 / var(--tw-bg-opacity));
@@ -1121,10 +1122,6 @@ video {
 .bg-orange {
   --tw-bg-opacity: 1;
   background-color: rgb(235 86 0 / var(--tw-bg-opacity));
-}
-.bg-red {
-  --tw-bg-opacity: 1;
-  background-color: rgb(213 61 61 / var(--tw-bg-opacity));
 }
 .bg-white {
   --tw-bg-opacity: 1;
@@ -1411,6 +1408,9 @@ video {
 .accent-black {
   accent-color: #343434;
 }
+.accent-gray {
+  accent-color: #D1D5DB;
+}
 .accent-green {
   accent-color: #1a9988;
 }
@@ -1663,6 +1663,11 @@ h2>i {
   background-color: rgb(209 213 219 / var(--tw-bg-opacity));
 }
 
+.hover\:bg-blue-light:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(95 151 184 / var(--tw-bg-opacity));
+}
+
 .hover\:bg-gray:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(209 213 219 / var(--tw-bg-opacity));
@@ -1686,11 +1691,6 @@ h2>i {
 .hover\:bg-orange-light:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(239 120 51 / var(--tw-bg-opacity));
-}
-
-.hover\:bg-red-light:hover {
-  --tw-bg-opacity: 1;
-  background-color: rgb(226 119 119 / var(--tw-bg-opacity));
 }
 
 .hover\:text-black-light:hover {
@@ -2019,6 +2019,22 @@ h2>i {
   .lg\:justify-self-end {
     justify-self: end;
   }
+}
+
+@media (min-width: 1280px) {
+
+  .xl\:col-span-1 {
+    grid-column: span 1 / span 1;
+  }
+
+  .xl\:grid-cols-\[40\%_40\%_auto\] {
+    grid-template-columns: 40% 40% auto;
+  }
+}
+
+.\[\&\:nth-child\(4n-1\)\]\:bg-gray:nth-child(4n-1) {
+  --tw-bg-opacity: 1;
+  background-color: rgb(209 213 219 / var(--tw-bg-opacity));
 }
 
 .\[\&_td\]\:p-4 td {

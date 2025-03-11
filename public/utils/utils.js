@@ -90,11 +90,18 @@ function setupDropdown(buttonId, dropdownId) {
 
 //#region TABLE ROWS ------------------------------------------------
 const handleTableRow = {
+    currentRowEditing: null,
     currentOrder: (data, editAction, deleteAction, completeAction) => addOrderRow(data, true, editAction, deleteAction, completeAction),
     completedOrder: (data, editAction, deleteAction) => addOrderRow(data, false, editAction, deleteAction, null),
-    yourTrooper: (data, editAction, deleteAction) => addTrooperRow(data, editAction, deleteAction),
+    yourInventory: (data, editAction, deleteAction) => addInventoryRow(data, "your", editAction, deleteAction),
+    troopInventory: (data, editAction, deleteAction) => addInventoryRow(data, "troop", editAction, deleteAction),
+    needInventory: (data, editAction, deleteAction) => addInventoryRow(data, "need", editAction, deleteAction),
+    yourTrooper: (data, editAction, deleteAction) => addTrooperRow(data, "your", editAction, deleteAction),
+    allTrooper: (data, editAction, deleteAction) => addTrooperRow(data, "all", editAction, deleteAction),
     yourDocuments: (data, downloadAction, deleteAction) => addFileRow(data, downloadAction, deleteAction),
-    updateOrderRow: (row, data) => editRowData(row, rowFields.orders, data)
+    updateOrderRow: (row, data) => editRowData(row, rowFields.orders, data),
+    updateInventoryRow: (row, data) => editRowData(row, rowFields.inventory, data),
+    updateTrooperRow: (row, data) => editRowData(row, rowFields.troopers, data)
 }
 
 const orders = [
@@ -108,8 +115,14 @@ const rowFields = {
     completedOrders: [
         orders[0], "dateCompleted", ...orders.slice(1)
     ],
+    inventory: [
+        "cookieName", "boxesInStock", "boxesSoldMonth"
+    ],
+    inventoryNeed: [
+        "cookieName", "boxesNeeded"
+    ],
     troopers: [
-        "trooperNumber", "trooperName", "age", "grade", "shirtSize", "troopLeader"
+        "troopNumber", "trooperName", "parentName", "troopLeader", "currentBalance", "boxesSold", "age", "grade", "shirtSize"
     ],
     files: [
         "fileName", "fileSize", "dateUploaded"
@@ -161,7 +174,10 @@ function setupRowFields(tr, hasDropdown, fields, data, buttons) {
         let icon = document.createElement("i");
         icon.className = `fa-solid ${btn.iconClass} text-xl`;
 
-        button.addEventListener('click', btn.action);
+        button.addEventListener('click', (e) => {
+            handleTableRow.currentRowEditing = e.target.closest('tr');
+            btn.action();
+        });
 
         button.appendChild(icon);
         actionTd.appendChild(button);
@@ -188,15 +204,31 @@ function addOrderRow(data, isCurrentOrder, editAction, deleteAction, completeAct
     tbody.appendChild(tr);
 }
 
-function addTrooperRow(data, editAction, deleteAction) {
-    const tbody = document.getElementById("your-troopers-tbody");
+function addInventoryRow(data, tbodyId, editAction, deleteAction) {
+    const fields = tbodyId === "need" ? rowFields.inventoryNeed : rowFields.inventory;
+    const tbody = document.getElementById(`${tbodyId}-inventory-tbody`);
     let tr = document.createElement("tr");
     tr.className = "even:bg-gray text-sm text-black [&_td]:p-4";
 
     // Button configurations
     let buttons = [
-        { title: "Edit", iconClass: "fa-pen-to-square text-blue hover:text-blue-light", action: editAction},
-        { title: "Delete", iconClass: "fa-trash-can text-red hover:text-red-light", action: deleteAction}
+        { title: "Edit", iconClass: "fa-pen-to-square text-blue hover:text-blue-light", action: editAction },
+        { title: "Delete", iconClass: "fa-trash-can text-red hover:text-red-light", action: deleteAction }
+    ];
+
+    setupRowFields(tr, false, fields, data, buttons);
+    tbody.appendChild(tr);
+}
+
+function addTrooperRow(data, tbodyId, editAction, deleteAction) {
+    const tbody = document.getElementById(`${tbodyId}-troopers-tbody`);
+    let tr = document.createElement("tr");
+    tr.className = "[&:nth-child(4n-1)]:bg-gray text-sm text-black [&_td]:p-4";
+
+    // Button configurations
+    let buttons = [
+        { title: "Edit", iconClass: "fa-pen-to-square text-blue hover:text-blue-light", action: editAction },
+        { title: "Delete", iconClass: "fa-trash-can text-red hover:text-red-light", action: deleteAction }
     ];
 
     setupRowFields(tr, true, rowFields.troopers, data, buttons);
@@ -208,7 +240,7 @@ function addTrooperRow(data, editAction, deleteAction) {
 
     let hiddenTd = document.createElement("td");
     hiddenTd.className = "pl-12 text-sm";
-    hiddenTd.colSpan = rowFields.troopers.length + 1;
+    hiddenTd.colSpan = rowFields.troopers.length + 2;
 
     let hiddenDiv = document.createElement("div");
     hiddenDiv.className = "p-4 border-2 border-gray rounded-default";

@@ -320,7 +320,7 @@
                     <h2 class="text-green text-4xl max-sm:text-2xl font-extrabold mb-4">
                         <i class="fa-solid fa-hourglass-half"></i> Current Orders
                     </h2>
-                    <div id="current-orders-filters" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                    <div id="current-orders-filters" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-[40%_40%_auto] gap-4 mb-4">
                         <div class="flex relative">
                             <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
                                 <i class="fa-solid fa-magnifying-glass w-4 h-4 text-black"></i>
@@ -347,6 +347,12 @@
                                 <input id="current-order-dateend" name="end" type="date"
                                     class="block w-full min-w-0 p-2.5 bg-white border-2 border-gray text-black text-sm rounded-default focus:ring-green focus:border-green outline-none appearance-none">
                             </div>
+                        </div>
+                        <div class="flex sm:col-span-2 xl:col-span-1">
+                            <button id="current-orders-clear-filters" type="button"
+                                class="w-full shadow-default py-1 px-2 text-lg tracking-wide rounded-default text-white bg-blue hover:bg-blue-light accent-gray">
+                                Clear Filters
+                            </button>
                         </div>
                     </div>
 
@@ -390,7 +396,7 @@
                     <h2 class="text-green text-4xl max-sm:text-2xl font-extrabold mb-8">
                         <i class="fa-solid fa-clipboard-check"></i> Completed Orders
                     </h2>
-                    <div id="completed-orders-filters" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                    <div id="completed-orders-filters" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-[40%_40%_auto] gap-4 mb-4">
                         <div class="flex relative">
                             <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
                                 <i class="fa-solid fa-magnifying-glass w-4 h-4 text-black"></i>
@@ -418,12 +424,18 @@
                                     class="block w-full min-w-0 p-2.5 bg-white border-2 border-gray text-black text-sm rounded-default focus:ring-green focus:border-green outline-none appearance-none">
                             </div>
                         </div>
+                        <div class="flex sm:col-span-2 xl:col-span-1">
+                            <button id="completed-orders-clear-filters" type="button"
+                                class="w-full shadow-default py-1 px-2 text-lg tracking-wide rounded-default text-white bg-blue hover:bg-blue-light accent-gray">
+                                Clear Filters
+                            </button>
+                        </div>
                     </div>
 
-                    <div class="overflow-x-auto pb-4">
+                    <div class="overflow-auto pb-4 max-h-80">
                         <table
                             class="min-w-full border-separate border-spacing-0 border-4 border-green rounded-default">
-                            <thead class="bg-green whitespace-nowrap">
+                            <thead class="bg-green whitespace-nowrap sticky top-0">
                                 <tr class="text-left text-lg text-white [&_th]:p-4 [&_th]:font-normal">
                                     <th>Date Created</th>
                                     <th>Date Completed</th>
