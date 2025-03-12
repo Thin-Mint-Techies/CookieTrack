@@ -2,6 +2,7 @@ import { initializeApp, getApps } from 'https://www.gstatic.com/firebasejs/11.2.
 import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/11.2.0/firebase-auth.js';
 import { getFirestore } from 'https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js';
 import { callApi } from "../utils/apiCall.js";
+import { handleSkeletons } from './skeletons.js';
 
 const firebaseConfig = {
     apiKey: "AIzaSyAq0uKOOdjO-UDVX80oZ0TFkRH6aUf941s",
@@ -34,9 +35,18 @@ onAuthStateChanged(auth, async (user) => {
 
         if (sessionStorage.getItem("userData") === null) {
             console.log("First load");
+            const sidebar = document.getElementById('sidebar');
+            const shrunkSidebar = document.getElementById('shrunk-sidebar');
+
             try {
+                handleSkeletons.hideNeedSkeletons(sidebar);
+                handleSkeletons.hideNeedSkeletons(shrunkSidebar);
+                handleSkeletons.sidebarSkeleton(sidebar.querySelector('.need-skeleton').parentElement, false);
+                handleSkeletons.sidebarSkeleton(shrunkSidebar.querySelector('.need-skeleton').parentElement, true);
                 const userData = await callApi(`/user/${user.uid}`);
                 if (userData) sessionStorage.setItem("userData", JSON.stringify(userData));
+                handleSkeletons.removeSkeletons(sidebar);
+                handleSkeletons.removeSkeletons(shrunkSidebar);
                 updateSidebarWithUserData();
             } catch (error) {
                 console.error("Error fetching user data: ", error);

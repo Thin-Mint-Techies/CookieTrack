@@ -747,6 +747,9 @@ video {
 .h-44 {
   height: 11rem;
 }
+.h-7 {
+  height: 1.75rem;
+}
 .h-72 {
   height: 18rem;
 }
@@ -761,6 +764,9 @@ video {
 }
 .h-screen {
   height: 100vh;
+}
+.h-10 {
+  height: 2.5rem;
 }
 .max-h-0 {
   max-height: 0px;
@@ -825,14 +831,23 @@ video {
 .w-3 {
   width: 0.75rem;
 }
+.w-32 {
+  width: 8rem;
+}
 .w-4 {
   width: 1rem;
 }
 .w-40 {
   width: 10rem;
 }
+.w-48 {
+  width: 12rem;
+}
 .w-5 {
   width: 1.25rem;
+}
+.w-64 {
+  width: 16rem;
 }
 .w-72 {
   width: 18rem;
@@ -864,6 +879,12 @@ video {
 .w-max {
   width: -moz-max-content;
   width: max-content;
+}
+.w-60 {
+  width: 15rem;
+}
+.w-96 {
+  width: 24rem;
 }
 .min-w-0 {
   min-width: 0px;
@@ -1981,6 +2002,10 @@ h2>i {
 
 @media not all and (min-width: 640px) {
 
+  .max-sm\:order-3 {
+    order: 3;
+  }
+
   .max-sm\:h-8 {
     height: 2rem;
   }
@@ -2037,8 +2062,16 @@ h2>i {
     grid-column: span 2 / span 2;
   }
 
+  .sm\:w-auto {
+    width: auto;
+  }
+
   .sm\:grid-cols-2 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sm\:grid-cols-\[auto_auto\] {
+    grid-template-columns: auto auto;
   }
 
   .sm\:p-8 {
@@ -2091,20 +2124,28 @@ h2>i {
   .lg\:w-\[270px\] {
     width: 270px;
   }
-
-  .lg\:justify-self-end {
-    justify-self: end;
-  }
 }
 
 @media (min-width: 1280px) {
+
+  .xl\:order-2 {
+    order: 2;
+  }
+
+  .xl\:order-3 {
+    order: 3;
+  }
 
   .xl\:col-span-1 {
     grid-column: span 1 / span 1;
   }
 
-  .xl\:grid-cols-\[40\%_40\%_auto\] {
-    grid-template-columns: 40% 40% auto;
+  .xl\:grid-cols-\[40\%_auto_auto\] {
+    grid-template-columns: 40% auto auto;
+  }
+
+  .xl\:justify-self-auto {
+    justify-self: auto;
   }
 }
 

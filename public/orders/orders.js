@@ -5,14 +5,16 @@ import { createModals } from "../utils/confirmModal.js";
 import { handleSkeletons } from "../utils/skeletons.js";
 
 //First show skeleton loaders as the order information is pulled from database
-handleSkeletons.hideNeedSkeletonElems();
-handleSkeletons.tableSkeleton(document.getElementsByClassName('main-content')[0], 3);
+const mainContent = document.getElementsByClassName('main-content')[0];
+handleSkeletons.hideNeedSkeletons(mainContent);
+handleSkeletons.tableSkeleton(mainContent, 3);
 
 setTimeout(() => {
-    handleSkeletons.removeSkeletons();
+    handleSkeletons.removeSkeletons(mainContent);
 }, 2000);
 
 searchTableRows.currentOrders("current-orders-search", "current-orders-datestart", "current-orders-dateend", "current-orders-clear-filters");
+searchTableRows.completedOrders("completed-orders-search", "completed-orders-datestart", "completed-orders-dateend", "completed-orders-clear-filters");
 
 //#region Add/Edit Orders -------------------------------------------------
 let addOrderBtn = document.getElementById('add-order');
@@ -242,7 +244,7 @@ function getRowData(row, isCompletedOrders = false, needsDate = false) {
 //#region TEST DATA -------------------------------------------------
 const currentOrders = {
     0: {
-        dateCreated: new Date().toLocaleDateString('en-US'),
+        dateCreated: "3/09/2025",
         trooperName: "Alice Smith",
         parentName: "Tammy Smith",
         boxTotal: 5,
@@ -260,13 +262,93 @@ const currentOrders = {
         pickup: "Shawn's House",
         contact: "(817) 999-1234",
         finacialAgreement: "Agreed"
+    },
+    1: {
+        dateCreated: "3/10/2025",
+        trooperName: "Emma Johnson",
+        parentName: "Michael Johnson",
+        boxTotal: 8,
+        orderContent: {
+            adventurefuls: 2,
+            toastyays: 1,
+            lemonades: 0,
+            trefoils: 1,
+            thinMints: 2,
+            pbPatties: 1,
+            caramelDelites: 0,
+            pbSandwich: 0,
+            gfChocChip: 1
+        },
+        pickup: "Shawn's House",
+        contact: "(214) 555-6789",
+        finacialAgreement: "Agreed"
+    },
+    2: {
+        dateCreated: "3/04/2025",
+        trooperName: "Sophia Brown",
+        parentName: "David Brown",
+        boxTotal: 6,
+        orderContent: {
+            adventurefuls: 1,
+            toastyays: 1,
+            lemonades: 2,
+            trefoils: 0,
+            thinMints: 1,
+            pbPatties: 0,
+            caramelDelites: 1,
+            pbSandwich: 0,
+            gfChocChip: 0
+        },
+        pickup: "Shawn's House",
+        contact: "(469) 777-4321",
+        finacialAgreement: "Agreed"
+    },
+    3: {
+        dateCreated: "2/15/2025",
+        trooperName: "Olivia Martinez",
+        parentName: "Carlos Martinez",
+        boxTotal: 10,
+        orderContent: {
+            adventurefuls: 3,
+            toastyays: 0,
+            lemonades: 2,
+            trefoils: 1,
+            thinMints: 2,
+            pbPatties: 0,
+            caramelDelites: 1,
+            pbSandwich: 1,
+            gfChocChip: 0
+        },
+        pickup: "Shawn's House",
+        contact: "(972) 333-9876",
+        finacialAgreement: "Agreed"
+    },
+    4: {
+        dateCreated: "3/12/2025",
+        trooperName: "Mia Wilson",
+        parentName: "Sara Wilson",
+        boxTotal: 4,
+        orderContent: {
+            adventurefuls: 0,
+            toastyays: 2,
+            lemonades: 0,
+            trefoils: 0,
+            thinMints: 1,
+            pbPatties: 1,
+            caramelDelites: 0,
+            pbSandwich: 0,
+            gfChocChip: 0
+        },
+        pickup: "Shawn's House",
+        contact: "(817) 123-4567",
+        finacialAgreement: "Agreed"
     }
 };
 
 const completedOrders = {
     0: {
-        dateCreated: new Date().toLocaleDateString('en-US'),
-        dateCompleted: new Date().toLocaleDateString('en-US'),
+        dateCreated: "1/19/2025",
+        dateCompleted: "2/01/2025",
         trooperName: "Lilly Joe",
         parentName: "Donny Joe",
         boxTotal: 5,
@@ -284,8 +366,72 @@ const completedOrders = {
         pickup: "Shawn's House",
         contact: "(817) 888-1234",
         finacialAgreement: "Agreed"
+    },
+    1: {
+        dateCreated: "3/10/2025",
+        dateCompleted: "3/12/2025",
+        trooperName: "Zoe Adams",
+        parentName: "Henry Adams",
+        boxTotal: 7,
+        orderContent: {
+            adventurefuls: 1,
+            toastyays: 1,
+            lemonades: 1,
+            trefoils: 1,
+            thinMints: 1,
+            pbPatties: 1,
+            caramelDelites: 1,
+            pbSandwich: 0,
+            gfChocChip: 0
+        },
+        pickup: "Shawn's House",
+        contact: "(214) 666-5432",
+        finacialAgreement: "Agreed"
+    },
+    2: {
+        dateCreated: "2/05/2025",
+        dateCompleted: "2/10/2025",
+        trooperName: "Charlotte Green",
+        parentName: "Linda Green",
+        boxTotal: 6,
+        orderContent: {
+            adventurefuls: 2,
+            toastyays: 0,
+            lemonades: 0,
+            trefoils: 2,
+            thinMints: 1,
+            pbPatties: 0,
+            caramelDelites: 1,
+            pbSandwich: 0,
+            gfChocChip: 0
+        },
+        pickup: "Shawn's House",
+        contact: "(817) 777-1122",
+        finacialAgreement: "Agreed"
+    },
+    3: {
+        dateCreated: "2/15/2025",
+        dateCompleted: "2/17/2025",
+        trooperName: "Ava Thomas",
+        parentName: "Robert Thomas",
+        boxTotal: 9,
+        orderContent: {
+            adventurefuls: 3,
+            toastyays: 2,
+            lemonades: 1,
+            trefoils: 0,
+            thinMints: 2,
+            pbPatties: 0,
+            caramelDelites: 1,
+            pbSandwich: 0,
+            gfChocChip: 0
+        },
+        pickup: "Shawn's House",
+        contact: "(469) 888-7654",
+        finacialAgreement: "Agreed"
     }
 };
+
 
 (function loadTestData() {
     for (const [key, value] of Object.entries(currentOrders)) {
