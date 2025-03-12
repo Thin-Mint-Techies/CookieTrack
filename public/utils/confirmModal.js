@@ -8,14 +8,18 @@ const modalInfo = {
         title: "Oder Completion",
         message: "Are you sure you want to complete this order?",
         icon: "fa-clipboard-check",
-        color: "green",
+        text: "text-green",
+        background: "bg-green",
+        hover: "bg-green-light",
         action: "Complete"
     },
     deleteItem: {
         title: "Deletion",
         message: "Are you sure you want to delete?",
         icon: "fa-trash-can",
-        color: "red",
+        text: "text-red",
+        background: "bg-red",
+        hover: "bg-red-light",
         action: "Delete"
     }
 }
@@ -30,17 +34,17 @@ function createModal(action, info) {
         <form class="w-full max-w-xl bg-white shadow-default rounded-default p-6 relative">
             <div class="flex items-center pb-3 border-b border-gray">
                 <div class="flex-1">
-                    <h3 id="confirm-modal-title" class="text-${info.color} text-xl font-bold">Confirm ${info.title}</h3>
+                    <h3 id="confirm-modal-title" class="${info.text} text-xl font-bold">Confirm ${info.title}</h3>
                 </div>
                 <i id="confirm-modal-close" class="fa-solid fa-xmark text-xl text-black hover:text-black-light shrink-0 ml-2 w-3 cursor-pointer"></i>
             </div>
             <div class="flex flex-col gap-4 mt-6 text-center">
-                <i class="fa-solid ${info.icon} text-${info.color} text-4xl"></i>
+                <i class="fa-solid ${info.icon} ${info.text} text-4xl"></i>
                 <p class="text-base text-black">${info.message}</p>
             </div>
             <div class="border-t border-gray pt-6 flex justify-between gap-4 mt-6">
                 <button id="confirm-modal-cancel" type="button" class="w-full px-4 py-2 rounded-default text-black text-sm border-none tracking-wide bg-white hover:bg-gray accent-green">Cancel</button>
-                <button id="confirm-modal-submit" type="button" class="w-full px-4 py-2 rounded-default text-white text-sm border-none tracking-wide bg-${info.color} hover:bg-${info.color}-light accent-black">${info.action}</button>
+                <button id="confirm-modal-submit" type="button" class="w-full px-4 py-2 rounded-default text-white text-sm border-none tracking-wide ${info.background} hover:${info.hover} accent-black">${info.action}</button>
             </div>
         </form>
     `;

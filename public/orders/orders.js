@@ -1,7 +1,18 @@
 import { showToast, STATUS_COLOR } from "../utils/toasts.js";
 import { callApi } from "../utils/apiCall.js";
-import { regExpCalls, setupDropdown, handleTableRow } from "../utils/utils.js";
+import { regExpCalls, setupDropdown, handleTableRow, searchTableRows } from "../utils/utils.js";
 import { createModals } from "../utils/confirmModal.js";
+import { handleSkeletons } from "../utils/skeletons.js";
+
+//First show skeleton loaders as the order information is pulled from database
+handleSkeletons.hideNeedSkeletonElems();
+handleSkeletons.tableSkeleton(document.getElementsByClassName('main-content')[0], 3);
+
+setTimeout(() => {
+    handleSkeletons.removeSkeletons();
+}, 2000);
+
+searchTableRows.currentOrders("current-orders-search", "current-orders-datestart", "current-orders-dateend", "current-orders-clear-filters");
 
 //#region Add/Edit Orders -------------------------------------------------
 let addOrderBtn = document.getElementById('add-order');
@@ -227,3 +238,61 @@ function getRowData(row, isCompletedOrders = false, needsDate = false) {
 }
 
 //#endregion TABLE ACTIONS ------------------------------------------
+
+//#region TEST DATA -------------------------------------------------
+const currentOrders = {
+    0: {
+        dateCreated: new Date().toLocaleDateString('en-US'),
+        trooperName: "Alice Smith",
+        parentName: "Tammy Smith",
+        boxTotal: 5,
+        orderContent: {
+            adventurefuls: 1,
+            toastyays: 0,
+            lemonades: 1,
+            trefoils: 0,
+            thinMints: 0,
+            pbPatties: 0,
+            caramelDelites: 0,
+            pbSandwich: 1,
+            gfChocChip: 2
+        },
+        pickup: "Shawn's House",
+        contact: "(817) 999-1234",
+        finacialAgreement: "Agreed"
+    }
+};
+
+const completedOrders = {
+    0: {
+        dateCreated: new Date().toLocaleDateString('en-US'),
+        dateCompleted: new Date().toLocaleDateString('en-US'),
+        trooperName: "Lilly Joe",
+        parentName: "Donny Joe",
+        boxTotal: 5,
+        orderContent: {
+            adventurefuls: 1,
+            toastyays: 0,
+            lemonades: 1,
+            trefoils: 0,
+            thinMints: 0,
+            pbPatties: 0,
+            caramelDelites: 0,
+            pbSandwich: 1,
+            gfChocChip: 2
+        },
+        pickup: "Shawn's House",
+        contact: "(817) 888-1234",
+        finacialAgreement: "Agreed"
+    }
+};
+
+(function loadTestData() {
+    for (const [key, value] of Object.entries(currentOrders)) {
+        handleTableRow.currentOrder(value, editCurrentOrder, createModals.deleteItem(deleteCurrentOrder), createModals.completeOrder(completeCurrentOrder));
+    };
+    for (const [key, value] of Object.entries(completedOrders)) {
+        handleTableRow.completedOrder(value, editCompletedOrder, createModals.deleteItem(deleteCompletedOrder));
+    };
+})();
+//#endregion --------------------------------------------------------
