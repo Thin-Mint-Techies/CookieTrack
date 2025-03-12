@@ -219,7 +219,7 @@
                     </div>
                 </div>
 
-                <div class="bg-white py-6 px-4 max-w-7xl relative shadow-default mx-auto mt-8 mb-8 rounded-default">
+                <div class="need-skeleton bg-white py-6 px-4 max-w-7xl relative shadow-default mx-auto mt-8 mb-8 rounded-default">
                     <h2 class="text-green text-4xl max-sm:text-2xl font-extrabold mb-8">
                         <i class="fa-solid fa-folder-open"></i> Your Documents
                     </h2>
@@ -235,34 +235,6 @@
                                 </tr>
                             </thead>
                             <tbody id="your-documents-tbody" class="whitespace-nowrap">
-                                <tr class="even:bg-gray text-sm text-black [&_td]:p-4">
-                                    <td>Purchase Order - 2</td>
-                                    <td>1.27Mb</td>
-                                    <td>11/20/2024</td>
-                                    <td>
-                                        <button class="mr-4" title="Download">
-                                            <i
-                                                class="fa-solid fa-cloud-arrow-down text-xl text-blue hover:text-blue-light"></i>
-                                        </button>
-                                        <button class="mr-4" title="Delete">
-                                            <i class="fa-solid fa-trash-can text-xl text-red hover:text-red-light"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr class="even:bg-gray text-sm text-black [&_td]:p-4">
-                                    <td>Purchase Order - 1</td>
-                                    <td>1.19Mb</td>
-                                    <td>11/18/2024</td>
-                                    <td>
-                                        <button class="mr-4" title="Download">
-                                            <i
-                                                class="fa-solid fa-cloud-arrow-down text-xl text-blue hover:text-blue-light"></i>
-                                        </button>
-                                        <button class="mr-4" title="Delete">
-                                            <i class="fa-solid fa-trash-can text-xl text-red hover:text-red-light"></i>
-                                        </button>
-                                    </td>
-                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -272,55 +244,13 @@
                             <i class="fa-solid fa-cloud-arrow-up"></i> Upload Files
                         </button>
                     </div>
-                    <div id="upload-files-form"
-                        class="hidden fixed inset-0 p-4 flex-wrap justify-center items-center w-full h-full z-[1000] before:fixed before:inset-0 before:w-full before:h-full before:bg-black-overlay shadow-default overflow-auto">
-                        <div class="w-full max-w-lg bg-white shadow-default rounded-default p-6 relative">
-                            <div class="flex items-center pb-3 border-b border-gray">
-                                <div class="flex-1">
-                                    <h3 class="text-green text-xl font-bold">Upload File(s)</h3>
-                                    <p class="text-black text-sm mt-1">
-                                        Upload your order documents
-                                    </p>
-                                </div>
-                                <i id="upload-files-close"
-                                    class="fa-solid fa-xmark text-xl text-black hover:text-black-light shrink-0 ml-2 w-3 cursor-pointer"></i>
-                            </div>
-                            <div id="upload-files-drop-area"
-                                class="rounded-default border-2 border-gray border-dashed mt-6">
-                                <div
-                                    class="p-4 min-h-[180px] flex flex-col items-center justify-center text-center cursor-pointer">
-                                    <i
-                                        class="fa-solid fa-cloud-arrow-up w-10 mb-4 text-black text-4xl inline-block"></i>
-                                    <h4 class="text-base text-black">
-                                        Drag &amp; Drop or
-                                        <label for="upload-files-input" class="text-green cursor-pointer">
-                                            Choose file
-                                        </label>
-                                        to upload
-                                    </h4>
-                                    <input type="file" id="upload-files-input" multiple class="hidden" />
-                                </div>
-                            </div>
-                            <div id="upload-files-prog-list">
-                            </div>
-                            <div class="border-t border-gray pt-6 flex justify-between gap-4 mt-6">
-                                <button id="upload-files-cancel" type="button"
-                                    class="w-full px-4 py-2 rounded-default text-black text-sm border-none outline-none tracking-wide bg-white hover:bg-gray">
-                                    Cancel
-                                </button>
-                                <button id="upload-files-submit" type="button"
-                                    class="w-full px-4 py-2 rounded-default text-white text-sm border-none outline-none tracking-wide bg-green hover:bg-green-light">
-                                    Submit
-                                </button>
-                            </div>
-                        </div>
-                    </div>
                 </div>
-                <div class="bg-white py-6 px-4 max-w-7xl relative shadow-default mx-auto mb-8 rounded-default">
+                <div class="need-skeleton bg-white py-6 px-4 max-w-7xl relative shadow-default mx-auto mb-8 rounded-default">
                     <h2 class="text-green text-4xl max-sm:text-2xl font-extrabold mb-4">
                         <i class="fa-solid fa-hourglass-half"></i> Current Orders
                     </h2>
-                    <div id="current-orders-filters" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                    <div id="current-orders-filters"
+                        class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-[40%_40%_auto] gap-4 mb-4">
                         <div class="flex relative">
                             <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
                                 <i class="fa-solid fa-magnifying-glass w-4 h-4 text-black"></i>
@@ -331,22 +261,28 @@
                         </div>
                         <div class="flex items-center lg:justify-self-end gap-4 max-sm:w-full">
                             <div class="relative flex-1 min-w-0">
-                                <label for="current-order-datestart"
+                                <label for="current-orders-datestart"
                                     class="absolute text-sm text-green left-1 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2">
                                     Start date
                                 </label>
-                                <input id="current-order-datestart" name="start" type="date"
+                                <input id="current-orders-datestart" name="start" type="date"
                                     class="block w-full min-w-0 p-2.5 bg-white border-2 border-gray text-black text-sm rounded-default focus:ring-green focus:border-green outline-none appearance-none">
                             </div>
                             <span class="text-black">to</span>
                             <div class="relative flex-1 min-w-0">
-                                <label for="current-order-dateend"
+                                <label for="current-orders-dateend"
                                     class="absolute text-sm text-green left-1 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2">
                                     End date
                                 </label>
-                                <input id="current-order-dateend" name="end" type="date"
+                                <input id="current-orders-dateend" name="end" type="date"
                                     class="block w-full min-w-0 p-2.5 bg-white border-2 border-gray text-black text-sm rounded-default focus:ring-green focus:border-green outline-none appearance-none">
                             </div>
+                        </div>
+                        <div class="flex sm:col-span-2 xl:col-span-1">
+                            <button id="current-orders-clear-filters" type="button"
+                                class="w-full shadow-default py-1 px-2 text-lg tracking-wide rounded-default text-white bg-blue hover:bg-blue-light accent-gray">
+                                Clear Filters
+                            </button>
                         </div>
                     </div>
 
@@ -386,11 +322,12 @@
                         </button>
                     </div>
                 </div>
-                <div class=" bg-white py-6 px-4 max-w-7xl relative shadow-default mx-auto rounded-default">
+                <div class="need-skeleton bg-white py-6 px-4 max-w-7xl relative shadow-default mx-auto rounded-default">
                     <h2 class="text-green text-4xl max-sm:text-2xl font-extrabold mb-8">
                         <i class="fa-solid fa-clipboard-check"></i> Completed Orders
                     </h2>
-                    <div id="completed-orders-filters" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                    <div id="completed-orders-filters"
+                        class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-[40%_40%_auto] gap-4 mb-4">
                         <div class="flex relative">
                             <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
                                 <i class="fa-solid fa-magnifying-glass w-4 h-4 text-black"></i>
@@ -418,12 +355,18 @@
                                     class="block w-full min-w-0 p-2.5 bg-white border-2 border-gray text-black text-sm rounded-default focus:ring-green focus:border-green outline-none appearance-none">
                             </div>
                         </div>
+                        <div class="flex sm:col-span-2 xl:col-span-1">
+                            <button id="completed-orders-clear-filters" type="button"
+                                class="w-full shadow-default py-1 px-2 text-lg tracking-wide rounded-default text-white bg-blue hover:bg-blue-light accent-gray">
+                                Clear Filters
+                            </button>
+                        </div>
                     </div>
 
-                    <div class="overflow-x-auto pb-4">
+                    <div class="overflow-auto pb-4 max-h-80">
                         <table
                             class="min-w-full border-separate border-spacing-0 border-4 border-green rounded-default">
-                            <thead class="bg-green whitespace-nowrap">
+                            <thead class="bg-green whitespace-nowrap sticky top-0">
                                 <tr class="text-left text-lg text-white [&_th]:p-4 [&_th]:font-normal">
                                     <th>Date Created</th>
                                     <th>Date Completed</th>
@@ -451,6 +394,48 @@
                     </div>
                 </div>
 
+                <div id="upload-files-form"
+                    class="hidden fixed inset-0 p-4 flex-wrap justify-center items-center w-full h-full z-[1000] before:fixed before:inset-0 before:w-full before:h-full before:bg-black-overlay shadow-default overflow-auto">
+                    <div class="w-full max-w-lg bg-white shadow-default rounded-default p-6 relative">
+                        <div class="flex items-center pb-3 border-b border-gray">
+                            <div class="flex-1">
+                                <h3 class="text-green text-xl font-bold">Upload File(s)</h3>
+                                <p class="text-black text-sm mt-1">
+                                    Upload your order documents
+                                </p>
+                            </div>
+                            <i id="upload-files-close"
+                                class="fa-solid fa-xmark text-xl text-black hover:text-black-light shrink-0 ml-2 w-3 cursor-pointer"></i>
+                        </div>
+                        <div id="upload-files-drop-area"
+                            class="rounded-default border-2 border-gray border-dashed mt-6">
+                            <div
+                                class="p-4 min-h-[180px] flex flex-col items-center justify-center text-center cursor-pointer">
+                                <i class="fa-solid fa-cloud-arrow-up w-10 mb-4 text-black text-4xl inline-block"></i>
+                                <h4 class="text-base text-black">
+                                    Drag &amp; Drop or
+                                    <label for="upload-files-input" class="text-green cursor-pointer">
+                                        Choose file
+                                    </label>
+                                    to upload
+                                </h4>
+                                <input type="file" id="upload-files-input" multiple class="hidden" />
+                            </div>
+                        </div>
+                        <div id="upload-files-prog-list">
+                        </div>
+                        <div class="border-t border-gray pt-6 flex justify-between gap-4 mt-6">
+                            <button id="upload-files-cancel" type="button"
+                                class="w-full px-4 py-2 rounded-default text-black text-sm border-none outline-none tracking-wide bg-white hover:bg-gray">
+                                Cancel
+                            </button>
+                            <button id="upload-files-submit" type="button"
+                                class="w-full px-4 py-2 rounded-default text-white text-sm border-none outline-none tracking-wide bg-green hover:bg-green-light">
+                                Submit
+                            </button>
+                        </div>
+                    </div>
+                </div>
                 <div id="order-form"
                     class="hidden fixed inset-0 p-4 flex-wrap justify-center items-center w-full h-full z-[1000] before:fixed before:inset-0 before:w-full before:h-full before:bg-black-overlay shadow-default overflow-auto">
                     <form class="w-full max-w-4xl bg-white shadow-default rounded-default p-6 relative">

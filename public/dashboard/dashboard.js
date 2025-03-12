@@ -1,3 +1,5 @@
+import { callApi } from "../utils/apiCall.js";
+
 //Get and update the current months predicted best seller
 const monthlyCookie = {
     0: { name: "Adventurefuls", image: "/public/resources/images/adventurefuls.jpg" },
@@ -35,3 +37,15 @@ if (sessionStorage.getItem("userData")) {
         }
     });
 }
+
+/* document.addEventListener("keydown", (e) => {
+    if (e.key === "c") {
+        const data = {
+            name: "Brandon",
+            email: "test@gmail.com",
+            role: "parent",
+            password: "123456"
+        }
+        console.log(callApi('/user', 'POST', data));
+    }
+}); */

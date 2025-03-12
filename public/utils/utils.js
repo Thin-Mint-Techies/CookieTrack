@@ -88,13 +88,165 @@ function setupDropdown(buttonId, dropdownId) {
 }
 //#endregion --------------------------------------------------------
 
+//#region TABLE FILTERS ---------------------------------------------
+const searchTableRows = {
+    currentOrders: (searchId, startDateId, endDateId, clearId) => setupTableFilters(searchId, startDateId, endDateId, clearId, searchCurrentOrderRows),
+    completedOrders: (searchId, startDateId, endDateId, clearId) => setupTableFilters(searchId, startDateId, endDateId, clearId, searchCompletedOrderRows)
+}
+
+function setupTableFilters(searchId, startDateId, endDateId, clearId, searchAction) {
+    const search = document.getElementById(searchId);
+    const startDate = document.getElementById(startDateId);
+    const endDate = document.getElementById(endDateId);
+    const clear = document.getElementById(clearId);
+
+    function searchFunction() {
+        const searchData = search.value.trim();
+        const startDateData = startDate.value;
+        const endDateData = endDate.value;
+
+        searchAction(searchData, startDateData, endDateData);
+    }
+
+    //Setup event listeners for inputs and clear button
+    search.addEventListener('input', searchFunction, false);
+    startDate.addEventListener('input', searchFunction, false);
+    endDate.addEventListener('input', searchFunction, false);
+    clear.addEventListener('click', () => {
+        search.value = "";
+        startDate.value = "";
+        endDate.value = "";
+        searchFunction();
+    });
+}
+
+function parseLocalDate(dateString) {
+    if (!dateString) return null;
+    const parts = dateString.split("-"); // Expected format: YYYY-MM-DD
+    return new Date(parts[0], parts[1] - 1, parts[2]); // Month is zero-based
+};
+
+function searchCurrentOrderRows(searchName, startDate, endDate) {
+    const tbody = document.getElementById("current-orders-tbody");
+    const rows = tbody.getElementsByTagName("tr");
+
+    //Convert string dates to Date objects in LOCAL TIME
+    const start = parseLocalDate(startDate);
+    let end = parseLocalDate(endDate);
+
+    //Adjust end date to include the full day
+    if (end) end.setHours(23, 59, 59, 999);
+
+    Array.from(rows).forEach(row => {
+        const cells = row.getElementsByTagName("td");
+
+        //Get values from specific <td> cells
+        const dateCreatedText = cells[0].textContent.trim();
+        const trooperNameText = cells[1].textContent.trim();
+        const parentNameText = cells[2].textContent.trim();
+
+        //Convert table date to a local Date object
+        const dateParts = dateCreatedText.split("/"); // Expected format: MM/DD/YYYY
+        const dateCreatedDate = new Date(dateParts[2], dateParts[0] - 1, dateParts[1]);
+
+        //Check if the name matches (case-insensitive)
+        const nameSearchActive = searchName.trim() !== "";
+        const trooperNameMatch = nameSearchActive && trooperNameText.toLowerCase().includes(searchName.toLowerCase());
+        const parentNameMatch = nameSearchActive && parentNameText.toLowerCase().includes(searchName.toLowerCase());
+        const nameMatches = nameSearchActive ? (trooperNameMatch || parentNameMatch) : true;
+
+        //Check if the date falls within the range
+        let dateMatches = true;
+        if (start && end) {
+            dateMatches = dateCreatedDate >= start && dateCreatedDate <= end;
+        } else if (start) {
+            dateMatches = dateCreatedDate >= start;
+        } else if (end) {
+            dateMatches = dateCreatedDate <= end;
+        }
+
+        //Show or hide the row based on conditions
+        if (nameMatches && dateMatches) {
+            row.classList.remove("hidden");
+        } else {
+            row.classList.add("hidden");
+        }
+    });
+}
+
+function searchCompletedOrderRows(searchName, startDate, endDate) {
+    const tbody = document.getElementById(`completed-orders-tbody`);
+    const rows = tbody.getElementsByTagName("tr");
+
+    //Convert string dates to Date objects in LOCAL TIME
+    const start = parseLocalDate(startDate);
+    let end = parseLocalDate(endDate);
+
+    //Adjust end date to include the full day
+    if (end) end.setHours(23, 59, 59, 999);
+
+    Array.from(rows).forEach(row => {
+        const cells = row.getElementsByTagName("td");
+
+        //Get values from specific <td> cells
+        const dateCreatedText = cells[0].textContent.trim();
+        const dateCompletedText = cells[1].textContent.trim();
+        const trooperNameText = cells[2].textContent.trim();
+        const parentNameText = cells[3].textContent.trim();
+
+        //Convert table date to a local Date object
+        const dateCreatedParts = dateCreatedText.split("/"); //Expected format: MM/DD/YYYY
+        const dateCompletedParts = dateCompletedText.split("/") //Expected format: MM/DD/YYYY
+        const dateCreatedDate = new Date(dateCreatedParts[2], dateCreatedParts[0] - 1, dateCreatedParts[1]);
+        const dateCompletedDate = new Date(dateCompletedParts[2], dateCompletedParts[0] - 1, dateCompletedParts[1]);
+
+        //Check if the name matches (case-insensitive)
+        const nameSearchActive = searchName.trim() !== "";
+        const trooperNameMatch = nameSearchActive && trooperNameText.toLowerCase().includes(searchName.toLowerCase());
+        const parentNameMatch = nameSearchActive && parentNameText.toLowerCase().includes(searchName.toLowerCase());
+        const nameMatches = nameSearchActive ? (trooperNameMatch || parentNameMatch) : true;
+
+        //Check if either date falls within the range
+        let dateMatches = true;
+        if (start && end) {
+            dateMatches =
+                (dateCreatedDate && dateCreatedDate >= start && dateCreatedDate <= end) ||
+                (dateCompletedDate && dateCompletedDate >= start && dateCompletedDate <= end);
+        } else if (start) {
+            dateMatches =
+                (dateCreatedDate && dateCreatedDate >= start) ||
+                (dateCompletedDate && dateCompletedDate >= start);
+        } else if (end) {
+            dateMatches =
+                (dateCreatedDate && dateCreatedDate <= end) ||
+                (dateCompletedDate && dateCompletedDate <= end);
+        }
+
+        //Show or hide the row based on conditions
+        if (nameMatches && dateMatches) {
+            row.classList.remove("hidden");
+        } else {
+            row.classList.add("hidden");
+        }
+    });
+}
+
+//#endregion TABLE FILTERS ------------------------------------------
+
 //#region TABLE ROWS ------------------------------------------------
 const handleTableRow = {
+    currentRowEditing: null,
     currentOrder: (data, editAction, deleteAction, completeAction) => addOrderRow(data, true, editAction, deleteAction, completeAction),
     completedOrder: (data, editAction, deleteAction) => addOrderRow(data, false, editAction, deleteAction, null),
-    yourTrooper: (data, editAction, deleteAction) => addTrooperRow(data, editAction, deleteAction),
+    yourInventory: (data, editAction, deleteAction) => addInventoryRow(data, "your", editAction, deleteAction),
+    troopInventory: (data, editAction, deleteAction) => addInventoryRow(data, "troop", editAction, deleteAction),
+    needInventory: (data, editAction, deleteAction) => addInventoryRow(data, "need", editAction, deleteAction),
+    yourTrooper: (data, editAction, deleteAction) => addTrooperRow(data, "your", editAction, deleteAction),
+    allTrooper: (data, editAction, deleteAction) => addTrooperRow(data, "all", editAction, deleteAction),
     yourDocuments: (data, downloadAction, deleteAction) => addFileRow(data, downloadAction, deleteAction),
-    updateOrderRow: (row, data) => editRowData(row, rowFields.orders, data)
+    updateOrderRow: (row, data) => editRowData(row, rowFields.orders, data),
+    updateInventoryRow: (row, data) => editRowData(row, rowFields.inventory, data),
+    updateTrooperRow: (row, data) => editRowData(row, rowFields.troopers, data)
 }
 
 const orders = [
@@ -108,8 +260,14 @@ const rowFields = {
     completedOrders: [
         orders[0], "dateCompleted", ...orders.slice(1)
     ],
+    inventory: [
+        "cookieName", "boxesInStock", "boxesSoldMonth"
+    ],
+    inventoryNeed: [
+        "cookieName", "boxesNeeded"
+    ],
     troopers: [
-        "trooperNumber", "trooperName", "age", "grade", "shirtSize", "troopLeader"
+        "troopNumber", "trooperName", "parentName", "troopLeader", "currentBalance", "boxesSold", "age", "grade", "shirtSize"
     ],
     files: [
         "fileName", "fileSize", "dateUploaded"
@@ -161,7 +319,10 @@ function setupRowFields(tr, hasDropdown, fields, data, buttons) {
         let icon = document.createElement("i");
         icon.className = `fa-solid ${btn.iconClass} text-xl`;
 
-        button.addEventListener('click', btn.action);
+        button.addEventListener('click', (e) => {
+            handleTableRow.currentRowEditing = e.target.closest('tr');
+            btn.action();
+        });
 
         button.appendChild(icon);
         actionTd.appendChild(button);
@@ -188,15 +349,31 @@ function addOrderRow(data, isCurrentOrder, editAction, deleteAction, completeAct
     tbody.appendChild(tr);
 }
 
-function addTrooperRow(data, editAction, deleteAction) {
-    const tbody = document.getElementById("your-troopers-tbody");
+function addInventoryRow(data, tbodyId, editAction, deleteAction) {
+    const fields = tbodyId === "need" ? rowFields.inventoryNeed : rowFields.inventory;
+    const tbody = document.getElementById(`${tbodyId}-inventory-tbody`);
     let tr = document.createElement("tr");
     tr.className = "even:bg-gray text-sm text-black [&_td]:p-4";
 
     // Button configurations
     let buttons = [
-        { title: "Edit", iconClass: "fa-pen-to-square text-blue hover:text-blue-light", action: editAction},
-        { title: "Delete", iconClass: "fa-trash-can text-red hover:text-red-light", action: deleteAction}
+        { title: "Edit", iconClass: "fa-pen-to-square text-blue hover:text-blue-light", action: editAction },
+        { title: "Delete", iconClass: "fa-trash-can text-red hover:text-red-light", action: deleteAction }
+    ];
+
+    setupRowFields(tr, false, fields, data, buttons);
+    tbody.appendChild(tr);
+}
+
+function addTrooperRow(data, tbodyId, editAction, deleteAction) {
+    const tbody = document.getElementById(`${tbodyId}-troopers-tbody`);
+    let tr = document.createElement("tr");
+    tr.className = "[&:nth-child(4n-1)]:bg-gray text-sm text-black [&_td]:p-4";
+
+    // Button configurations
+    let buttons = [
+        { title: "Edit", iconClass: "fa-pen-to-square text-blue hover:text-blue-light", action: editAction },
+        { title: "Delete", iconClass: "fa-trash-can text-red hover:text-red-light", action: deleteAction }
     ];
 
     setupRowFields(tr, true, rowFields.troopers, data, buttons);
@@ -208,7 +385,7 @@ function addTrooperRow(data, editAction, deleteAction) {
 
     let hiddenTd = document.createElement("td");
     hiddenTd.className = "pl-12 text-sm";
-    hiddenTd.colSpan = rowFields.troopers.length + 1;
+    hiddenTd.colSpan = rowFields.troopers.length + 2;
 
     let hiddenDiv = document.createElement("div");
     hiddenDiv.className = "p-4 border-2 border-gray rounded-default";
@@ -254,4 +431,4 @@ function editRowData(row, fields, data) {
 }
 //#endregion TABLE ROWS ---------------------------------------------
 
-export { regExpCalls, setupPhoneInput, setupDropdown, handleTableRow }
+export { regExpCalls, setupPhoneInput, setupDropdown, searchTableRows, handleTableRow }

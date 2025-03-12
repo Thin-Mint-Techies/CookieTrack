@@ -1,7 +1,18 @@
 import { showToast, STATUS_COLOR } from "../utils/toasts.js";
 import { callApi } from "../utils/apiCall.js";
-import { regExpCalls, setupDropdown, handleTableRow } from "../utils/utils.js";
-import { createConfirmModal } from "../utils/confirmModal.js";
+import { regExpCalls, setupDropdown, handleTableRow, searchTableRows } from "../utils/utils.js";
+import { createModals } from "../utils/confirmModal.js";
+import { handleSkeletons } from "../utils/skeletons.js";
+
+//First show skeleton loaders as the order information is pulled from database
+handleSkeletons.hideNeedSkeletonElems();
+handleSkeletons.tableSkeleton(document.getElementsByClassName('main-content')[0], 3);
+
+setTimeout(() => {
+    handleSkeletons.removeSkeletons();
+}, 2000);
+
+searchTableRows.currentOrders("current-orders-search", "current-orders-datestart", "current-orders-dateend", "current-orders-clear-filters");
 
 //#region Add/Edit Orders -------------------------------------------------
 let addOrderBtn = document.getElementById('add-order');
@@ -11,7 +22,6 @@ let orderSubtitle = document.getElementById('order-subtitle');
 let orderCancel = document.getElementById('order-cancel');
 let orderSubmit = document.getElementById('order-submit');
 let orderClose = document.getElementById('order-close');
-let currentRowEditing = null;
 
 //Input variables
 const orderTName = document.getElementById("order-tname");
@@ -61,7 +71,7 @@ function openOrderModal(mode = "add", orderData) {
     orderForm.classList.add('flex');
 }
 
-//Close/Cancel the file upload modal
+//Close/Cancel the order modal
 orderClose.addEventListener('click', closeOrderModal, false);
 orderCancel.addEventListener('click', closeOrderModal, false);
 
@@ -159,10 +169,10 @@ orderSubmit.addEventListener('click', (e) => {
     }
 
     if (currentMode === "add") {
-        handleTableRow.currentOrder(orderData, editCurrentOrder, createConfirmModal(deleteCurrentOrder), completeCurrentOrder);
+        handleTableRow.currentOrder(orderData, editCurrentOrder, createModals.deleteItem(deleteCurrentOrder), createModals.completeOrder(completeCurrentOrder));
         showToast("Order Added", "A new order has been created for your account.", STATUS_COLOR.GREEN, true, 5);
     } else if (currentMode === "edit") {
-        handleTableRow.updateOrderRow(currentRowEditing, orderData);
+        handleTableRow.updateOrderRow(handleTableRow.currentRowEditing, orderData);
         showToast("Order Updated", "The selected order has been updated with the new information.", STATUS_COLOR.GREEN, true, 5);
     }
 
@@ -172,33 +182,26 @@ orderSubmit.addEventListener('click', (e) => {
 
 //#region TABLE ACTIONS ---------------------------------------------
 function completeCurrentOrder() {
-    const rowElem = this.parentElement.parentElement;
-    handleTableRow.completedOrder(getRowData(rowElem, true, true), editCompletedOrder, createConfirmModal(deleteCompletedOrder));
-    rowElem.remove();
+    handleTableRow.completedOrder(getRowData(handleTableRow.currentRowEditing, true, true), editCompletedOrder, createModals.deleteItem(deleteCompletedOrder));
+    handleTableRow.currentRowEditing.remove();
     showToast("Order Completed", "The selected order has been completed and moved to the Completed Orders table.", STATUS_COLOR.GREEN, true, 5);
 }
 
 function editCurrentOrder() {
-    const rowElem = this.parentElement.parentElement;
-    currentRowEditing = rowElem;
-    openOrderModal("edit", getRowData(currentRowEditing, false));
+    openOrderModal("edit", getRowData(handleTableRow.currentRowEditing, false));
 }
 
 function deleteCurrentOrder() {
-    const rowElem = this.parentElement.parentElement;
-    rowElem.remove();
+    handleTableRow.currentRowEditing.remove();
     showToast("Order Deleted", "The selected order has been deleted.", STATUS_COLOR.GREEN, true, 5);
 }
 
 function editCompletedOrder() {
-    const rowElem = this.parentElement.parentElement;
-    currentRowEditing = rowElem;
-    openOrderModal("edit", getRowData(currentRowEditing, true));
+    openOrderModal("edit", getRowData(handleTableRow.currentRowEditing, true));
 }
 
 function deleteCompletedOrder() {
-    const rowElem = this.parentElement.parentElement;
-    rowElem.remove();
+    handleTableRow.currentRowEditing.remove();
     showToast("Order Deleted", "The selected order has been deleted.", STATUS_COLOR.GREEN, true, 5);
 }
 
@@ -235,3 +238,61 @@ function getRowData(row, isCompletedOrders = false, needsDate = false) {
 }
 
 //#endregion TABLE ACTIONS ------------------------------------------
+
+//#region TEST DATA -------------------------------------------------
+const currentOrders = {
+    0: {
+        dateCreated: new Date().toLocaleDateString('en-US'),
+        trooperName: "Alice Smith",
+        parentName: "Tammy Smith",
+        boxTotal: 5,
+        orderContent: {
+            adventurefuls: 1,
+            toastyays: 0,
+            lemonades: 1,
+            trefoils: 0,
+            thinMints: 0,
+            pbPatties: 0,
+            caramelDelites: 0,
+            pbSandwich: 1,
+            gfChocChip: 2
+        },
+        pickup: "Shawn's House",
+        contact: "(817) 999-1234",
+        finacialAgreement: "Agreed"
+    }
+};
+
+const completedOrders = {
+    0: {
+        dateCreated: new Date().toLocaleDateString('en-US'),
+        dateCompleted: new Date().toLocaleDateString('en-US'),
+        trooperName: "Lilly Joe",
+        parentName: "Donny Joe",
+        boxTotal: 5,
+        orderContent: {
+            adventurefuls: 1,
+            toastyays: 0,
+            lemonades: 1,
+            trefoils: 0,
+            thinMints: 0,
+            pbPatties: 0,
+            caramelDelites: 0,
+            pbSandwich: 1,
+            gfChocChip: 2
+        },
+        pickup: "Shawn's House",
+        contact: "(817) 888-1234",
+        finacialAgreement: "Agreed"
+    }
+};
+
+(function loadTestData() {
+    for (const [key, value] of Object.entries(currentOrders)) {
+        handleTableRow.currentOrder(value, editCurrentOrder, createModals.deleteItem(deleteCurrentOrder), createModals.completeOrder(completeCurrentOrder));
+    };
+    for (const [key, value] of Object.entries(completedOrders)) {
+        handleTableRow.completedOrder(value, editCompletedOrder, createModals.deleteItem(deleteCompletedOrder));
+    };
+})();
+//#endregion --------------------------------------------------------
