@@ -4,7 +4,7 @@ const SECRET_CODE = process.env.SECRET_CODE;
 const auth = require('../firebaseConfig').auth;
 
 
-const registerUser = async ({ name, email, role, secretCode, password }) => {
+const registerUser = async ({ name, email, role, secretCode, password, phone }) => {
   try {
     // check for secret code for elevated roles
     if (role === 'leader' || role === 'manager') {
@@ -24,6 +24,7 @@ const registerUser = async ({ name, email, role, secretCode, password }) => {
     await newUserRef.set({
       name,
       email,
+      phone,
     });
 
     return { uid: userRecord.uid, email, role };
@@ -58,7 +59,7 @@ const getUserById = async (id) => {
   }
 };
 
-const updateUser = async (id, { name, email, contactDetail}) => {
+const updateUser = async (id, { name, email, phone}) => {
   try {
     const ref = Firestore.collection('users').doc(id);
 
@@ -72,10 +73,7 @@ const updateUser = async (id, { name, email, contactDetail}) => {
     await ref.update({
       name,
       email,
-      contactDetail: {
-        address: contactDetail?.address || null,
-        phone: contactDetail?.phone || null,
-      }
+      phone
     });
 
     return { message: 'User updated successfully' };

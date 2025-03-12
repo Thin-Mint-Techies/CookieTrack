@@ -1,28 +1,27 @@
 const { Firestore } = require('../firebaseConfig');
 const notificationService = require('./notificationService');
 const admin = require('firebase-admin');
+const {trooperDataFormat} = require('../dataFormat');
 
-const createTrooper = async ({ name, ownerId, contactDetail }) => {
+const createTrooper = async ({ troopNumber, trooperName, ownerId, troopLeader, age, grade, shirtSize, boxesSold, currentBalance  }) => {
   try {
     const newTroopRef = Firestore.collection('troopers').doc();
-    const accessId = [assignedParent];
     const troopData = {
-      name,
-      ownerId, // uid of parent
-      contactDetail: {
-        address: contactDetail?.address || null,
-        phone: contactDetail?.phone || null,
-        email: contactDetail?.email || null,
-      },
+      troopNumber,
+      trooperName,
+      ownerId, //uid of parent
+      troopLeader,
+      age,
+      grade,
+      shirtSize,
+      currentBalance,
+      boxesSold,
+      // from here down is not sure
+      squad: '',
+      currentReward: [],
     };
 
     await newTroopRef.set(troopData);
-
-    // Update the user's trooperIds array
-    const userRef = Firestore.collection('users').doc(assignedParent);
-    await userRef.update({
-      trooperIds: admin.firestore.FieldValue.arrayUnion(newTroopRef.id)
-    });
 
     return newTroopRef.id;
   } catch (error) {
@@ -31,7 +30,6 @@ const createTrooper = async ({ name, ownerId, contactDetail }) => {
 };
 
 
-// Service to get all troops
 const getAllTroopers = async () => {
   try {
     const snapshot = await Firestore.collection('troopers').get();
@@ -60,17 +58,21 @@ const getTrooperById = async (id) => {
   }
 };
 
-// Need to manage the fields
-const updateTrooper = async (troopId, name, contactDetail) => {
+const updateTrooper = async (troopNumber, trooperName, ownerId, troopLeader, age, grade, shirtSize, boxesSold, currentBalance, squad, currentReward) => {
   try {
     const ref = Firestore.collection('troopers').doc(troopId);
     await ref.update({
-      name,
-      contactDetail: {
-        address: contactDetail?.address || null,
-        phone: contactDetail?.phone || null,
-        email: contactDetail?.email || null,
-      },
+      troopNumber,
+      trooperName,
+      ownerId, //uid of parent
+      troopLeader,
+      age,
+      grade,
+      shirtSize,
+      currentBalance,
+      boxesSold,
+      squad,
+      currentReward,
     });
     return { message: 'Sales data updated successfully' };
   } catch (error) {

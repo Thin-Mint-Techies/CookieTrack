@@ -22,14 +22,9 @@
 8. OCR
 
 
-Priority: 
-    -REFACTOR ALL DATA TO SUPPORT ACL (create and update): should create another collection for ACL
-    -orderService rework: order take in parent of trooper as ownerId, 
-        -still attach trooper as seller, mark order as complete or on going
-    -rewardService: Name, price(boxes sold), picture
-    -trooperService: boxes of cookie sold, reward available
-    -saleDataService: CRUD
-    -checkUserOwnership: check for multiple files, might need rework or another approach
-    -double check everything for data consistency
 
+New Prio:
+    -inventory and order interaction
+    -saleData: fetch data from other service to update using calculation util
+    -update calculation util 
 

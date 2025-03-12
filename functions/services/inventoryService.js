@@ -1,53 +1,88 @@
 const { Firestore } = require('../firebaseConfig');
+const { parentInventoryDataFormat, leaderInventoryDataFormat } = require('../dataFormat');
 
-
-//currently for trooper
-const createInventory = async ({ ownerId, trooperId, trooperName, trooperNumber, inventory }) => {
+// Create Parent Inventory
+const createParentInventory = async ({ ownerId, trooperId, trooperName, trooperNumber, inventory }) => {
   try {
     const newInventoryRef = Firestore.collection('inventory').doc();
-    await newInventoryRef.set({
-      ownerId: '', // id of the parent of the trooper
-      trooperName: '',
-      trooperId: '',
-      trooperNumber: '',
-      inventory: [{
-        variety: '',
-        cases: 0,
-        packages: 0,
-      },],
-    });
+    const newInventoryData = {
+      ...parentInventoryDataFormat,
+      ownerId,
+      trooperId,
+      trooperName,
+      trooperNumber,
+      inventory,
+    };
+    await newInventoryRef.set(newInventoryData);
     return newInventoryRef.id;
   } catch (error) {
-    throw new Error(`Error creating Inventory: ${error.message}`);
+    throw new Error(`Error creating Parent Inventory: ${error.message}`);
   }
 };
 
-const getAllInventorys = async () => {
+// Create Leader Inventory
+const createLeaderInventory = async ({ ownerId, inventory, needToOrder }) => {
+  try {
+    const newInventoryRef = Firestore.collection('inventory').doc();
+    const newInventoryData = {
+      ...leaderInventoryDataFormat,
+      ownerId,
+      inventory,
+      needToOrder,
+    };
+    await newInventoryRef.set(newInventoryData);
+    return newInventoryRef.id;
+  } catch (error) {
+    throw new Error(`Error creating Leader Inventory: ${error.message}`);
+  }
+};
+
+// Get All Inventories
+const getAllInventories = async () => {
   try {
     const snapshot = await Firestore.collection('inventory').get();
     if (!snapshot.empty) {
       return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     }
-    throw new Error('No Inventorys found');
+    throw new Error('No Inventories found');
   } catch (error) {
-    throw new Error(`Error fetching all Inventory: ${error.message}`);
+    throw new Error(`Error fetching all Inventories: ${error.message}`);
   }
 };
 
-const updateInventory = async (id, { name, description, price }) => {
+// Update Parent Inventory
+const updateParentInventory = async (id, {trooperId, trooperName, trooperNumber, inventory }) => {
   try {
     const ref = Firestore.collection('inventory').doc(id);
-    await ref.update({
-      name,
-      description,
-      price,
-    });
-    return { message: 'Inventory updated successfully' };
+    const updatedInventoryData = {
+      trooperId,
+      trooperName,
+      trooperNumber,
+      inventory,
+    };
+    await ref.update(updatedInventoryData);
+    return { message: 'Parent Inventory updated successfully' };
   } catch (error) {
-    throw new Error(`Error updating Inventory: ${error.message}`);
+    throw new Error(`Error updating Parent Inventory: ${error.message}`);
   }
 };
 
+// Update Leader Inventory
+const updateLeaderInventory = async (id, {inventory, needToOrder }) => {
+  try {
+    const ref = Firestore.collection('inventory').doc(id);
+    const updatedInventoryData = {
+      inventory,
+      needToOrder
+    };
+    await ref.update(updatedInventoryData);
+    return { message: 'Leader Inventory updated successfully' };
+  } catch (error) {
+    throw new Error(`Error updating Leader Inventory: ${error.message}`);
+  }
+};
+
+// Delete Inventory
 const deleteInventory = async (id) => {
   try {
     const ref = Firestore.collection('inventory').doc(id);
@@ -58,10 +93,11 @@ const deleteInventory = async (id) => {
   }
 };
 
-
 module.exports = {
-  createInventory,
-  getAllInventorys,
-  updateInventory,
+  createParentInventory,
+  createLeaderInventory,
+  getAllInventories,
+  updateParentInventory,
+  updateLeaderInventory,
   deleteInventory,
 };

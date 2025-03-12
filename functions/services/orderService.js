@@ -1,61 +1,41 @@
 const { Firestore } = require('../firebaseConfig');
 const { sendEmail } = require('../utils/emailSender');
+const { orderDataFormat } = require('../dataFormat');
+const {completedOrderDataFormat} = require('../dataFormat');
 
-const emailAuth = {
-  user: 'tao734509@gmail.com',
-  pass: '73450911Hh',
-};
 
-// need rework
-const createOrder = async ({ trooperName, trooperId, trooperNumber, ownerId, dateCreated, SU, paymentType, orderContent, pickupDetails }) => {
+const createOrder = async ({ trooperName, trooperId, ownerId, ownerEmail, buyerEmail, parentName, contact, financialAgreement, orderContent, paymentType }) => {
   try {
     const newOrderRef = Firestore.collection('orders').doc();
-    await newOrderRef.set({
-      trooperName,
+    const newOrderData = {
+      ...orderDataFormat,
+      dateCreated: new Date().toISOString(),
       trooperId,
-      trooperNumber,
-      ownerId, // id of the parent of the trooper
+      trooperName,
+      ownerId,
       ownerEmail,
       buyerEmail,
-      dateCreated: dateCreated || new Date().toISOString(),
-      SU,
-      paymentType: paymentType || {
-        cash: 0,
-        credit: 0,
-      },
-      orderContent: orderContent || [{
-        cookies: [{
-          variety: "",
-          cases: 0,
-          packages: 0,
-        }],
-        totalMoney: 0,
-        owe: 0,
-        totalPackages: 0,
-        totalCases: 0,
-      }],
-      pickupDetails: pickupDetails || [{
-        receivedBy: '',
-        troopNumber: '',
-      }, {
-        receivedFrom: '',
-        troopNumber: '',
-      }],
-    });
+      parentName,
+      contact,
+      financialAgreement,
+      orderContent,
+      paymentType,
+    };
+    await newOrderRef.set(newOrderData);
 
     // Send email to owner
-    /*
+    /* 
     await sendEmail({
       to: ownerEmail,
       subject: 'Order Created',
-      text: `An order has been created for trooper ${trooperName}.`,
+      text: `Order ${newOrderRef.id} has been created for trooper ${trooperName}.`,
     });
 
     // Send email to buyer
     await sendEmail({
-      to: buyerEmail,
+      to: parentEmail,
       subject: 'Order Created',
-      text: `You have created an order for trooper ${trooperName}.`,
+      text: `Order ${newOrderRef.id} placed for trooper ${trooperName}.`,
     });
     */
     
@@ -77,21 +57,37 @@ const getAllOrders = async () => {
   }
 };
 
-// Service to update a Order by ID
-const updateOrder = async (id, { trooperName, trooperId, trooperNumber, ownerId, dateCreated, SU, paymentType, orderContent, pickupDetails }) => {
+const updateOrder = async (id, { trooperName, trooperId, ownerId, ownerEmail, buyerEmail, parentName, contact, orderContent, paymentType }) => {
   try {
     const ref = Firestore.collection('orders').doc(id);
-    await ref.update({
+    const updatedOrderData = {
       trooperName,
       trooperId,
-      trooperNumber,
       ownerId,
-      dateCreated,
-      SU,
-      paymentType,
+      ownerEmail,
+      buyerEmail,
+      parentName,
+      contact,
       orderContent,
-      pickupDetails,
+      paymentType,
+    };
+    await ref.update(updatedOrderData);
+    // Send email to owner
+    /* 
+    await sendEmail({
+      to: ownerEmail,
+      subject: 'Order Created',
+      text: `Order ${ref.id} has been updated.`,
     });
+
+    // Send email to buyer
+    await sendEmail({
+      to: parentEmail,
+      subject: 'Order Created',
+      text: `Order ${ref.id} has been updated.`,
+    });
+    */
+
     return { message: 'Order updated successfully' };
   } catch (error) {
     throw new Error('Error updating Order');
@@ -109,16 +105,77 @@ const deleteOrder = async (id) => {
   }
 };
 
-//have not tested
-const getUserOrders = async (userId) => {
+const markOrderComplete = async (id, {pickupDetails}) => {
   try {
-    // Verify the Firebase ID token
-    const decodedToken = await auth.verifyIdToken(idToken);
-    const userId = decodedToken.uid;
+    const ref = Firestore.collection('orders').doc(id);
+    const orderSnapshot = await ref.get();
+
+    if (!orderSnapshot.exists) {
+      throw new Error('Order not found');
+    }
+
+    const orderData = orderSnapshot.data();
+    const completedOrderData = {
+      ...orderData,
+      pickupDetails,
+      dateCompleted: new Date().toISOString(),
+    };
+
+    // Update order with dateCompleted
+    await ref.update(completedOrderData);
+
+    // Send email to owner
+    await sendEmail({
+      to: orderData.ownerEmail,
+      subject: 'Order Completed',
+      text: `Order ${id} has been completed for trooper ${orderData.trooperName}.`,
+    });
+
+    // Send email to buyer
+    await sendEmail({
+      to: orderData.buyerEmail,
+      subject: 'Order Completed',
+      text: `Order ${id} has been completed for trooper ${orderData.trooperName}.`,
+    });
+
+    return { message: 'Order marked as completed successfully' };
+  } catch (error) {
+    throw new Error(`Error marking Order as completed: ${error.message}`);
+  }
+};
+
+// have not test, need a cron job using firebase functions
+const archiveOrders = async () => {
+  try {
+    const fourteenDaysAgo = new Date();
+    fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
 
     const snapshot = await Firestore.collection('orders')
-      .where('ownerId', '==', userId)
+      .where('dateCompleted', '<=', fourteenDaysAgo.toISOString())
       .get();
+
+    if (!snapshot.empty) {
+      const batch = Firestore.batch();
+      snapshot.docs.forEach(doc => {
+        const orderData = doc.data();
+        const completedOrderRef = Firestore.collection('completedOrders').doc(doc.id);
+        batch.set(completedOrderRef, {
+          ...completedOrderDataFormat,
+          ...orderData,
+        });
+        batch.delete(doc.ref);
+      });
+      await batch.commit();
+      console.log('Moved completed orders to completedOrders collection');
+    }
+  } catch (error) {
+    console.error('Error moving completed orders:', error);
+  }
+};
+
+const getUserOrders = async (userId) => {
+  try {
+    const snapshot = await Firestore.collection('orders').where('ownerId', '==', userId).get();
     if (!snapshot.empty) {
       return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     }
@@ -128,11 +185,12 @@ const getUserOrders = async (userId) => {
   }
 };
 
-
 module.exports = {
   createOrder,
   getAllOrders,
   updateOrder,
   deleteOrder,
   getUserOrders,
+  markOrderComplete,
+  archiveOrders,
 };
