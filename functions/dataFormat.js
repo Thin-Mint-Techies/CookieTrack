@@ -69,10 +69,16 @@ const completedOrderDataFormat = {};
 // take from inventory (of the trooper) when order made
 const orderDataFormat = {
     dateCreated: '',
+
     trooperId: '',
     trooperName: '',
-    ownerId: '', // id of the parent of the trooper
-    parentName:'',
+    ownerId: '', // whoever create the order
+    ownerEmail: '',
+    parentName:'', // parent of trooper
+    parentEmail:'',
+    buyerName:'',
+    buyerEmail: '',
+
     pickupDetails: [{
         receivedBy: '',
         address: '',
@@ -116,7 +122,7 @@ const saleDataformatforTrooper = {
     totalBoxesSold: 0,
 };
 
-// for user (for all their troopers)
+
 // leaderInventory = for every parent in the troop, associate to leader, shared among parents
 // parentInventory = only for parent's own troopers
 // when order is made, take from inventory of both parent and leader
@@ -167,13 +173,15 @@ const ACL = {
 
 
 module.exports = {
-    trooperDataFormat,
-    squadDataFormat,
-    orderDataFormat,
-    saleDataformat,
     userDataFormat,
     rewardDataFormat,
     cookieDataFormat,
-    inventoryDataFormat,
-    ACL
+    trooperDataFormat,
+    troopDataFormat,
+    completedOrderDataFormat,
+    orderDataFormat,
+    saleDataformatforTrooper,
+    parentInventoryDataFormat,
+    leaderInventoryDataFormat,
+    ACL,
 };

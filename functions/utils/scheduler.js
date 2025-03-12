@@ -1,4 +1,12 @@
 const Firestore = admin.firestore();
+const functions = require('firebase-functions');
+const { moveCompletedOrders, archiveOrders } = require('./services/orderService');
+
+// Schedule the moveCompletedOrders function to run daily
+const moveCompletedOrders = functions.pubsub.schedule('every week').onRun(async (context) => {
+    await archiveOrders();
+    console.log('Scheduled function executed: moveCompletedOrders');
+});
 
 const updateMonthlySales = async () => {
     try {
@@ -27,4 +35,7 @@ const updateMonthlySales = async () => {
     }
 };
 
-module.exports = updateMonthlySales;
+module.exports = { 
+    updateMonthlySales, 
+    moveCompletedOrders,
+};
