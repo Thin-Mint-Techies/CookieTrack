@@ -63,7 +63,9 @@ const troopDataFormat = {
 };
 
 // archive the order when dateCompleted is not null
-const completedOrderDataFormat = {};
+const completedOrderDataFormat = {
+    // copies of orderDataFormat
+};
 
 
 // take from inventory (of the trooper) when order made
@@ -112,11 +114,12 @@ const orderDataFormat = {
 // parent can see sale data for their own trooper, 
 // leader can see every trooper saleData
 const saleDataformatforTrooper = {
+    ownerId: '',
     trooperId: '',
     trooperName: '',
-    orderId: [],
+    orderId: [], // archived order or order?
     cookieData: [
-        {varietyId: '', variety: '', boxTotal: 0, cookieTotalCost: 0.0,},
+        {varietyId: '', variety: '', boxPrice: '', boxTotal: 0, cookieTotalCost: 0.0,},
     ],
     totalMoneyMade: 0.0, 
     totalBoxesSold: 0,

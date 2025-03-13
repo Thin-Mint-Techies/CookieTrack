@@ -54,6 +54,23 @@ const updateSaleData = async (id, { trooperId, trooperName, orderId, cookieData,
   }
 };
 
+const getAllSaleDatasByTrooperId = async (id) => {
+  try {
+    // Query the troopers collection where assignedParent matches the userId
+    const snapshot = await Firestore.collection('saleData').where('trooperId', '==', id).get();
+    if (snapshot.empty) {
+      throw new Error('No troopers found for the given user ID');
+    }
+
+    // Map the fetched documents to an array of trooper data
+    const troopers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+    return troopers;
+  } catch (error) {
+    throw new Error(`Error fetching troopers saleData by id: ${error.message}`);
+  }
+};
+
 
 const deleteSaleData = async (id) => {
   try {
@@ -70,4 +87,5 @@ module.exports = {
   getSaleData,
   updateSaleData,
   deleteSaleData,
+  getAllSaleDatasByTrooperId
 };

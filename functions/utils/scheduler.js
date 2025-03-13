@@ -1,6 +1,6 @@
 const Firestore = admin.firestore();
 const functions = require('firebase-functions');
-const { moveCompletedOrders, archiveOrders } = require('./services/orderService');
+const {  archiveOrders } = require('../services/orderService');
 
 // Schedule the moveCompletedOrders function to run daily
 const moveCompletedOrders = functions.pubsub.schedule('every week').onRun(async (context) => {
@@ -35,7 +35,34 @@ const updateMonthlySales = async () => {
     }
 };
 
+const getMonthlyCookies = async () => {
+    try {
+        const currentMonth = new Date().getMonth() + 1;
+
+        const snapshot = await Firestore.collection('cookies').get();
+        if (snapshot.empty) {
+            return 'No cookies found';
+        }
+
+        const cookies = snapshot.docs.map((doc) => {
+            const data = doc.data();
+            const monthlySold = data.monthlySold || {};
+            const currentMonthSold = monthlySold[currentMonth] || 0; // Directly get the current month's sales
+            return { id: doc.id, name: data.name, currentMonthSold };
+        });
+
+        // Sort by sales and return the top 3
+        const sortedCookies = cookies.sort((a, b) => b.currentMonthSold - a.currentMonthSold);
+        return sortedCookies.slice(0, 3);
+    } catch (error) {
+        throw new Error(`Error fetching monthly cookies: ${error.message}`);
+    }
+};
+
+
+
 module.exports = { 
     updateMonthlySales, 
     moveCompletedOrders,
+    getMonthlyCookies
 };

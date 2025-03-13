@@ -91,7 +91,7 @@ const deleteTrooper = async (id) => {
   }
 };
 
-const getTroopersByOwnerId = async (userId) => {
+const getAllTroopersByOwnerId = async (userId) => {
   try {
     // Query the troopers collection where assignedParent matches the userId
     const snapshot = await Firestore.collection('troopers').where('ownerId', '==', userId).get();
@@ -108,11 +108,13 @@ const getTroopersByOwnerId = async (userId) => {
   }
 };
 
+
+
 module.exports = {
   createTrooper,
   getAllTroopers,
   getTrooperById,
   updateTrooper,
   deleteTrooper,
-  getTroopersByOwnerId,
+  getAllTroopersByOwnerId,
 };

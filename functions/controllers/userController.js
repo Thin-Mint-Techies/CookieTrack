@@ -77,6 +77,18 @@ const deleteAllUser = async (req, res) => {
 };
 */
 
+const attachRoleAsCustomClaim = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await userService.attachRoleAsCustomClaim(id);
+    console.log('Role as customClaim set successfully:', result);
+    res.status(200).json(result);
+  } catch (error) {
+    console.error('Failed to set role as customClaim', error.message);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 
 
 
@@ -86,4 +98,5 @@ module.exports = {
   getUserById,
   updateUser,
   deleteUser,
+  attachRoleAsCustomClaim
 };

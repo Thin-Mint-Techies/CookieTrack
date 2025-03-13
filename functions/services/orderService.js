@@ -144,7 +144,7 @@ const markOrderComplete = async (id, {pickupDetails}) => {
   }
 };
 
-// have not test, need a cron job using firebase functions
+// have not test, need to use with a cron job using firebase functions
 const archiveOrders = async () => {
   try {
     const fourteenDaysAgo = new Date();
@@ -158,6 +158,7 @@ const archiveOrders = async () => {
       const batch = Firestore.batch();
       snapshot.docs.forEach(doc => {
         const orderData = doc.data();
+        // id of completedOrders is the id of the original order
         const completedOrderRef = Firestore.collection('completedOrders').doc(doc.id);
         batch.set(completedOrderRef, {
           ...completedOrderDataFormat,

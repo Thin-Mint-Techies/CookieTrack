@@ -10,6 +10,8 @@ router.get('/user', userController.getAllUser);
 router.get('/user/:id', userController.getUserById);
 router.put('/user/:id', userController.updateUser);
 router.delete('/user/:id', userController.deleteUser);
+router.post('/attachRoleAsCustomClaim/:id', userController.attachRoleAsCustomClaim);
+
 
 // Notifications
 //router.post('/notification', userController.createNotification);

@@ -1,30 +1,42 @@
-1. Streamline every functions, Refine return message to output details in server console, simplify the return message for frontend (Class: Dependent on)
+-All Service: Refine frontend return message, add logging
+
+-Class dependencies
     Users
     Troopers: Users
     Rewards: Troopers
-    Cookies
+    Cookies: 
     Orders: Troopers
     Documents: Orders
 
-2. get user orders
+-Calculation
 
-3. get total cookie sold from troop
-    need to make a util function for calculation
+-Premptive order suggestion 
 
-4. get trooper sale data
-
-5. Notification service, send via email or phone (check with frontend)
-
-6. Premptive order suggestion 
-
-7. Historial data???? Need to determine what kind of data to keep a history
-
-8. OCR
+-OCR
 
 
 
-New Prio:
+-Prio:
+    -fetch all data using ownerId: 
+        -trooper: viewById, viewAll, viewByOwnerId
+        -saleData: viewByTrooperId, viewAll, viewByOwnerId (parent)
+        -order: viewByTrooperId, viewByOwnerId, viewAll
+        -inventory: viewByOwnerId, viewAll
+
+
     -inventory and order interaction
-    -saleData: fetch data from other service to update using calculation util
-    -update calculation util 
+        -orderCreated 
+        -> calculate cookieTotal Cost: boxes * boxPrice 
+        -> calculate totalCost: add all cookieTotalCost 
+        -> calculate boxTotal: add all boxes
+        -> change inventory: use varietyId and boxes in order to remove the cookies from both parentInventory and leaderInventory
+        -> done with orderCreated
+
+        -updateSaleData
+        -> done after order is mark complete
+        -> add orderId to orderId array
+        -> add totalCost to totalMoneyMade
+        -> for each varietyId
+            -> add boxes to boxTotal
+            -> calculate cookieTotalCost = boxPrice * boxTotal
 
