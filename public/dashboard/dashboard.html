@@ -112,13 +112,12 @@
                                 </li>
                             </ul>
                             <a href="/public/user/account.html"
-                                class="mt-2 flex items-center cursor-pointer hover:bg-green-light rounded-default px-3 py-2.5 transition-all duration-300">
+                                class="need-skeleton mt-2 flex items-center cursor-pointer hover:bg-green-light rounded-default px-3 py-2.5 transition-all duration-300">
                                 <img id="nav-userphoto" src="/public/resources/images/avatar.png" alt="Profile picture"
                                     class="w-9 h-9 rounded-full border-2 border-black shrink-0" />
                                 <div class="ml-4">
-                                    <p id="nav-username" class="text-sm text-black whitespace-nowrap">Username</p>
-                                    <p id="nav-useremail" class="text-xs text-black whitespace-nowrap">User Email
-                                    </p>
+                                    <p id="nav-username" class="text-sm text-black whitespace-nowrap"></p>
+                                    <p id="nav-useremail" class="text-xs text-black whitespace-nowrap"></p>
                                 </div>
                             </a>
                         </div>
@@ -191,7 +190,7 @@
                                 </li>
                             </ul>
                             <a href="/public/user/account.html"
-                                class="mt-2 py-1 flex items-center justify-center cursor-pointer hover:bg-green-light rounded-default transition-all duration-300">
+                                class="need-skeleton mt-2 py-1 flex items-center justify-center cursor-pointer hover:bg-green-light rounded-default transition-all duration-300">
                                 <img id="nav-sm-userphoto" src="/public/resources/images/avatar.png"
                                     alt="Profile picture" class="w-9 h-9 rounded-full border-2 border-black shrink-0" />
                             </a>
@@ -208,7 +207,7 @@
             <section class="main-content w-full p-6 overflow-auto ">
                 <div>
                     <div class="flex items-center flex-wrap gap-6 max-lg:ml-3">
-                        <div>
+                        <div class="need-skeleton">
                             <h3 id="welcome-greeting" class="text-lg font-semibold text-green">
                                 Welcome back
                             </h3>
@@ -220,8 +219,8 @@
                 </div>
 
                 <div class="mt-12 mb-6 px-2">
-                    <div
-                        class="bg-green relative max-w-7xl shadow-default mx-auto rounded-default overflow-hidden mb-8">
+                    <div id="monthly-cookie"
+                        class="need-skeleton bg-green relative max-w-7xl shadow-default mx-auto rounded-default overflow-hidden mb-8">
                         <div class="grid sm:grid-cols-2 max-sm:gap-6">
                             <div class="text-center p-6 flex flex-col justify-center items-center">
                                 <h3 class="font-extrabold text-5xl text-white leading-tight">Monthly Cookie</h3>
@@ -249,10 +248,34 @@
                         <div class="absolute -top-10 -left-10 w-28 h-28 rounded-full bg-orange opacity-40 shadow-lg">
                         </div>
                     </div>
-                    <div class="bg-white px-4 py-12 rounded-default shadow-default max-w-7xl m-auto">
+                    <div id="troop-statistics" class="need-skeleton bg-white px-4 py-12 rounded-default shadow-default max-w-7xl m-auto mb-8">
                         <div class="max-sm:max-w-sm mx-auto">
                             <h2 class="text-green text-4xl max-sm:text-2xl font-extrabold mb-8"><i
-                                    class="fa-solid fa-chart-line"></i> Current Statistics</h2>
+                                    class="fa-solid fa-chart-line"></i> Troop Current Statistics</h2>
+                            <div class="grid md:grid-cols-4 sm:grid-cols-2 gap-5">
+                                <div class="bg-white rounded-default border shadow-default px-7 py-8">
+                                    <p class="text-black text-base font-semibold mb-1">Revenue this Month</p>
+                                    <h3 class="text-green text-3xl font-extrabold">$400+</h3>
+                                </div>
+                                <div class="bg-white rounded-default border shadow-default px-7 py-8">
+                                    <p class="text-black text-base font-semibold mb-1">Boxes Sold this Month</p>
+                                    <h3 class="text-green text-3xl font-extrabold">57</h3>
+                                </div>
+                                <div class="bg-white rounded-default border shadow-default px-7 py-8">
+                                    <p class="text-black text-base font-semibold mb-1">Current Inventory</p>
+                                    <h3 class="text-green text-3xl font-extrabold">343</h3>
+                                </div>
+                                <div class="bg-white rounded-default border shadow-default px-7 py-8">
+                                    <p class="text-black text-base font-semibold mb-1">Hottest Seller</p>
+                                    <h3 class="text-green text-3xl font-extrabold">Thin Mints</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="your-statistics" class="need-skeleton bg-white px-4 py-12 rounded-default shadow-default max-w-7xl m-auto">
+                        <div class="max-sm:max-w-sm mx-auto">
+                            <h2 class="text-green text-4xl max-sm:text-2xl font-extrabold mb-8"><i
+                                    class="fa-solid fa-chart-line"></i>Your Current Statistics</h2>
                             <div class="grid md:grid-cols-4 sm:grid-cols-2 gap-5">
                                 <div class="bg-white rounded-default border shadow-default px-7 py-8">
                                     <p class="text-black text-base font-semibold mb-1">Revenue this Month</p>

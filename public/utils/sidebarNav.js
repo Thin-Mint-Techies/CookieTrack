@@ -31,11 +31,27 @@ document.addEventListener('DOMContentLoaded', () => {
         sidebarCollapseMenu.style.cssText = 'width: 270px; visibility: visible; opacity: 1;';
         sidebar.style.cssText = 'width: 270px;';
         shrunkSidebar.style.cssText = 'width: 0px';
+
+        //Set a flag that the user has it open so that on new page loads it stays open on desktops.
+        sessionStorage.setItem('sidebarStatus', 'open');
     });
 
     sidebarCloseBtn?.addEventListener('click', () => {
         sidebarCollapseMenu.style.cssText = 'width: 32px; visibility: hidden; opacity: 0;';
         sidebar.style.cssText = 'width: 32px;';
         shrunkSidebar.style.cssText = 'width: 16px';
+
+        //Set a flag that the user has it shrunk so that on new page loads it stays shrunk on desktops.
+        sessionStorage.setItem('sidebarStatus', 'closed');
     });
+
+    //Check if user has flag set for sidebar if they are on desktop
+    if (window.innerWidth >= 1024) {
+        const flag = sessionStorage.getItem('sidebarStatus');
+        if (flag && flag === "open") {
+            sidebarOpenBtn?.click();
+        } else if (flag && flag === "closed") {
+            sidebarCloseBtn?.click();
+        }
+    }
 });

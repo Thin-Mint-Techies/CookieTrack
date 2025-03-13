@@ -189,12 +189,12 @@ function deleteUploadedFile() {
 const yourDocuments = {
     0: {
         fileName: "3/7/25 - Receipt.jpg",
-        fileSize: "2006000",
+        fileSize: "2.06 MB",
         dateUploaded: "3/7/2025"
     },
     1: {
         fileName: "3/8/25 - Receipt.jpg",
-        fileSize: "2099000",
+        fileSize: "2.99 MB",
         dateUploaded: "3/8/2025"
     }
 };

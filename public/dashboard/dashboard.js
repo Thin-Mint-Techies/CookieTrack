@@ -1,4 +1,17 @@
 import { callApi } from "../utils/apiCall.js";
+import { handleSkeletons } from "../utils/skeletons.js";
+
+//Show skeleton loaders on page load
+const monthlyCookieDiv = document.getElementById("monthly-cookie");
+const mainContent = monthlyCookieDiv.parentElement;
+
+handleSkeletons.hideNeedSkeletons(mainContent);
+handleSkeletons.monthlySkeleton(mainContent);
+handleSkeletons.statsSkeleton(mainContent, 2);
+
+setTimeout(() => {
+    handleSkeletons.removeSkeletons(mainContent);
+}, 2000); 
 
 //Get and update the current months predicted best seller
 const monthlyCookie = {
@@ -21,6 +34,7 @@ const monthlyCookie = {
 
 //Set the welcome greeting with users name
 let welcome = document.getElementById("welcome-greeting");
+let welcomeParent = welcome.parentElement;
 
 if (sessionStorage.getItem("userData")) {
     const userData = JSON.parse(sessionStorage.getItem("userData"));
@@ -28,12 +42,15 @@ if (sessionStorage.getItem("userData")) {
     const [fName, lName] = userData.name ? userData.name.split(" ") : ["", ""];
     welcome.textContent = `Welcome back, ${fName}`;
 } else {
+    handleSkeletons.hideNeedSkeletons(welcomeParent.parentElement);
+    handleSkeletons.greetingSkeleton(welcomeParent.parentElement);
     document.addEventListener("authStateReady", () => {
         const userData = JSON.parse(sessionStorage.getItem("userData"));
 
         if (userData) {
             const [fName, lName] = userData.name ? userData.name.split(" ") : ["", ""];
             welcome.textContent = `Welcome back, ${fName}`;
+            handleSkeletons.removeSkeletons(welcomeParent.parentElement);
         }
     });
 }
