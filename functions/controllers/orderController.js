@@ -78,6 +78,29 @@ const getUserOrders = async (req, res) => {
   }
 };
 
+const markOrderComplete = async (req, res) => {
+  try {
+    const orderId = await createOrder(req.body);
+    console.log('Order mark complete successfully:', { id: orderId });
+    res.status(201).json({ message: 'Order mark complete successfully', orderId });
+  } catch (error) {
+    console.error('Failed to mark order complete:', error.message);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const archivedOrders = async (req, res) => {
+  try {
+    const orderId = await createOrder(req.body);
+    console.log('Order achived successfully:', { id: orderId });
+    res.status(201).json({ message: 'Order archived successfully', orderId });
+  } catch (error) {
+    console.error('Failed to create order:', error.message);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
 
 
 
@@ -86,5 +109,7 @@ module.exports = {
   getAllOrder,
   updateOrder,
   deleteOrder,
-  getUserOrders
+  getUserOrders,
+  markOrderComplete,
+  archivedOrders
 };

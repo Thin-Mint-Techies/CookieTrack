@@ -8,5 +8,10 @@ router.get('/order', orderController.getAllOrder);
 router.put('/order/:id', orderController.updateOrder);
 router.delete('/order/:id', orderController.deleteOrder);
 router.get('/userOrder', orderController.getUserOrders);
+router.get('/completeOrder', orderController.markOrderComplete);
+router.get('/archiveOrder', orderController.archivedOrders);
+
+
+
 
 module.exports = router;

@@ -92,6 +92,35 @@ const deleteUser = async (id) => {
   }
 };
 
+const attachRoleAsCustomClaim = async (userId) => {
+  try {
+    const userRef = Firestore.collection('users').doc(userId);
+    const userSnapshot = await userRef.get();
+
+    if (!userSnapshot.exists) {
+      throw new Error('User not found');
+    }
+
+    const userData = userSnapshot.data();
+    const { role } = userData;
+
+    if (!role) {
+      throw new Error('Role not found in user data');
+    }
+
+    // Attach custom claim
+    await auth.setCustomUserClaims(userId, { role });
+
+    // Remove role field from Firestore document
+    await userRef.update({
+      role: admin.firestore.FieldValue.delete(),
+    });
+
+    return { message: 'Role attached as custom claim and removed from Firestore document' };
+  } catch (error) {
+    throw new Error(`Error attaching role as custom claim: ${error.message}`);
+  }
+};
 
 
 module.exports = {
@@ -100,5 +129,6 @@ module.exports = {
   getUserById,
   updateUser,
   deleteUser,
+  attachRoleAsCustomClaim
 };
 
