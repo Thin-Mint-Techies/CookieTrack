@@ -1,5 +1,4 @@
 const { Firestore } = require('../firebaseConfig');
-const notificationService = require('./notificationService');
 const admin = require('firebase-admin');
 const {trooperDataFormat} = require('../dataFormat');
 
