@@ -1,13 +1,14 @@
 const express = require('express');
 const rewardController = require('../controllers/rewardController');
 const router = express.Router();
+const { requireLogin, checkRole, checkUserOwnership } = require('../utils/roleCheck');
 
 
-router.post('/reward', rewardController.createReward);
-router.get('/reward', rewardController.getAllReward);
-router.put('/reward/:id', rewardController.updateReward);
-router.delete('/reward/:id', rewardController.deleteReward);
-router.post('/selectReward', rewardController.selectRewardForTroop);
+router.post('/reward', requireLogin, checkRole(['leader']), rewardController.createReward);
+router.get('/reward', requireLogin, checkRole(['leader']), rewardController.getAllReward);
+router.put('/reward/:id',requireLogin, checkRole(['leader']), rewardController.updateReward);
+router.delete('/reward/:id', requireLogin, checkRole(['leader']), rewardController.deleteReward);
+router.post('/selectReward', requireLogin, rewardController.selectRewardForTroop);
 
 
 

@@ -105,6 +105,8 @@ const deleteOrder = async (id) => {
   }
 };
 
+
+
 const markOrderComplete = async (id, {pickupDetails}) => {
   try {
     const ref = Firestore.collection('orders').doc(id);
@@ -145,6 +147,7 @@ const markOrderComplete = async (id, {pickupDetails}) => {
 };
 
 // have not test, need to use with a cron job using firebase functions
+// maybe archive immediately after finish?
 const archiveOrders = async () => {
   try {
     const fourteenDaysAgo = new Date();
@@ -186,6 +189,18 @@ const getUserOrders = async (userId) => {
   }
 };
 
+const getOrdersByTrooperId = async (trooperId) => {
+  try {
+    const snapshot = await Firestore.collection('orders').where('trooperId', '==', trooperId).get();
+    if (snapshot.empty) {
+      throw new Error('No orders found for the given trooper ID');
+    }
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (error) {
+    throw new Error(`Error fetching orders by trooper ID: ${error.message}`);
+  }
+};
+
 module.exports = {
   createOrder,
   getAllOrders,
@@ -194,4 +209,5 @@ module.exports = {
   getUserOrders,
   markOrderComplete,
   archiveOrders,
+  getOrdersByTrooperId
 };

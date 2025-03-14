@@ -54,9 +54,18 @@ const updateSaleData = async (id, { trooperId, trooperName, orderId, cookieData,
   }
 };
 
-const getAllSaleDatasByTrooperId = async (id) => {
+const deleteSaleData = async (id) => {
   try {
-    // Query the troopers collection where assignedParent matches the userId
+    const saleDataRef = Firestore.collection('saleData').doc(id);
+    await saleDataRef.delete();
+    return { message: 'Sale data deleted successfully' };
+  } catch (error) {
+    throw new Error(`Error deleting sale data: ${error.message}`);
+  }
+};
+
+const getSaleDatasByTrooperId = async (id) => {
+  try {
     const snapshot = await Firestore.collection('saleData').where('trooperId', '==', id).get();
     if (snapshot.empty) {
       throw new Error('No troopers found for the given user ID');
@@ -71,21 +80,39 @@ const getAllSaleDatasByTrooperId = async (id) => {
   }
 };
 
-
-const deleteSaleData = async (id) => {
+const getAllSaleData = async () => {
   try {
-    const saleDataRef = Firestore.collection('saleData').doc(id);
-    await saleDataRef.delete();
-    return { message: 'Sale data deleted successfully' };
+    const snapshot = await Firestore.collection('saleData').get();
+    if (!snapshot.empty) {
+      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    }
+    throw new Error('No sale data found');
   } catch (error) {
-    throw new Error(`Error deleting sale data: ${error.message}`);
+    throw new Error(`Error fetching all sale data: ${error.message}`);
   }
 };
+
+const getSaleDataByOwnerId = async (ownerId) => {
+  try {
+    const snapshot = await Firestore.collection('saleData').where('ownerId', '==', ownerId).get();
+    if (snapshot.empty) {
+      throw new Error('No sale data found for the given owner ID');
+    }
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (error) {
+    throw new Error(`Error fetching sale data by owner ID: ${error.message}`);
+  }
+};
+
+
 
 module.exports = {
   createSaleData,
   getSaleData,
   updateSaleData,
   deleteSaleData,
-  getAllSaleDatasByTrooperId
+
+  getSaleDatasByTrooperId,
+  getSaleDataByOwnerId,
+  getAllSaleData
 };

@@ -55,7 +55,7 @@ const getAllInventories = async (req, res) => {
     console.log("Fetch all Inventorys successfully", inventories);
     res.status(200).json(inventories);
   } catch (error) {
-    console.error('Failed to fetch all Inventorys', error.message);
+    console.error('Failed to fetch all Inventories', error.message);
     res.status(500).json({ message: error.message });
   }
 };
@@ -74,6 +74,17 @@ const deleteInventory = async (req, res) => {
   }
 };
 
+const getInventoryByOwnerId = async (req, res) => {
+  const {id} = req.params
+  try {
+    const inventories = await inventoryService.getInventoryByOwnerId(id);
+    console.log("Fetch user inventory successfully", inventories);
+    res.status(200).json(inventories);
+  } catch (error) {
+    console.error('Failed to fetch user inventory Inventory', error.message);
+    res.status(500).json({ message: error.message });
+  }
+};
 
 
 
@@ -87,4 +98,5 @@ module.exports = {
   updateLeaderInventory,
   getAllInventories,
   deleteInventory,
+  getInventoryByOwnerId
 };

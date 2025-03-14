@@ -1,5 +1,5 @@
 const orderService = require('../services/orderService');
-/*START OF Order CONTROLLER*/
+
 
 
 const createOrder = async (req, res) => {
@@ -61,26 +61,10 @@ const deleteAllOrder = async (req, res) => {
   }
 };
 */
-
-//need more testing, need to go through roleCheck.js first
-const getUserOrders = async (req, res) => {
-  const idToken = req.headers.authorization?.split('Bearer ')[1];
-
-  if (!idToken) {
-    return res.status(401).json({ error: 'Unauthorized: Missing ID token' });
-  }
-
-  try {
-    const orders = await getUserOrders(userId);
-    res.status(200).json({ orders });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
 const markOrderComplete = async (req, res) => {
+  const {id} = req.params;
   try {
-    const orderId = await createOrder(req.body);
+    const orderId = await markOrderComplete(id, req.body);
     console.log('Order mark complete successfully:', { id: orderId });
     res.status(201).json({ message: 'Order mark complete successfully', orderId });
   } catch (error) {
@@ -100,6 +84,31 @@ const archivedOrders = async (req, res) => {
   }
 };
 
+const getUserOrders = async (req, res) => {
+  const {id} = req.params;
+  try {
+    const orders = await getUserOrders(id);
+    console.log("getUserOrders successfully", result);
+    res.status(200).json({ orders });
+  } catch (error) {
+    console.log("Failed to getUserOrders", error.message);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const getOrdersByTrooperId= async (req, res) => {
+  const {id} = req.params;
+  try {
+    const orders = await getOrdersByTrooperId(id);
+    console.log("getOrdersByTrooperId successfully", result);
+    res.status(200).json({ orders });
+  } catch (error) {
+    console.log("Failed to getOrdersByTrooperId", error.message);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
 
 
 
@@ -109,7 +118,8 @@ module.exports = {
   getAllOrder,
   updateOrder,
   deleteOrder,
+  
   getUserOrders,
   markOrderComplete,
-  archivedOrders
+  getOrdersByTrooperId
 };

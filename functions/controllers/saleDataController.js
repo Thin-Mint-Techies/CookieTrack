@@ -13,12 +13,13 @@ const createSaleData = async (req, res) => {
 };
 
 const getSaleData = async (req, res) => {
+  const { id } = req.params;
   try {
-    const saleDatas = await saleDataService.getSaleData();
+    const saleDatas = await saleDataService.getSaleData(id);
     console.log('saleData fetch successfully:', saleDatas);
     res.status(200).json(saleDatas);
   } catch (error) {
-    console.error('Failed to fetch all saleDatas: ', error.message)
+    console.error('Failed to fetch saleDatas by id: ', error.message)
     res.status(500).json({ message: error.message });
   }
 };
@@ -48,6 +49,38 @@ const deletesaleData = async (req, res) => {
   }
 };
 
+const getSaleDatasByTrooperId = async (req, res) => {
+  try {
+    const saleDatas = await saleDataService.getSaleDatasByTrooperId();
+    console.log('saleData fetch by trooperId successfully:', saleDatas);
+    res.status(200).json(saleDatas);
+  } catch (error) {
+    console.error('Failed to fetch saleData by trooperId saleDatas: ', error.message)
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const getSaleDataByOwnerId = async (req, res) => {
+  try {
+    const saleDatas = await saleDataService.getSaleDataByOwnerId();
+    console.log('saleData fetch by ownerId successfully:', saleDatas);
+    res.status(200).json(saleDatas);
+  } catch (error) {
+    console.error('Failed to fetch saleDatas by ownerId: ', error.message)
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const getAllSaleData = async (req, res) => {
+  try {
+    const saleDatas = await saleDataService.getAllSaleData();
+    console.log('saleData fetch successfully:', saleDatas);
+    res.status(200).json(saleDatas);
+  } catch (error) {
+    console.error('Failed to fetch all saleDatas: ', error.message)
+    res.status(500).json({ message: error.message });
+  }
+};
 // Controller for deleting all saleDatas
 /*
 const deleteAllsaleData = async (req, res) => {
@@ -68,5 +101,9 @@ module.exports = {
   createSaleData,
   updatesaleData,
   getSaleData,
-  deletesaleData
+  deletesaleData,
+  
+  getSaleDatasByTrooperId,
+  getSaleDataByOwnerId,
+  getAllSaleData
 };

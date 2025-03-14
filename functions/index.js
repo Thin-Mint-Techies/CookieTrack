@@ -55,12 +55,12 @@ app.use('/', orderRoute);
 //app.use('/api/auth', authRoutes);
 
 // DEPLOYMENT ONLY
-//exports.api = functions.https.onRequest(app);
+exports.api = functions.https.onRequest(app);
 
 
 
 
-/*FROM HERE IS LOCAL ONLY, USE FOR TESTING*/
+/*FROM HERE IS LOCAL ONLY, USE FOR TESTING
 const PORT = process.env.PORT || 5000;
 const initializeFirebase = async () => {
   try {
@@ -81,11 +81,10 @@ const initializeFirebase = async () => {
 
 };
 initializeFirebase();
+*/
 
 // Sheduled to move completed orders, run every week
 // exports.scheduledMoveCompletedOrders = moveCompletedOrders;
-
-
 
 
 // run locally: npx nodemon index.js

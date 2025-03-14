@@ -28,7 +28,6 @@ const createTrooper = async ({ troopNumber, trooperName, ownerId, troopLeader, a
   }
 };
 
-
 const getAllTroopers = async () => {
   try {
     const snapshot = await Firestore.collection('troopers').get();
@@ -78,7 +77,6 @@ const updateTrooper = async (troopNumber, trooperName, ownerId, troopLeader, age
     throw new Error(`Error updating troop sales data: ${error.message}`);
   }
 };
-
 
 const deleteTrooper = async (id) => {
   try {
