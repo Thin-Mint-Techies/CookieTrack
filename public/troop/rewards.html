@@ -22,188 +22,6 @@
 <body class="bg-main-bg bg-repeat">
     <div class="relative h-full min-h-screen font-sans bg-white-overlay">
         <div class="flex items-start">
-            <nav id="sidebar" class="lg:w-[270px] max-lg:fixed transition-all duration-500 shrink-0 z-[101]">
-                <div id="sidebar-collapse-menu"
-                    class="bg-green shadow-default h-screen fixed top-0 left-0 overflow-auto overflow-x-hidden z-[99] lg:w-[270px] max-lg:w-0 max-lg:invisible transition-all duration-500">
-                    <div class="bg-white flex items-center gap-4 pt-6 pb-2 px-4 sticky top-0 min-h-[64px] z-[100]">
-                        <a href="/public/dashboard/dashboard.html">
-                            <img src="/public/resources/images/cookietrack_logo.png" alt="logo"
-                                class="w-40 max-lg:mr-5 accent-green" />
-                        </a>
-                        <button id="close-sidebar"
-                            class="ml-auto hover:bg-off-white p-2 rounded-default transition-all duration-300">
-                            <i class="fa-solid fa-bars-staggered text-xl text-black"></i>
-                        </button>
-                    </div>
-                    <div class="py-4 px-4">
-                        <ul class="space-y-2">
-                            <li>
-                                <a href="/public/dashboard/dashboard.html"
-                                    class="text-black text-lg flex items-center cursor-pointer hover:bg-green-light rounded-default px-3 py-2.5 transition-all duration-300">
-                                    <i class="fa-solid fa-house"></i>
-                                    <span class="overflow-hidden text-ellipsis whitespace-nowrap">
-                                        Dashboard
-                                    </span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="/public/inventory/inventory.html"
-                                    class="text-black text-lg flex items-center cursor-pointer hover:bg-green-light rounded-default px-3 py-2.5 transition-all duration-300">
-                                    <i class="fa-solid fa-boxes-stacked"></i>
-                                    <span class="overflow-hidden text-ellipsis whitespace-nowrap">
-                                        Inventory
-                                    </span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="/public/orders/orders.html"
-                                    class="text-black text-lg flex items-center cursor-pointer hover:bg-green-light rounded-default px-3 py-2.5 transition-all duration-300">
-                                    <i class="fa-solid fa-money-check-dollar"></i>
-                                    <span class="overflow-hidden text-ellipsis whitespace-nowrap">
-                                        Orders
-                                    </span>
-                                </a>
-                            </li>
-                            <li>
-                                <div
-                                    class="text-black text-lg flex items-center cursor-pointer hover:bg-green-light rounded-default px-3 py-2.5 transition-all duration-300">
-                                    <i class="fa-solid fa-list-check"></i>
-                                    <span class="overflow-hidden text-ellipsis whitespace-nowrap">
-                                        Manage
-                                    </span>
-                                    <i
-                                        class="fa-solid fa-angle-down w-2.5 h-2.5 text-sm rotate-0 ml-auto transition-all duration-500"></i>
-                                </div>
-                                <ul
-                                    class="sub-menu overflow-hidden transition-[max-height] duration-500 ease-in-out ml-8">
-                                    <li>
-                                        <a href="/public/troop/troopers.html"
-                                            class="text-black text-sm block hover:bg-green-light rounded-default px-3 py-2 transition-all duration-300">
-                                            <i class="fa-solid fa-users"></i>
-                                            <span>Troopers</span>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="/public/troop/rewards.html"
-                                            class="text-black text-sm block hover:bg-green-light rounded-default px-3 py-2 transition-all duration-300">
-                                            <i class="fa-solid fa-gifts"></i>
-                                            <span>Rewards</span>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </li>
-                        </ul>
-                        <div class="absolute bottom-6 w-[238px]">
-                            <hr class="border-black my-6" />
-                            <ul class="space-y-2">
-                                <li>
-                                    <a href="/public/user/settings.html"
-                                        class="text-black text-lg flex items-center cursor-pointer hover:bg-green-light rounded-default px-3 py-2.5 transition-all duration-300">
-                                        <i class="fa-solid fa-gear"></i>
-                                        Settings
-                                    </a>
-                                </li>
-                                <li>
-                                    <button id="nav-signout"
-                                        class="w-full gap-1 text-black text-lg flex items-center cursor-pointer hover:bg-green-light rounded-default px-3 py-2.5 transition-all duration-300">
-                                        <i class="fa-solid fa-right-from-bracket -ml-1"></i>
-                                        Sign Out
-                                    </button>
-                                </li>
-                            </ul>
-                            <a href="/public/user/account.html"
-                                class="need-skeleton mt-2 flex items-center cursor-pointer hover:bg-green-light rounded-default px-3 py-2.5 transition-all duration-300">
-                                <img id="nav-userphoto" src="/public/resources/images/avatar.png" alt="Profile picture"
-                                    class="w-9 h-9 rounded-full border-2 border-black shrink-0" />
-                                <div class="ml-4">
-                                    <p id="nav-username" class="text-sm text-black whitespace-nowrap"></p>
-                                    <p id="nav-useremail" class="text-xs text-black whitespace-nowrap"></p>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </nav>
-
-            <nav id="shrunk-sidebar" class="max-lg:fixed max-lg:hidden transition-all duration-500 shrink-0 z-[100]">
-                <div
-                    class="bg-green shadow-default h-screen fixed top-0 left-0 overflow-auto overflow-x-hidden z-[99] w-12 max-lg:w-0 max-lg:invisible transition-all duration-500">
-                    <div class="bg-white flex items-center p-2 sticky top-0 min-h-[64px] z-[100]"></div>
-                    <div class="py-4 px-[2px]">
-                        <ul class="space-y-2">
-                            <li>
-                                <a href="/public/dashboard/dashboard.html"
-                                    class="text-black text-lg flex items-center cursor-pointer hover:bg-green-light rounded-default p-[13px] transition-all duration-300">
-                                    <i class="fa-solid fa-house"></i>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="/public/inventory/inventory.html"
-                                    class="text-black text-lg flex items-center cursor-pointer hover:bg-green-light rounded-default p-[13px] transition-all duration-300">
-                                    <i class="fa-solid fa-boxes-stacked"></i>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="/public/orders/orders.html"
-                                    class="text-black text-lg flex items-center cursor-pointer hover:bg-green-light rounded-default p-[13px] transition-all duration-300">
-                                    <i class="fa-solid fa-money-check-dollar"></i>
-                                </a>
-                            </li>
-                            <li class="group">
-                                <div
-                                    class="text-black text-lg flex items-center cursor-pointer hover:bg-green-light rounded-default p-[13px] transition-all duration-300">
-                                    <i class="fa-solid fa-list-check"></i>
-                                </div>
-                                <ul
-                                    class="group-hover:pointer-events-auto group-hover:opacity-100 overflow-hidden transition-opacity duration-200 ease-in-out fixed opacity-0 pointer-events-none top-[235px] left-[45px] p-[2px] rounded-default bg-white shadow-default">
-                                    <li>
-                                        <a href="/public/troop/troopers.html"
-                                            class="text-black text-sm block hover:bg-green-light rounded-default px-3 py-2 transition-all duration-300">
-                                            <i class="fa-solid fa-users"></i>
-                                            Troopers
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="/public/troop/rewards.html"
-                                            class="text-black text-sm block hover:bg-green-light rounded-default px-3 py-2 transition-all duration-300">
-                                            <i class="fa-solid fa-gifts"></i>
-                                            Rewards
-                                        </a>
-                                    </li>
-                                </ul>
-                            </li>
-                        </ul>
-                        <div class="absolute bottom-6 w-[44px]">
-                            <hr class="border-black my-6" />
-                            <ul class="space-y-2">
-                                <li>
-                                    <a href="/public/user/settings.html"
-                                        class="text-black text-lg flex items-center cursor-pointer hover:bg-green-light rounded-default p-[13px] transition-all duration-300">
-                                        <i class="fa-solid fa-gear"></i>
-                                    </a>
-                                </li>
-                                <li>
-                                    <button id="nav-sm-signout"
-                                        class="w-full gap-1 text-black text-lg flex items-center cursor-pointer hover:bg-green-light rounded-default px-3 py-2.5 transition-all duration-300">
-                                        <i class="fa-solid fa-right-from-bracket"></i>
-                                    </button>
-                                </li>
-                            </ul>
-                            <a href="/public/user/account.html"
-                                class="need-skeleton mt-2 py-1 flex items-center justify-center cursor-pointer hover:bg-green-light rounded-default transition-all duration-300">
-                                <img id="nav-sm-userphoto" src="/public/resources/images/avatar.png"
-                                    alt="Profile picture" class="w-9 h-9 rounded-full border-2 border-black shrink-0" />
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </nav>
-
-            <button id="open-sidebar"
-                class="max-lg:-left-[5px] max-lg:pr-[4px] max-lg:bg-white max-lg:shadow-default ml-auto fixed top-[20px] left-[7px] z-[100] hover:bg-off-white p-2 rounded-default transition-all duration-300">
-                <i class="fa-solid fa-bars-staggered max-lg:text-lg text-xl text-black"></i>
-            </button>
-
             <section class="main-content w-full p-6 overflow-auto ">
                 <div class="flex items-center flex-wrap gap-6 max-lg:ml-3">
                     <div>
@@ -215,7 +33,7 @@
                         </p>
                     </div>
                 </div>
-                <div class="mt-12 mb-6 px-2">
+                <div class="need-skeleton mt-12 mb-6 px-2">
                     <div class="max-w-7xl mx-auto bg-white rounded-default shadow-default p-6">
                         <h2 class="text-green text-4xl max-sm:text-2xl font-extrabold mb-8">
                             <i class="fa-solid fa-award"></i>Trooper Name's Rewards
@@ -312,7 +130,7 @@
     </div>
 
     <script src="../utils/sidebarNav.js"></script>
-    <script src="./rewards.js"></script>
+    <script type="module" src="./rewards.js"></script>
 </body>
 
 </html>

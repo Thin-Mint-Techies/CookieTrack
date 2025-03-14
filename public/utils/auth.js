@@ -85,23 +85,26 @@ function updateSidebarWithUserData() {
 }
 
 //Sign out functions ------------------------------------------------
-const navSignOut = document.getElementById("nav-signout");
-const navSmSignOut = document.getElementById("nav-sm-signout");
+document.addEventListener('DOMContentLoaded', () => {
+    const navSignOut = document.getElementById("nav-signout");
+    const navSmSignOut = document.getElementById("nav-sm-signout");
 
-navSignOut?.addEventListener("click", () => {
-    signOutUser();
-});
-
-navSmSignOut?.addEventListener("click", () => {
-    signOutUser();
-});
-
-function signOutUser() {
-    signOut(auth).then(() => {
-        // Sign-out successful.
-    }).catch((error) => {
-        showToast(error.code, error.message, STATUS_COLOR.RED, true, 10);
+    navSignOut?.addEventListener("click", () => {
+        signOutUser();
     });
-}
+
+    navSmSignOut?.addEventListener("click", () => {
+        signOutUser();
+    });
+
+    function signOutUser() {
+        signOut(auth).then(() => {
+            // Sign-out successful.
+            sessionStorage.removeItem('userData');
+        }).catch((error) => {
+            showToast(error.code, error.message, STATUS_COLOR.RED, true, 10);
+        });
+    }
+});
 
 export { auth, db };

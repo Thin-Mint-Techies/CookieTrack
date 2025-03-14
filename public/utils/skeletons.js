@@ -1,11 +1,12 @@
 const handleSkeletons = {
     hideNeedSkeletons: (parent) => hideNeedSkeletonElems(parent),
     removeSkeletons: (parent) => removeSkeletonElems(parent),
-    tableSkeleton: (parent, amount) => createTableSkeleton(parent, amount),
-    monthlySkeleton: (parent) => createMonthlyCookieSkeleton(parent),
-    statsSkeleton: (parent, amount) => createStatsSkeleton(parent, amount),
     sidebarSkeleton: (parent, isShrunkSidebar) => createSidebarUserSkeleton(parent, isShrunkSidebar),
     greetingSkeleton: (parent) => createGreetingSkeleton(parent),
+    monthlySkeleton: (parent) => createMonthlyCookieSkeleton(parent),
+    statsSkeleton: (parent, amount) => createStatsSkeleton(parent, amount),
+    tableSkeleton: (parent, amount) => createTableSkeleton(parent, amount),
+    rewardSkeleton: (parent, amount) => createRewardSkeleton(parent, amount), 
 }
 
 function hideNeedSkeletonElems(parent) {
@@ -136,14 +137,47 @@ function createTableSkeleton(parent, amount) {
 }
 
 function createRewardSkeleton(parent, amount) {
-    
+    const statBox = `
+    <div>
+        <div class="animate-pulse bg-gray mb-2 rounded-default w-full h-7"></div>
+        <div class="bg-white p-6 rounded-default shadow-default">
+            <div class="flex flex-col justify-center items-center h-full pb-4">
+                <div class="animate-pulse bg-gray mb-2 rounded-default w-full h-20"></div>
+                <div class="animate-pulse bg-gray rounded-default w-full h-5"></div>
+            </div>
+        </div>
+    </div>
+    `;
+
+    const rewardBox = `
+    <div class="bg-white rounded-default shadow-default w-full overflow-hidden mx-auto">
+        <div class="animate-pulse bg-gray min-h-24 h-44 w-full"></div>
+        <div class="p-4">
+            <div class="animate-pulse bg-gray rounded-default w-full h-6"></div>
+            <div class="animate-pulse bg-gray mt-2 rounded-default w-full h-7"></div>
+            <div class="animate-pulse bg-gray mt-2 rounded-default w-full h-10"></div>
+        </div>
+    </div>
+    `;
 
     for (let i = 0; i < amount; i++) {
-        
-        
+        const skeleton = document.createElement('div');
+        skeleton.className = "skeleton mt-12 mb-6 px-2";
+        skeleton.innerHTML = `
+        <div class="max-w-7xl mx-auto bg-white rounded-default shadow-default p-6">
+            <div class="animate-pulse bg-gray mb-8 rounded-default w-80 h-12 max-sm:max-w-52 max-sm:w-auto max-sm:h-8"></div>
+            <div class="grid md:grid-cols-2 gap-6">
+                ${statBox}${statBox}
+            </div>
+
+            <div class="animate-pulse bg-gray mt-6 mb-2 rounded-default w-full h-7"></div>
+            <div class="grid md:grid-cols-4 gap-4 mt-4">
+                ${rewardBox}${rewardBox}${rewardBox}${rewardBox}
+            </div>
+        </div>
+        `;
+        parent.appendChild(skeleton);
     }
 }
-
-
 
 export { handleSkeletons };
