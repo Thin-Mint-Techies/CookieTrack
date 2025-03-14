@@ -3,16 +3,18 @@ import { getIdToken } from 'https://www.gstatic.com/firebasejs/11.2.0/firebase-a
 
 const BASE_URL = "https://api-gknady4m2q-uc.a.run.app";
 
-export async function callApi(subroute, method = 'GET', body = null) {
+export async function callApi(subroute, method = 'GET', body = null, needsAuth = true) {
   const url = `${BASE_URL}${subroute}`;
   const userToken = await getIdToken(auth.currentUser);
 
   const options = {
     method,
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${userToken}`
-    },
+    ...(needsAuth ? {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${userToken}`
+      }
+    } : null),
   };
 
   if (body) {
@@ -26,9 +28,7 @@ export async function callApi(subroute, method = 'GET', body = null) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const data = await response.json();
-    //console.log('API Response:', data);
-    return data;
+    return await response.json();;
   } catch (error) {
     console.error('Error calling the API:', error);
   }

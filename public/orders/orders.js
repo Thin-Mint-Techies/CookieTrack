@@ -1,22 +1,29 @@
 import { showToast, STATUS_COLOR } from "../utils/toasts.js";
 import { callApi } from "../utils/apiCall.js";
-import { regExpCalls, setupDropdown, handleTableRow, searchTableRows } from "../utils/utils.js";
+import { regExpCalls, setupDropdown, handleTableRow, searchTableRows, handleTableCreation } from "../utils/utils.js";
 import { createModals } from "../utils/confirmModal.js";
 import { handleSkeletons } from "../utils/skeletons.js";
 
-//First show skeleton loaders as the order information is pulled from database
+//#region CREATE TABLES/LOAD DATA -----------------------------------
+//First create all the necessary tables
 const mainContent = document.getElementsByClassName('main-content')[0];
+handleTableCreation.yourDocuments(mainContent);
+handleTableCreation.currentOrder(mainContent);
+handleTableCreation.completedOrder(mainContent);
+
+//Then show skeleton loaders as the order information is pulled from database
 handleSkeletons.hideNeedSkeletons(mainContent);
 handleSkeletons.tableSkeleton(mainContent, 3);
-
 setTimeout(() => {
     handleSkeletons.removeSkeletons(mainContent);
 }, 2000);
 
+//Next setup the filters for the tables
 searchTableRows.currentOrders("current-orders-search", "current-orders-datestart", "current-orders-dateend", "current-orders-clear-filters");
 searchTableRows.completedOrders("completed-orders-search", "completed-orders-datestart", "completed-orders-dateend", "completed-orders-clear-filters");
+//#endregino CREATE TABLES/LOAD DATA --------------------------------
 
-//#region Add/Edit Orders -------------------------------------------------
+//#region Add/Edit Orders -------------------------------------------
 let addOrderBtn = document.getElementById('add-order');
 let orderForm = document.getElementById('order-form');
 let orderTitle = document.getElementById('order-title');

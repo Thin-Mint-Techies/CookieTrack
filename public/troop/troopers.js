@@ -1,7 +1,25 @@
 import { showToast, STATUS_COLOR } from "../utils/toasts.js";
 import { callApi } from "../utils/apiCall.js";
-import { regExpCalls, setupDropdown, handleTableRow } from "../utils/utils.js";
+import { regExpCalls, setupDropdown, handleTableRow, searchTableRows, handleTableCreation } from "../utils/utils.js";
 import { createModals } from "../utils/confirmModal.js";
+import { handleSkeletons } from "../utils/skeletons.js";
+
+//#region CREATE TABLES/LOAD DATA -----------------------------------
+//First create all the necessary tables
+const mainContent = document.getElementsByClassName('main-content')[0];
+handleTableCreation.allTrooper(mainContent);
+handleTableCreation.yourTrooper(mainContent);
+
+//Then show skeleton loaders as the trooper information is pulled from database
+handleSkeletons.hideNeedSkeletons(mainContent);
+handleSkeletons.tableSkeleton(mainContent, 2);
+setTimeout(() => {
+    handleSkeletons.removeSkeletons(mainContent);
+}, 2000);
+
+//Next setup the filters for the tables
+searchTableRows.allTroopers("all-troopers-search");
+//#endregino CREATE TABLES/LOAD DATA --------------------------------
 
 //#region Add Trooper -------------------------------------------------
 let addTrooperBtn = document.getElementById('add-trooper');

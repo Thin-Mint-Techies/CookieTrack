@@ -1,7 +1,23 @@
 import { showToast, STATUS_COLOR } from "../utils/toasts.js";
 import { callApi } from "../utils/apiCall.js";
-import { handleTableRow } from "../utils/utils.js";
+import { handleSkeletons } from "../utils/skeletons.js";
+import { handleTableRow, handleTableCreation } from "../utils/utils.js";
 import { createModals } from "../utils/confirmModal.js";
+
+//#region CREATE TABLES/LOAD DATA -----------------------------------
+//First create all the necessary tables
+const mainContent = document.getElementsByClassName('main-content')[0];
+handleTableCreation.troopInventory(mainContent);
+handleTableCreation.needInventory(mainContent);
+handleTableCreation.yourInventory(mainContent);
+
+//Then show skeleton loaders as the inventory information is pulled from database
+handleSkeletons.hideNeedSkeletons(mainContent);
+handleSkeletons.tableSkeleton(mainContent, 3);
+setTimeout(() => {
+    handleSkeletons.removeSkeletons(mainContent);
+}, 2000);
+//#endregino CREATE TABLES/LOAD DATA --------------------------------
 
 //#region Add/Edit Inventory -------------------------------------------------
 let addTroopCookieBtn = document.getElementById('add-troop-cookies');

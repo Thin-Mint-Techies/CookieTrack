@@ -4,6 +4,7 @@ import { doc, setDoc } from 'https://www.gstatic.com/firebasejs/11.2.0/firebase-
 import { manageLoader } from "../utils/loader.js";
 import { regExpCalls, setupPhoneInput } from "../utils/utils.js";
 import { showToast, STATUS_COLOR } from "../utils/toasts.js";
+import { callApi } from "../utils/apiCall.js";
 
 const createFName = document.getElementById("create-fname");
 const createLName = document.getElementById("create-lname");
@@ -37,6 +38,7 @@ function createUserAccount() {
     }
 
     if (!regExpCalls.testEmail(createEmail.value.trim())) {
+        console.log(createEmail.value.trim());
         showToast("Invalid Email", "Please make sure you have entered a valid email.", STATUS_COLOR.RED, true, 5);
         return;
     }
@@ -72,8 +74,10 @@ function createUserAccount() {
                 email: createEmail.value.trim(),
                 phone: createPhone.value.trim(),
                 role: "parent"
-            }).then(() => {
-                // Successful upload
+            }).then(async () => {
+                // Successful upload, set role through custom claims
+                const customClaim = await callApi(`/attachRoleAsCustomClaim/${userCredential.user.uid}`, 'POST', null, false);
+                console.log(customClaim);
                 localStorage.removeItem("creatingAccount");
             }).catch((error) => {
                 manageLoader(false);

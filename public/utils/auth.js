@@ -99,6 +99,7 @@ navSmSignOut?.addEventListener("click", () => {
 function signOutUser() {
     signOut(auth).then(() => {
         // Sign-out successful.
+        sessionStorage.removeItem('userData');
     }).catch((error) => {
         showToast(error.code, error.message, STATUS_COLOR.RED, true, 10);
     });
