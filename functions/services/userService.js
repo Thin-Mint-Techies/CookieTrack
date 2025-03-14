@@ -2,6 +2,8 @@ const { Firestore } = require('../firebaseConfig');
 require('dotenv').config();
 const SECRET_CODE = process.env.SECRET_CODE;
 const auth = require('../firebaseConfig').auth;
+const admin = require('firebase-admin');
+
 
 
 const registerUser = async ({ name, email, role, secretCode, password, phone }) => {
