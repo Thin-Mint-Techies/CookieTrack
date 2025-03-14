@@ -33,7 +33,7 @@ onAuthStateChanged(auth, async (user) => {
             window.location.href = "../dashboard/dashboard.html";
         }
 
-        if (sessionStorage.getItem("userData") === null) {
+        if (sessionStorage.getItem("userData") === null && localStorage.getItem('creatingAccount') === null) {
             console.log("First load");
             const sidebar = document.getElementById('sidebar');
             const shrunkSidebar = document.getElementById('shrunk-sidebar');
