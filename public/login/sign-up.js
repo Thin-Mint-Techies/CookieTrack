@@ -77,8 +77,8 @@ function createUserAccount() {
             }).then(async () => {
                 // Successful upload, set role through custom claims
                 const customClaim = await callApi(`/attachRoleAsCustomClaim/${userCredential.user.uid}`, 'POST', null, false);
-                console.log(customClaim);
                 localStorage.removeItem("creatingAccount");
+                if (customClaim) window.location.href = "../dashboard/dashboard.html";
             }).catch((error) => {
                 manageLoader(false);
                 console.log(error.code + ": " + error.message);
