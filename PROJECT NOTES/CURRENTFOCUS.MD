@@ -1,35 +1,30 @@
 -All Service: Refine frontend return message, add logging
 
--Class dependencies
-    Users
-    Troopers: Users
-    Rewards: Troopers
-    Cookies: 
-    Orders: Troopers
-    Documents: Orders
+-Optimization options: 
+    -Batch Reads: Combine multiple read requests into a single batch read request.
+    -Caching: Use caching to store frequently accessed data and reduce the number of reads to the database.
+    -Pagination: Implement pagination to limit the number of documents read in a single request.
+    -Denormalization: Store redundant data to reduce the number of reads needed to fetch related data.
 
--Calculation
+-Premptive order suggestion (can leave this for frontend)
 
--Premptive order suggestion 
+-OCR (might not have time)
 
--OCR
+-Testing: all routes and services
+
+-Booth implementation
 
 
 
 -Prio:
-    -fetch all data using ownerId: 
-        -trooper: viewById, viewAll, viewByOwnerId
-        -saleData: viewByTrooperId, viewAll, viewByOwnerId (parent)
-        -order: viewByTrooperId, viewByOwnerId, viewAll
-        -inventory: viewByOwnerId, viewAll
-
-
     -inventory and order interaction
         -orderCreated 
         -> calculate cookieTotal Cost: boxes * boxPrice 
         -> calculate totalCost: add all cookieTotalCost 
         -> calculate boxTotal: add all boxes
         -> change inventory: use varietyId and boxes in order to remove the cookies from both parentInventory and leaderInventory
+            -> If not enough cookie, send email to both parent and leader
+            -> update the leader needToOrder field (missing cookies)
         -> done with orderCreated
 
         -updateSaleData

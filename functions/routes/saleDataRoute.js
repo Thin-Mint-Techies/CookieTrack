@@ -6,7 +6,7 @@ const { requireLogin, checkRole, checkUserOwnership } = require('../utils/roleCh
 
 router.post('/saleData', requireLogin,  saleDataController.createSaleData);
 router.get('/saleData/:id', requireLogin, saleDataController.getSaleData);
-router.put('/saleData/:id', requireLogin, saleDataController.updatesaleData);
+//router.put('/saleData/:id', requireLogin, saleDataController.updatesaleData);
 router.delete('/saleData/:id', requireLogin, saleDataController.deletesaleData);
 
 router.get('/saleDataTrooperId/:id', requireLogin, saleDataController.getSaleDatasByTrooperId);

@@ -99,7 +99,7 @@ const deleteAllsaleData = async (req, res) => {
 
 module.exports = {
   createSaleData,
-  updatesaleData,
+  //updatesaleData,
   getSaleData,
   deletesaleData,
   

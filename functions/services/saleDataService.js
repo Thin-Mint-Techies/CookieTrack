@@ -109,7 +109,7 @@ const getSaleDataByOwnerId = async (ownerId) => {
 module.exports = {
   createSaleData,
   getSaleData,
-  updateSaleData,
+  //updateSaleData,
   deleteSaleData,
 
   getSaleDatasByTrooperId,
