@@ -1,4 +1,7 @@
 const { Firestore } = require('../firebaseConfig');
+const {saleDataformatforTrooper} = require('../dataFormat');
+
+
 
 //INVENTORY SERVICE
 // Update Inventory when Order is Created
@@ -66,13 +69,70 @@ const createOrder = async ({ trooperName, trooperId, ownerId, ownerEmail, buyerE
   }
 };
 
+// Update sale data when an order is completed
+const updateSaleData = async (orderData) => {
+  const { trooperId, orderContent, totalCost } = orderData;
+
+  const saleDataRef = Firestore.collection('saleData').where('trooperId', '==', trooperId);
+  const saleDataSnapshot = await saleDataRef.get();
+
+  // Initialize sale data if it doesn't exist
+  if (!saleDataSnapshot.exists) {
+    await saleDataRef.set({
+      ...saleDataformatforTrooper,
+      trooperId,
+      trooperName: orderData.trooperName,
+      ownerId: orderData.ownerId,
+      orderId: [orderData.id],
+      totalMoneyMade: totalCost,
+      totalBoxesSold: orderContent.reduce((sum, item) => sum + item.boxes, 0),
+      cookieData: orderContent.map(item => ({
+        varietyId: item.varietyId,
+        variety: item.variety,
+        boxPrice: item.boxPrice,
+        boxTotal: item.boxes,
+        cookieTotalCost: item.boxPrice * item.boxes,
+      })),
+    });
+  } else {
+    // Update existing sale data
+    const saleData = saleDataSnapshot.data();
+    const updatedOrderId = [...saleData.orderId, orderData.id];
+    const updatedTotalMoneyMade = saleData.totalMoneyMade + totalCost;
+    const updatedTotalBoxesSold = saleData.totalBoxesSold + orderContent.reduce((sum, item) => sum + item.boxes, 0);
+
+    const updatedCookieData = saleData.cookieData.map(cookie => {
+      const orderItem = orderContent.find(item => item.varietyId === cookie.varietyId);
+      if (orderItem) {
+        return {
+          ...cookie,
+          boxTotal: cookie.boxTotal + orderItem.boxes,
+          cookieTotalCost: cookie.cookieTotalCost + (orderItem.boxPrice * orderItem.boxes),
+        };
+      }
+      return cookie;
+    });
+
+    await saleDataRef.update({
+      orderId: updatedOrderId,
+      totalMoneyMade: updatedTotalMoneyMade,
+      totalBoxesSold: updatedTotalBoxesSold,
+      cookieData: updatedCookieData,
+    });
+  }
+};
+
 module.exports = {
   updateInventoryOnOrderCreated,
   createOrder,
+  updateSaleData
 };
 
 
 /*
+// new version of updateInventory,  will check for inventory to see if we have enough cookie
+// -> if yes: take from both inventory and create the order
+// -> if no: send email to parent and leader, update leader's needToOrder field, and abort the order creation
 const updateInventoryOnOrderCreated = async (transaction, orderContent) => {
   for (const item of orderContent) {
     const { varietyId, boxes } = item;

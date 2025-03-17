@@ -12,6 +12,8 @@ router.get('/user/:id',requireLogin, userController.getUserById);
 router.put('/user/:id', requireLogin, userController.updateUser);
 router.delete('/user/:id', requireLogin, checkRole(['leader']), userController.deleteUser);
 router.post('/attachRoleAsCustomClaim/:id', userController.attachRoleAsCustomClaim);
+router.get('/getRole/:id', userController.getRole);
+
 
 
 // Notifications

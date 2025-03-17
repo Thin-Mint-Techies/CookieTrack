@@ -89,6 +89,17 @@ const attachRoleAsCustomClaim = async (req, res) => {
   }
 };
 
+const getRole = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const userId = await userService.getRole(id);
+    console.log(userId);
+    res.status(201).json({ role: userId });
+  } catch (error) {
+    console.error('Failed to get userRole', error.message);
+    res.status(500).json({ message: error.message });
+  }
+};
 
 
 
@@ -98,5 +109,6 @@ module.exports = {
   getUserById,
   updateUser,
   deleteUser,
-  attachRoleAsCustomClaim
+  attachRoleAsCustomClaim,
+  getRole
 };

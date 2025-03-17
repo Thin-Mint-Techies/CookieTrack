@@ -2,7 +2,8 @@ const { Firestore } = require('../firebaseConfig');
 const { sendEmail } = require('../utils/emailSender');
 const { orderDataFormat } = require('../dataFormat');
 const {completedOrderDataFormat} = require('../dataFormat');
-const {saleDataformatforTrooper} = require('../dataFormat');
+const { updateSaleData } = require('./test');
+
 
 
 const createOrder = async ({ trooperName, trooperId, ownerId, ownerEmail, buyerEmail, parentName, contact, financialAgreement, orderContent, paymentType }) => {
@@ -204,58 +205,7 @@ const getOrdersByTrooperId = async (trooperId) => {
   }
 };
 
-// Update sale data when an order is completed
-const updateSaleData = async (orderData) => {
-  const { trooperId, orderContent, totalCost } = orderData;
 
-  const saleDataRef = Firestore.collection('saleData').doc(trooperId);
-  const saleDataSnapshot = await saleDataRef.get();
-
-  // Initialize sale data if it doesn't exist
-  if (!saleDataSnapshot.exists) {
-    await saleDataRef.set({
-      ...saleDataformatforTrooper,
-      trooperId,
-      trooperName: orderData.trooperName,
-      ownerId: orderData.ownerId,
-      orderId: [orderData.id],
-      totalMoneyMade: totalCost,
-      totalBoxesSold: orderContent.reduce((sum, item) => sum + item.boxes, 0),
-      cookieData: orderContent.map(item => ({
-        varietyId: item.varietyId,
-        variety: item.variety,
-        boxPrice: item.boxPrice,
-        boxTotal: item.boxes,
-        cookieTotalCost: item.boxPrice * item.boxes,
-      })),
-    });
-  } else {
-    // Update existing sale data
-    const saleData = saleDataSnapshot.data();
-    const updatedOrderId = [...saleData.orderId, orderData.id];
-    const updatedTotalMoneyMade = saleData.totalMoneyMade + totalCost;
-    const updatedTotalBoxesSold = saleData.totalBoxesSold + orderContent.reduce((sum, item) => sum + item.boxes, 0);
-
-    const updatedCookieData = saleData.cookieData.map(cookie => {
-      const orderItem = orderContent.find(item => item.varietyId === cookie.varietyId);
-      if (orderItem) {
-        return {
-          ...cookie,
-          boxTotal: cookie.boxTotal + orderItem.boxes,
-          cookieTotalCost: cookie.cookieTotalCost + (orderItem.boxPrice * orderItem.boxes),
-        };
-      }
-      return cookie;
-    });
-
-    await saleDataRef.update({
-      orderId: updatedOrderId,
-      totalMoneyMade: updatedTotalMoneyMade,
-      totalBoxesSold: updatedTotalBoxesSold,
-      cookieData: updatedCookieData,
-    });
-  }
-};
 
 
 module.exports = {

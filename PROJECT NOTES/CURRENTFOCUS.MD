@@ -14,6 +14,10 @@
 
 -Booth implementation
 
+-Reward pictures
+
+-User profile picture
+
 
 
 -Prio:

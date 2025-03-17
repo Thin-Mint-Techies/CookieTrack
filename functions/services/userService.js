@@ -125,12 +125,29 @@ const attachRoleAsCustomClaim = async (userId) => {
 };
 
 
+
+// const
+const getRole = async (id) => {
+  try {
+    const userRecord = await auth.getUser(id);
+    const { role } = userRecord.customClaims || {};
+    if (!role) {
+      throw new Error('Role not found');
+    }
+    return role;
+  } catch (error) {
+    throw new Error(`Error fetching user role: ${error.message}`);
+  }
+};
+
+
 module.exports = {
   registerUser,
   getAllUsers,
   getUserById,
   updateUser,
   deleteUser,
-  attachRoleAsCustomClaim
+  attachRoleAsCustomClaim,
+  getRole,
 };
 
