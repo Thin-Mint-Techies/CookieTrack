@@ -54,24 +54,17 @@ const deleteReward = async (id) => {
 
 
 // Allow user to select a reward for a specific troop
-const selectRewardForTroop = async (idToken, troopId, rewardId) => {
+const selectRewardForTroop = async (troopId, rewardId, userId) => {
   try {
-    // Verify Firebase ID token
-    const decodedToken = await auth.verifyIdToken(idToken);
-    const userId = decodedToken.uid;
+    // Validate trooper association
+    const trooperRef = Firestore.collection('troopers').doc(troopId);
+    const trooperDoc = await trooperRef.get();
 
-    // Validate troop association
-    const troopRef = Firestore.collection('troops').doc(troopId);
-    const troopDoc = await troopRef.get();
-
-    if (!troopDoc.exists) {
-      throw new Error('Troop not found');
+    if (!trooperDoc.exists) {
+      throw new Error('Trooper not found');
     }
 
-    const troopData = troopDoc.data();
-    if (!troopData.parentIds.includes(userId)) {
-      throw new Error('Unauthorized: You are not associated with this troop');
-    }
+    const trooperData = trooperDoc.data();
 
     // Validate reward existence
     const rewardRef = Firestore.collection('rewards').doc(rewardId);
@@ -81,17 +74,20 @@ const selectRewardForTroop = async (idToken, troopId, rewardId) => {
       throw new Error('Reward not found');
     }
 
-    // Add reward selection to the troop
-    const selectedRewards = troopData.selectedRewards || [];
-    selectedRewards.push({
-      rewardId,
+    const rewardData = rewardDoc.data();
+
+    // Add reward selection to the trooper's currentReward array
+    const currentReward = trooperData.currentReward || [];
+    currentReward.push({
+      ...rewardDataFormat,
+      ...rewardData,
       selectedBy: userId,
       selectedAt: new Date().toISOString(),
     });
 
-    await troopRef.update({ selectedRewards });
+    await trooperRef.update({ currentReward });
 
-    return { message: 'Reward selected successfully for the troop' };
+    return { message: 'Reward selected successfully for the trooper' };
   } catch (error) {
     throw new Error('Error selecting reward: ' + error.message);
   }

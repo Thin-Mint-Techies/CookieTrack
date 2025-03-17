@@ -2,13 +2,14 @@ const { Firestore } = require('../firebaseConfig');
 const admin = require('firebase-admin');
 const {trooperDataFormat} = require('../dataFormat');
 
-const createTrooper = async ({ troopNumber, trooperName, ownerId, troopLeader, age, grade, shirtSize, boxesSold, currentBalance  }) => {
+const createTrooper = async ({ parentName,troopNumber, trooperName, ownerId, troopLeader, age, grade, shirtSize, boxesSold, currentBalance  }) => {
   try {
     const newTroopRef = Firestore.collection('troopers').doc();
     const troopData = {
       troopNumber,
       trooperName,
       ownerId, //uid of parent
+      parentName,
       troopLeader,
       age,
       grade,
@@ -56,7 +57,8 @@ const getTrooperById = async (id) => {
   }
 };
 
-const updateTrooper = async (troopNumber, trooperName, ownerId, troopLeader, age, grade, shirtSize, boxesSold, currentBalance, squad, currentReward) => {
+/*
+const updateTrooper = async (troopId, troopNumber, trooperName, ownerId, troopLeader, age, grade, shirtSize, boxesSold, currentBalance, squad, currentReward) => {
   try {
     const ref = Firestore.collection('troopers').doc(troopId);
     await ref.update({
@@ -72,9 +74,51 @@ const updateTrooper = async (troopNumber, trooperName, ownerId, troopLeader, age
       squad,
       currentReward,
     });
-    return { message: 'Sales data updated successfully' };
+    return { message: 'Update trooper successfully' };
   } catch (error) {
-    throw new Error(`Error updating troop sales data: ${error.message}`);
+    throw new Error(`Error updating trooper: ${error.message}`);
+  }
+};
+*/
+const updateTrooper = async (troopId, updateData) => {
+  try {
+    const ref = Firestore.collection('troopers').doc(troopId);
+
+    // Fetch the current trooper data
+    const doc = await ref.get();
+    if (!doc.exists) {
+      throw new Error('Trooper not found');
+    }
+
+    // Define the allowed fields to be updated
+    const allowedFields = [
+      'troopNumber',
+      'trooperName',
+      'ownerId',
+      'troopLeader',
+      'age',
+      'grade',
+      'shirtSize',
+      'currentBalance',
+      'boxesSold',
+      'squad',
+      'currentReward'
+    ];
+
+    // Filter the updateData to include only allowed fields
+    const filteredUpdateData = {};
+    for (const key in updateData) {
+      if (allowedFields.includes(key)) {
+        filteredUpdateData[key] = updateData[key];
+      }
+    }
+
+    // Update the trooper with the filtered data
+    await ref.update(filteredUpdateData);
+
+    return { message: 'Update trooper successfully' };
+  } catch (error) {
+    throw new Error(`Error updating trooper: ${error.message}`);
   }
 };
 

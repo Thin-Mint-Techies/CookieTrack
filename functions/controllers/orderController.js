@@ -4,7 +4,7 @@ const orderService = require('../services/orderService');
 
 const createOrder = async (req, res) => {
   try {
-    const orderId = await createOrder(req.body);
+    const orderId = await orderService.createOrder(req.body);
     console.log('Order created successfully:', { id: orderId });
     res.status(201).json({ message: 'Order created successfully', orderId });
   } catch (error) {
@@ -64,7 +64,7 @@ const deleteAllOrder = async (req, res) => {
 const markOrderComplete = async (req, res) => {
   const {id} = req.params;
   try {
-    const orderId = await markOrderComplete(id, req.body);
+    const orderId = await orderService.markOrderComplete(id, req.body);
     console.log('Order mark complete successfully:', { id: orderId });
     res.status(201).json({ message: 'Order mark complete successfully', orderId });
   } catch (error) {
@@ -75,7 +75,7 @@ const markOrderComplete = async (req, res) => {
 
 const archivedOrders = async (req, res) => {
   try {
-    const orderId = await createOrder(req.body);
+    const orderId = await orderService.archiveOrders(req.body);
     console.log('Order achived successfully:', { id: orderId });
     res.status(201).json({ message: 'Order archived successfully', orderId });
   } catch (error) {
@@ -87,7 +87,7 @@ const archivedOrders = async (req, res) => {
 const getUserOrders = async (req, res) => {
   const {id} = req.params;
   try {
-    const orders = await getUserOrders(id);
+    const orders = await orderService.getUserOrders(id);
     console.log("getUserOrders successfully", result);
     res.status(200).json({ orders });
   } catch (error) {
@@ -99,7 +99,7 @@ const getUserOrders = async (req, res) => {
 const getOrdersByTrooperId= async (req, res) => {
   const {id} = req.params;
   try {
-    const orders = await getOrdersByTrooperId(id);
+    const orders = await orderService.getOrdersByTrooperId(id);
     console.log("getOrdersByTrooperId successfully", result);
     res.status(200).json({ orders });
   } catch (error) {
@@ -118,7 +118,7 @@ module.exports = {
   getAllOrder,
   updateOrder,
   deleteOrder,
-  
+  //archivedOrders,
   getUserOrders,
   markOrderComplete,
   getOrdersByTrooperId

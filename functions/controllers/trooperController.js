@@ -60,8 +60,9 @@ const deleteTrooper = async (req, res) => {
 };
 
 const getAllTroopersByOwnerId = async (req, res) => {
+  const { id } = req.params;
   try {
-    const troopers = await troopService.getAllTroopersByOwnerId();
+    const troopers = await troopService.getAllTroopersByOwnerId(id);
     console.log('Fetch all troopers with ownerId successfully');
     res.status(200).json(troopers);
   } catch (error) {

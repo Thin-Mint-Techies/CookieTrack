@@ -44,6 +44,7 @@ const trooperDataFormat = {
     troopNumber: '',
     trooperName: '',
     ownerId: '',
+    parentName: '',
     troopLeader:'',
     age: '',
     grade: '',
@@ -149,6 +150,10 @@ const leaderInventoryDataFormat = {
         boxes: 0,
         boxPrice: 0.0,
     },],  
+
+    parentInventory: [{}],
+    
+    totalCookies:[{}],
 
     needToOrder: [{
         varietyId: '',

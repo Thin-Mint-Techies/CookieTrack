@@ -7,7 +7,7 @@ const { requireLogin, checkRole, checkUserOwnership } = require('../utils/roleCh
 
 
 router.post('/user', userController.createUser);
-router.get('/user',   userController.getAllUser);
+router.get('/user', requireLogin,  userController.getAllUser);
 router.get('/user/:id',requireLogin, userController.getUserById);
 router.put('/user/:id', requireLogin, userController.updateUser);
 router.delete('/user/:id', requireLogin, checkRole(['leader']), userController.deleteUser);

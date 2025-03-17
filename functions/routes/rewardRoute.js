@@ -8,7 +8,7 @@ router.post('/reward', requireLogin, checkRole(['leader']), rewardController.cre
 router.get('/reward', requireLogin, checkRole(['leader']), rewardController.getAllReward);
 router.put('/reward/:id',requireLogin, checkRole(['leader']), rewardController.updateReward);
 router.delete('/reward/:id', requireLogin, checkRole(['leader']), rewardController.deleteReward);
-router.post('/selectReward', requireLogin, rewardController.selectRewardForTroop);
+router.post('/selectReward/:id', requireLogin, rewardController.selectRewardForTroop);
 
 
 

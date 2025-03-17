@@ -50,8 +50,9 @@ const deletesaleData = async (req, res) => {
 };
 
 const getSaleDatasByTrooperId = async (req, res) => {
+  const { id } = req.params;
   try {
-    const saleDatas = await saleDataService.getSaleDatasByTrooperId();
+    const saleDatas = await saleDataService.getSaleDatasByTrooperId(id);
     console.log('saleData fetch by trooperId successfully:', saleDatas);
     res.status(200).json(saleDatas);
   } catch (error) {
@@ -61,8 +62,9 @@ const getSaleDatasByTrooperId = async (req, res) => {
 };
 
 const getSaleDataByOwnerId = async (req, res) => {
+  const { id } = req.params;
   try {
-    const saleDatas = await saleDataService.getSaleDataByOwnerId();
+    const saleDatas = await saleDataService.getSaleDataByOwnerId(id);
     console.log('saleData fetch by ownerId successfully:', saleDatas);
     res.status(200).json(saleDatas);
   } catch (error) {

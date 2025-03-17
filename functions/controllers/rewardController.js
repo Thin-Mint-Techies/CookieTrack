@@ -62,6 +62,20 @@ const deleteAllReward = async (req, res) => {
 };
 */
 
+const selectRewardForTroop = async (req, res) => {
+  const { id } = req.params;
+  const { rewardId } = req.body;
+  try {
+    const result = await rewardService.selectRewardForTroop(id,rewardId);
+    console.log('Reward selection is successful:', result);
+    res.status(200).json(result);
+  } catch (error) {
+    console.error('Failed to select reward',error.message)
+    res.status(500).json({ message: error.message });
+  }
+};
+
+/*
 //need more testing, need to go through roleCheck.js first
 const selectRewardForTroop = async (req, res) => {
   const idToken = req.headers.authorization?.split('Bearer ')[1];
@@ -79,7 +93,7 @@ const selectRewardForTroop = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
+*/
 
 
 module.exports = {

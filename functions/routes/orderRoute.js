@@ -11,7 +11,7 @@ router.delete('/order/:id', requireLogin, checkRole(['leader']), orderController
 
 router.get('/ordersUser/:id', requireLogin, orderController.getUserOrders);
 router.get('/ordersTrooper/:id',requireLogin, orderController.getOrdersByTrooperId);
-router.get('/orderComplete/:id', requireLogin, orderController.markOrderComplete);
+router.put('/orderComplete/:id', requireLogin, orderController.markOrderComplete);
 
 //router.get('/archiveOrder', orderController.archivedOrders);
 

@@ -4,7 +4,7 @@ const inventoryService = require('../services/inventoryService');
 
 const createParentInventory = async (req, res) => {
     try {
-      const inventoryId = await createParentInventory(req.body);
+      const inventoryId = await inventoryService.createParentInventory(req.body);
       console.log('Inventory created successfully:', { id: inventoryId });
       res.status(201).json({ message: 'Inventory created successfully', inventoryId });
     } catch (error) {
@@ -27,7 +27,7 @@ const updateParentInventory = async (req, res) => {
 
 const createLeaderInventory = async (req, res) => {
     try {
-      const inventoryId = await createLeaderInventory(req.body);
+      const inventoryId = await inventoryService.createLeaderInventory(req.body);
       console.log('Inventory created successfully:', { id: inventoryId });
       res.status(201).json({ message: 'Inventory created successfully', inventoryId });
     } catch (error) {

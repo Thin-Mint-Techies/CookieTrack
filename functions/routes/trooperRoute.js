@@ -25,7 +25,7 @@ router.get('/trooper/:id',
 router.get('/troopers/:id',requireLogin,  trooperController.getTrooperById);
 router.put('/trooper/:id',requireLogin,  trooperController.updateTrooper);
 router.delete('/trooper/:id', requireLogin, trooperController.deleteTrooper);
-router.get('/troopersOwnerId/:ownerId',requireLogin,  trooperController.getAllTroopersByOwnerId);
+router.get('/troopersOwnerId/:id',requireLogin,  trooperController.getAllTroopersByOwnerId);
 
 
 module.exports = router;
