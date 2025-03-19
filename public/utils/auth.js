@@ -34,17 +34,26 @@ onAuthStateChanged(auth, async (user) => {
         }
 
         if (sessionStorage.getItem("userData") === null && localStorage.getItem('creatingAccount') === null) {
-            console.log("First load");
             const sidebar = document.getElementById('sidebar');
             const shrunkSidebar = document.getElementById('shrunk-sidebar');
+            if (!sidebar && !shrunkSidebar) return;
 
             try {
+                //Show skeletons for the user info on the sidebar
                 handleSkeletons.hideNeedSkeletons(sidebar);
                 handleSkeletons.hideNeedSkeletons(shrunkSidebar);
                 handleSkeletons.sidebarSkeleton(sidebar.querySelector('.need-skeleton').parentElement, false);
                 handleSkeletons.sidebarSkeleton(shrunkSidebar.querySelector('.need-skeleton').parentElement, true);
+
+                //Load user information and store it in session storage
                 const userData = await callApi(`/user/${user.uid}`);
-                if (userData) sessionStorage.setItem("userData", JSON.stringify(userData));
+                const userRole = await callApi(`/getRole/${user.uid}`);
+                if (userData && userRole) {
+                    sessionStorage.setItem("userData", JSON.stringify(userData));
+                    sessionStorage.setItem("userRole", JSON.stringify(userRole));
+                }
+
+                //Remove skeletons and update sidebar
                 handleSkeletons.removeSkeletons(sidebar);
                 handleSkeletons.removeSkeletons(shrunkSidebar);
                 updateSidebarWithUserData();
@@ -101,6 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
         signOut(auth).then(() => {
             // Sign-out successful.
             sessionStorage.removeItem('userData');
+            sessionStorage.removeItem('userRole');
         }).catch((error) => {
             showToast(error.code, error.message, STATUS_COLOR.RED, true, 10);
         });

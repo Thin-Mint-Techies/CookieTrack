@@ -90,11 +90,24 @@
                         </div>
                         <div class="grid sm:grid-cols-2 gap-4 mt-6">
                             <div>
-                                <label class="text-black text-base mb-2 block">Trooper Name</label>
+                                <label class="text-black text-base mb-2 block">Trooper</label>
                                 <div class="relative flex items-center">
-                                    <input id="order-tname" type="text" required
+                                    <button id="order-trooper-btn" type="button"
+                                        class="bg-white border border-gray w-full text-base text-black text-left px-4 py-2.5 rounded-default accent-green">
+                                        Select Trooper
+                                    </button>
+                                    <i class="fa-solid fa-chevron-down absolute right-4"></i>
+                                    <ul id="order-trooper-dropdown"
+                                        class='absolute hidden top-full shadow-default bg-white py-2 z-[1000] min-w-full w-max rounded-default max-h-40 overflow-auto'>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-black text-base mb-2 block">Buyer Email</label>
+                                <div class="relative flex items-center">
+                                    <input id="order-bemail" type="text" required
                                         class="bg-white border border-gray w-full text-base text-black px-4 py-2.5 rounded-default accent-green"
-                                        placeholder="Enter the trooper name" />
+                                        placeholder="Enter the buyer's email" />
                                 </div>
                             </div>
                             <div>
@@ -200,6 +213,23 @@
                                             Phone</li>
                                         <li class='py-2.5 px-5 hover:bg-green text-black text-sm cursor-pointer'>
                                             Email</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-black text-base mb-2 block">Payment Type</label>
+                                <div class="relative flex items-center">
+                                    <button id="order-payment-btn" type="button"
+                                        class="bg-white border border-gray w-full text-base text-black text-left px-4 py-2.5 rounded-default accent-green">
+                                        Select Payment Type
+                                    </button>
+                                    <i class="fa-solid fa-chevron-down absolute right-4"></i>
+                                    <ul id="order-payment-dropdown"
+                                        class='absolute hidden top-full shadow-default bg-white py-2 z-[1000] min-w-full w-max rounded-default max-h-40 overflow-auto'>
+                                        <li class='py-2.5 px-5 hover:bg-green text-black text-sm cursor-pointer'>
+                                            Cash</li>
+                                        <li class='py-2.5 px-5 hover:bg-green text-black text-sm cursor-pointer'>
+                                            Card</li>
                                     </ul>
                                 </div>
                             </div>

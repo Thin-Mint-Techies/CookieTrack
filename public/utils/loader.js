@@ -4,7 +4,7 @@ export function manageLoader(shouldShow = false) {
     if (!loader) {
         const loaderHTML = `
             <div id="loader" style="display: none;">
-                <div class="flex-col gap-4 w-full flex items-center justify-center fixed top-0 bottom-0 bg-white z-[999999]">
+                <div class="flex-col gap-4 w-full flex items-center justify-center fixed top-0 bottom-0 bg-loading-overlay z-[999999]">
                     <div
                         class="w-20 h-20 border-4 border-transparent text-green text-4xl animate-spin flex items-center justify-center border-t-green rounded-full"
                     >

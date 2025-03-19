@@ -17,6 +17,7 @@ loginBtn?.addEventListener('click', (e) => {
 });
 
 function loginUserEmail() {
+    manageLoader(true);
     const email = loginEmail.value;
     const password = loginPassword.value;
     const saveLogin = rememberMe.checked;
@@ -31,11 +32,13 @@ function loginUserEmail() {
                     const user = userCredential.user;
                 })
                 .catch((error) => {
+                    manageLoader(false);
                     console.log(error.code + ": " + error.message);
                     showToast("Login Failed", "Make sure you have entered your account email and password correctly.", STATUS_COLOR.RED, true, 8);
                 });
         })
         .catch((error) => {
+            manageLoader(false);
             console.log(error.code + ": " + error.message);
             showToast("Persistance Error", "An unexpected error occured. Please login again.", STATUS_COLOR.RED, true, 8);
         });

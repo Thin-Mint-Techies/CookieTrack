@@ -3,53 +3,76 @@ import { callApi } from "../utils/apiCall.js";
 import { handleSkeletons } from "../utils/skeletons.js";
 import { handleTableRow, handleTableCreation } from "../utils/utils.js";
 import { createModals } from "../utils/confirmModal.js";
+import { manageLoader } from "../utils/loader.js";
 
 //#region CREATE TABLES/LOAD DATA -----------------------------------
-//First create all the necessary tables
-const mainContent = document.getElementsByClassName('main-content')[0];
-handleTableCreation.troopInventory(mainContent);
-handleTableCreation.needInventory(mainContent);
-handleTableCreation.yourInventory(mainContent);
+let userData, userRole;
 
-//Then show skeleton loaders as the inventory information is pulled from database
-handleSkeletons.hideNeedSkeletons(mainContent);
+//First show skeleton loaders as inventory info is waiting to be pulled
+const mainContent = document.getElementsByClassName('main-content')[0];
 handleSkeletons.tableSkeleton(mainContent, 3);
-setTimeout(() => {
+
+//Wait for auth setup then pull user role and inventory
+document.addEventListener("authStateReady", async () => {
+    userData = JSON.parse(sessionStorage.getItem("userData"));
+    userRole = JSON.parse(sessionStorage.getItem('userRole'));
+
+    //Create necessary tables based on user role
+    if (userRole && userData.id) {
+        if (userRole.role === "parent") {
+            handleTableCreation.yourInventory(mainContent);
+            //loadInventoryTableRows();
+        } else if (userRole.role === "leader") {
+            handleTableCreation.troopInventory(mainContent, openCookieModal);
+            handleTableCreation.needInventory(mainContent);
+            handleTableCreation.yourInventory(mainContent);
+        }
+    } else {
+        showToast("Error Loading Data", "There was an error loading user data. Please refresh the page to try again.", STATUS_COLOR.RED, false);
+        return;
+    }
+
+    //Remove the skeletons and setup add cookie modal
     handleSkeletons.removeSkeletons(mainContent);
-}, 2000);
+});
+
+function loadInventoryTableRows(inventory, inventoryType) {
+    inventory.forEach((cookie) => {
+        const cookieData = {
+
+        }
+
+        if (inventoryType === "troop") {
+            handleTableRow.troopInventory(cookieData, editCookie, createModals.deleteItem(deleteCookie));
+        } else if (inventoryType === "need") {
+            handleTableRow.needInventory(cookieData, editCookie, createModals.deleteItem(deleteCookie));
+        } else if (inventoryType === "your") {
+            handleTableRow.yourInventory(cookieData, editCookie, createModals.deleteItem(deleteCookie));
+        }
+    });
+}
 //#endregino CREATE TABLES/LOAD DATA --------------------------------
 
 //#region Add/Edit Inventory -------------------------------------------------
-let addTroopCookieBtn = document.getElementById('add-troop-cookies');
-let addYourCookieBtn = document.getElementById('add-your-cookies');
 let cookieForm = document.getElementById('cookie-form');
 let cookieTitle = document.getElementById('cookie-title');
 let cookieSubtitle = document.getElementById('cookie-subtitle');
 let cookieCancel = document.getElementById('cookie-cancel');
 let cookieSubmit = document.getElementById('cookie-submit');
 let cookieClose = document.getElementById('cookie-close');
-let currentInventory = null;
 
 //Input variables
 const cookieName = document.getElementById("cookie-name");
+const cookiePrice = document.getElementById("cookie-price");
 const cookieStock = document.getElementById("cookie-stock");
 
 //Show the add cookie modal
-addTroopCookieBtn.addEventListener('click', () => {
-    currentInventory = "troop";
-    openCookieModal();
-});
-
-addYourCookieBtn.addEventListener('click', () => {
-    currentInventory = "your";
-    openCookieModal();
-});
-
 function openCookieModal(mode = "add", cookieData) {
     if (mode === "edit") {
         cookieTitle.textContent = "Edit Cookie";
         cookieSubtitle.textContent = "Edit the selected cookie to make changes";
-        cookieName.value = cookieData.cookieName;
+        cookieName.value = cookieData.variety;
+        cookiePrice.value = cookieData.price;
         cookieStock.value = cookieData.boxesInStock;
     }
 
@@ -69,6 +92,7 @@ function closeCookieModal() {
     cookieForm.classList.remove('flex');
     cookieForm.classList.add('hidden');
     cookieName.value = "";
+    cookiePrice.value = "";
     cookieStock.value = "";
 }
 
@@ -76,10 +100,16 @@ function closeCookieModal() {
 cookieSubmit.addEventListener('click', (e) => {
     e.preventDefault();
     const cName = cookieName.value.trim();
+    const cPrice = parseFloat(cookiePrice.value) || 0;
     const cStock = parseInt(cookieStock.value, 10) || 0;
 
     if (cName === "") {
         showToast("Invalid Cookie Name", "Please make sure that you have correctly entered the cookie's name.", STATUS_COLOR.RED, true, 5);
+        return;
+    }
+
+    if (cPrice === 0) {
+        showToast("Invalid Cookie Price", "Please make sure that you have entered the correct price for this cookie.", STATUS_COLOR.RED, true, 5);
         return;
     }
 
@@ -91,25 +121,51 @@ cookieSubmit.addEventListener('click', (e) => {
     const currentMode = cookieForm.getAttribute('data-mode');
 
     const cookieData = {
-        cookieName: cName,
-        boxesInStock: cStock,
-        boxesSoldMonth: 0
+        variety: cName,
+        price: (cPrice).toLocaleString('en-US', { style: 'currency', currency: 'USD' }),
     }
 
     if (currentMode === "add") {
-        if (currentInventory === "troop") {
-            handleTableRow.troopInventory(cookieData, editCookie, createModals.deleteItem(deleteCookie));
-        } else if (currentInventory === "your") {
-            handleTableRow.yourInventory(cookieData, editCookie, createModals.deleteItem(deleteCookie));
-        }
-        showToast("Cookie Added", "A new cookie has been added to the inventory.", STATUS_COLOR.GREEN, true, 5);
+        createCookieApi(cookieData);
     } else if (currentMode === "edit") {
-        handleTableRow.updateInventoryRow(handleTableRow.currentRowEditing, cookieData);
-        showToast("Cookie Updated", "The selected cookie has been updated with the new information.", STATUS_COLOR.GREEN, true, 5);
+        const cookieId = handleTableRow.currentRowEditing.getAttribute('data-cid');
+        updateCookieApi(cookieData);
+    }
+});
+
+async function createCookieApi(cookieData) {
+    manageLoader(true);
+
+    try {
+        const cookieId = await callApi('/cookie', 'POST', cookieData);
+        //Cookie created, add to table and show message
+        handleTableRow.troopInventory(cookieId.id, cookieData, editCookie, createModals.deleteItem(deleteCookie));
+        showToast("Cookie Added", "A new cookie has been created and added to the troop inventory.", STATUS_COLOR.GREEN, true, 5);
+    } catch (error) {
+        console.error('Error creating cookie:', error);
+        showToast("Error Creating Cookie", 'There was an error with creating this cookie. Please try again.', STATUS_COLOR.RED, true, 5);
     }
 
+    manageLoader(false);
     cookieClose.click();
-});
+}
+
+async function updateCookieApi(cookieData, cookieId) {
+    manageLoader(true);
+
+    try {
+        await callApi(`/cookie/${cookieId}`, 'PUT', cookieData);
+        //Cookie updated, update data in table and show message
+        handleTableRow.updateInventoryRow(handleTableRow.currentRowEditing, cookieData);
+        showToast("Cookie Updated", "The selected cookie has been updated with the new information.", STATUS_COLOR.GREEN, true, 5);
+    } catch (error) {
+        console.error('Error updating cookie:', error);
+        showToast("Error Updating Cookie", 'There was an error with updating this cookie. Please try again.', STATUS_COLOR.RED, true, 5);
+    }
+
+    manageLoader(false);
+    cookieClose.click();
+}
 //#endregion --------------------------------------------------------
 
 //#region TABLE ACTIONS ---------------------------------------------
@@ -128,102 +184,11 @@ function getRowData(row) {
     let index = 0;
 
     let cookieData = {
-        cookieName: tds[index++]?.textContent.trim(),
-        boxesInStock: tds[index++]?.textContent.trim(),
-        boxesSoldMonth: tds[index++]?.textContent.trim()
+        variety: tds[index++]?.textContent.trim(),
+        price: tds[index++]?.textContent.trim(),
+        boxesInStock: tds[index++]?.textContent.trim()
     }
 
     return cookieData;
 }
 //#endregion TABLE ACTIONS ------------------------------------------
-
-//#region TEST DATA -------------------------------------------------
-const troopInventory = {
-    0: {
-        cookieName: "Thin Mints",
-        boxesInStock: 400,
-        boxesSoldMonth: 0
-    },
-    1: {
-        cookieName: "Lemonades",
-        boxesInStock: 200,
-        boxesSoldMonth: 0
-    },
-    2: {
-        cookieName: "Adventurefuls",
-        boxesInStock: 300,
-        boxesSoldMonth: 0
-    },
-    3: {
-        cookieName: "Caramel Chocolate Chip",
-        boxesInStock: 500,
-        boxesSoldMonth: 0
-    },
-    4: {
-        cookieName: "Do-si-dos",
-        boxesInStock: 100,
-        boxesSoldMonth: 0
-    },
-    5: {
-        cookieName: "Caramel deLites",
-        boxesInStock: 200,
-        boxesSoldMonth: 0
-    }
-};
-
-const yourInventory = {
-    0: {
-        cookieName: "Thin Mints",
-        boxesInStock: 40,
-        boxesSoldMonth: 0
-    },
-    1: {
-        cookieName: "Lemonades",
-        boxesInStock: 20,
-        boxesSoldMonth: 0
-    },
-    2: {
-        cookieName: "Adventurefuls",
-        boxesInStock: 30,
-        boxesSoldMonth: 0
-    },
-    3: {
-        cookieName: "Caramel Chocolate Chip",
-        boxesInStock: 50,
-        boxesSoldMonth: 0
-    },
-    4: {
-        cookieName: "Do-si-dos",
-        boxesInStock: 10,
-        boxesSoldMonth: 0
-    },
-    5: {
-        cookieName: "Caramel deLites",
-        boxesInStock: 20,
-        boxesSoldMonth: 0
-    }
-};
-
-const needInventory = {
-    0: {
-        cookieName: "Thin Mints",
-        boxesNeeded: 100
-    },
-    1: {
-        cookieName: "Lemonades",
-        boxesNeeded: 50
-    }
-};
-
-(function loadTestData() {
-    for (const [key, value] of Object.entries(troopInventory)) {
-        handleTableRow.troopInventory(value, editCookie, createModals.deleteItem(deleteCookie));
-    };
-    for (const [key, value] of Object.entries(yourInventory)) {
-        handleTableRow.yourInventory(value, editCookie, createModals.deleteItem(deleteCookie));
-    };
-    for (const [key, value] of Object.entries(needInventory)){
-        handleTableRow.needInventory(value, editCookie, createModals.deleteItem(deleteCookie));
-    };
-})();
-//#endregion --------------------------------------------------------
