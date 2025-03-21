@@ -21,7 +21,6 @@ const createSaleData = async ({ trooperId, trooperName, orderId, cookieData, tot
   }
 };
 
-
 const getSaleData = async (id) => {
   try {
     const saleDataRef = Firestore.collection('saleData').doc(id);
@@ -32,25 +31,6 @@ const getSaleData = async (id) => {
     return saleDataSnapshot.data();
   } catch (error) {
     throw new Error(`Error fetching sale data: ${error.message}`);
-  }
-};
-
-
-const updateSaleData = async (id, { trooperId, trooperName, orderId, cookieData, totalMoneyMade, totalBoxesSold }) => {
-  try {
-    const saleDataRef = Firestore.collection('saleData').doc(id);
-    const updatedSaleData = {
-      trooperId,
-      trooperName,
-      orderId,
-      cookieData,
-      totalMoneyMade,
-      totalBoxesSold,
-    };
-    await saleDataRef.update(updatedSaleData);
-    return { message: 'Sale data updated successfully' };
-  } catch (error) {
-    throw new Error(`Error updating sale data: ${error.message}`);
   }
 };
 
@@ -104,14 +84,54 @@ const getSaleDataByOwnerId = async (ownerId) => {
   }
 };
 
+const updateSaleData = async (saleDataId, { orderId, orderContent }) => {
+  try {
+    await Firestore.runTransaction(async (transaction) => {
+      const saleDataRef = Firestore.collection('saleData').doc(saleDataId);
+      const saleDataDoc = await transaction.get(saleDataRef);
+      if (!saleDataDoc.exists) {
+        throw new Error('Sale data not found');
+      }
+
+      const saleData = saleDataDoc.data();
+      const updatedSaleData = {
+        ...saleData,
+        orderId: [...saleData.orderId, orderId],
+        totalMoneyMade: saleData.totalMoneyMade + orderContent.totalCost,
+      };
+
+      orderContent.cookies.forEach(cookie => {
+        const existingCookie = updatedSaleData.cookieData.find(item => item.varietyId === cookie.varietyId);
+        if (existingCookie) {
+          existingCookie.boxTotal += cookie.boxes;
+          existingCookie.cookieTotalCost = existingCookie.boxTotal * existingCookie.boxPrice;
+        } else {
+          updatedSaleData.cookieData.push({
+            varietyId: cookie.varietyId,
+            variety: cookie.variety,
+            boxPrice: cookie.boxPrice,
+            boxTotal: cookie.boxes,
+            cookieTotalCost: cookie.boxes * cookie.boxPrice,
+          });
+        }
+      });
+
+      transaction.update(saleDataRef, updatedSaleData);
+    });
+
+    return { message: 'Sale data updated successfully' };
+  } catch (error) {
+    throw new Error(`Failed to update sale data: ${error.message}`);
+  }
+};
+
 
 
 module.exports = {
   createSaleData,
   getSaleData,
-  //updateSaleData,
+  updateSaleData,
   deleteSaleData,
-
   getSaleDatasByTrooperId,
   getSaleDataByOwnerId,
   getAllSaleData

@@ -4,14 +4,20 @@ const router = express.Router();
 const { requireLogin, checkRole, checkUserOwnership } = require('../utils/roleCheck');
 
 
-router.post('/saleData', requireLogin,  saleDataController.createSaleData);
-router.get('/saleData/:id', requireLogin, saleDataController.getSaleData);
-//router.put('/saleData/:id', requireLogin, saleDataController.updatesaleData);
-router.delete('/saleData/:id', requireLogin, saleDataController.deletesaleData);
-
-router.get('/saleDataTrooperId/:id', requireLogin, saleDataController.getSaleDatasByTrooperId);
-router.get('/saleDataOwnerId/:id',requireLogin,  saleDataController.getSaleDataByOwnerId);
-router.get('/saleDatas', requireLogin, checkRole(['leader']), saleDataController.getAllSaleData);
+//requireLogin, 
+router.post('/saleData',  saleDataController.createSaleData);
+//requireLogin, 
+router.get('/saleData/:id',saleDataController.getSaleData);
+//requireLogin
+router.put('/saleData/:id', saleDataController.updateSaleData);
+//requireLogin, 
+router.delete('/saleData/:id', saleDataController.deleteSaleData);
+//requireLogin,
+router.get('/saleDataTrooperId/:id',  saleDataController.getSaleDatasByTrooperId);
+//requireLogin,
+router.get('/saleDataOwnerId/:id',  saleDataController.getSaleDataByOwnerId);
+//requireLogin, checkRole(['leader']),
+router.get('/saleDatas',  saleDataController.getAllSaleData);
 
 
 

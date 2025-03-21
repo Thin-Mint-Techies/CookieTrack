@@ -4,18 +4,33 @@ const router = express.Router();
 const { requireLogin, checkRole, checkUserOwnership } = require('../utils/roleCheck');
 
 
-router.post('/order', requireLogin, orderController.createOrder);
-router.get('/order', requireLogin, checkRole(['leader']), orderController.getAllOrder);
-router.put('/order/:id', requireLogin, orderController.updateOrder);
-router.delete('/order/:id', requireLogin, checkRole(['leader']), orderController.deleteOrder);
+//requireLogin,
+router.post('/order',  orderController.createOrder);
 
-router.get('/ordersUser/:id', requireLogin, orderController.getUserOrders);
-router.get('/ordersTrooper/:id',requireLogin, orderController.getOrdersByTrooperId);
-router.put('/orderComplete/:id', requireLogin, orderController.markOrderComplete);
+//requireLogin, checkRole(['leader']),
+router.get('/order',  orderController.getAllOrders);
+//requireLogin, 
+router.put('/order/:id', orderController.updateOrder);
+//requireLogin, checkRole(['leader']),
+router.delete('/order/:id',  orderController.deleteOrder);
+
+//requireLogin,
+router.get('/ordersUser/:id',  orderController.getUserOrders);
+//requireLogin, 
+router.get('/ordersTrooper/:id',orderController.getOrdersByTrooperId);
+//requireLogin,
+router.put('/orderComplete/:id',  orderController.markOrderComplete);
 
 //router.get('/archiveOrder', orderController.archivedOrders);
 
-
+// requireLogin, 
+router.get('/ordersParent/:id',orderController.getOrdersByParentId);
+//requireLogin, 
+router.put('/orderComplete/:id', orderController.markOrderComplete);
+//requireLogin,
+router.put('/orderPickup/:id',  orderController.parentPickup);
+//requireLogin, checkRole(['leader']),
+router.put('/archiveOrders',  orderController.archiveOrders);
 
 
 module.exports = router;

@@ -35,13 +35,14 @@
     - Parent can see their inventory and the troop inventory, how much they owe
 
     - Parent submit order
-        - instock: reduce troop inventory, email notify Leader
+        - instock:
             - calculate cookieTotal Cost: boxes * boxPrice 
             - calculate totalCost: add all cookieTotalCost 
             - calculate boxTotal: add all boxes
             - use varietyId and boxes in order to remove the cookies from leaderInventory
-            - Get Email confirmation (order submitted)
-        - not in stock: set order to leader's order pile
+            - Get Email confirmation, parent and leader (order submitted)
+        - not in stock: 
+            -set order to leader's order pile
             - send email to parent and leader
    
     - Leader pull all order marked as unfill (pull the cookie out of leader inventory? )

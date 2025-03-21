@@ -5,14 +5,12 @@ const { requireLogin, checkRole, checkUserOwnership } = require('../utils/roleCh
 
 
 
-// CRUD for Troops
-    // Trying to set up nested auth and access right
-router.post('/trooper', requireLogin, trooperController.createTrooper);
-//router.post('/trooper2', 
-    //requireLogin,
-    //checkRole,
-    //trooperController.createTroop2Controller);
-router.get('/troopers', requireLogin, checkRole(['leader']), trooperController.getAllTroopers);
+
+//requireLogin,
+router.post('/trooper',  trooperController.createTrooper);
+
+// requireLogin, checkRole(['leader']), 
+router.get('/troopers',trooperController.getAllTroopers);
 
 /*
 router.get('/trooper/:id',
@@ -22,10 +20,17 @@ router.get('/trooper/:id',
     trooperController.getTrooperById);
 */
 
-router.get('/troopers/:id',requireLogin,  trooperController.getTrooperById);
-router.put('/trooper/:id',requireLogin,  trooperController.updateTrooper);
-router.delete('/trooper/:id', requireLogin, trooperController.deleteTrooper);
-router.get('/troopersOwnerId/:id',requireLogin,  trooperController.getAllTroopersByOwnerId);
+//requireLogin,
+router.get('/troopers/:id',  trooperController.getTrooperById);
+
+//requireLogin,
+router.put('/trooper/:id',  trooperController.updateTrooper);
+
+//requireLogin, 
+router.delete('/trooper/:id', trooperController.deleteTrooper);
+
+//requireLogin,
+router.get('/troopersOwnerId/:id',  trooperController.getAllTroopersByOwnerId);
 
 
 module.exports = router;
