@@ -76,6 +76,7 @@ function setupDropdown(buttonId, dropdownId) {
     dropdown.querySelectorAll("li").forEach(option => {
         option.addEventListener("click", () => {
             button.textContent = option.textContent;
+            button.value = option.value;
             button.click();
         });
     });
@@ -88,6 +89,16 @@ function setupDropdown(buttonId, dropdownId) {
         }
     });
 }
+
+function addOptionToDropdown(dropdownId, optionText, optionValue) {
+    const dropdown = document.getElementById(dropdownId);
+    let li = document.createElement('li');
+    li.className = "py-2.5 px-5 hover:bg-green text-black text-sm cursor-pointer";
+    li.textContent = optionText;
+    li.value = optionValue;
+
+    dropdown.appendChild(li);
+}
 //#endregion --------------------------------------------------------
 
-export { regExpCalls, setupPhoneInput, setupDropdown, handleTableCreation, searchTableRows, handleTableRow }
+export { regExpCalls, setupPhoneInput, setupDropdown, addOptionToDropdown, handleTableCreation, searchTableRows, handleTableRow }

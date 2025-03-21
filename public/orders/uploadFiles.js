@@ -3,7 +3,6 @@ import { handleTableRow } from "../utils/utils.js";
 import { createModals } from "../utils/confirmModal.js";
 
 //#region Add/Edit Files --------------------------------------------
-let uploadFilesBtn = document.getElementById('upload-files');
 let uploadFilesForm = document.getElementById('upload-files-form');
 let uploadFilesInput = document.getElementById('upload-files-input');
 let uploadFilesDropArea = document.getElementById('upload-files-drop-area');
@@ -14,11 +13,10 @@ let uploadFilesClose = document.getElementById('upload-files-close');
 let uploadedFiles = [];
 let uploadProgress = {}; //Track progress per file
 
-//Show the file upload modal
-uploadFilesBtn.addEventListener('click', () => {
+export function openFileUploadModal() {
     uploadFilesForm.classList.remove('hidden');
     uploadFilesForm.classList.add('flex');
-});
+}
 
 //Close/Cancel the file upload modal
 uploadFilesClose.addEventListener('click', closeFileUploadModal, false);
@@ -184,24 +182,3 @@ function deleteUploadedFile() {
     showToast("File Deleted", "The selected file has been deleted.", STATUS_COLOR.GREEN, true, 5);
 }
 //#endregion TABLE ACTIONS ------------------------------------------
-
-//#region TEST DATA -------------------------------------------------
-const yourDocuments = {
-    0: {
-        fileName: "3/7/25 - Receipt.jpg",
-        fileSize: "2.06 MB",
-        dateUploaded: "3/7/2025"
-    },
-    1: {
-        fileName: "3/8/25 - Receipt.jpg",
-        fileSize: "2.99 MB",
-        dateUploaded: "3/8/2025"
-    }
-};
-
-(function loadTestData() {
-    for (const [key, value] of Object.entries(yourDocuments)) {
-        handleTableRow.yourDocuments(value, downloadFile, createModals.deleteItem(deleteUploadedFile));
-    };
-})();
-//#endregion --------------------------------------------------------

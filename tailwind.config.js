@@ -14,6 +14,7 @@ module.exports = {
         'off-white': '#d9d9d9',
         'white-overlay': 'rgba(255,255,255,0.6)',
         'black-overlay': 'rgba(0,0,0,0.5)',
+        'loading-overlay': 'rgba(0,0,0,0.25)',
         'black': '#343434',
         'black-light': '#5d5d5d',
         'gray': '#D1D5DB',

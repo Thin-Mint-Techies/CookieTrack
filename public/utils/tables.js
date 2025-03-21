@@ -25,8 +25,8 @@ const tableSchemas = {
         ]
     },
     inventory: {
-        headers: ["Cookie Name", "Boxes In Stock", "Boxes Sold Month"],
-        fields: ["cookieName", "boxesInStock", "boxesSoldMonth"]
+        headers: ["Cookie Name", "Price Per Box"],
+        fields: ["variety", "price"]
     },
     inventoryNeed: {
         headers: ["Cookie Name", "Boxes Needed"],
@@ -34,10 +34,10 @@ const tableSchemas = {
     },
     troopers: {
         headers: [
-            "", "Troop Number", "Trooper Name", "Parent Name", "Troop Leader", "Current Balance", "Boxes Sold", "Age", "Grade", "Shirt/Jacket Size"
+            "", "Troop Number", "Trooper Name", /*"Parent Name",*/ "Troop Leader", "Current Balance", "Boxes Sold", "Age", "Grade", "Shirt/Jacket Size"
         ],
         fields: [
-            "troopNumber", "trooperName", "parentName", "troopLeader", "currentBalance", "boxesSold", "age", "grade", "shirtSize"
+            "troopNumber", "trooperName", /*"parentName",*/ "troopLeader", "currentBalance", "boxesSold", "age", "grade", "shirtSize"
         ]
     },
     files: {
@@ -48,14 +48,14 @@ const tableSchemas = {
 
 //#region TABLE CREATION --------------------------------------------
 const handleTableCreation = {
-    currentOrder: (parent) => createCurrentOrdersTable(parent),
+    currentOrder: (parent, action) => createCurrentOrdersTable(parent, action),
     completedOrder: (parent) => createCompletedOrdersTable(parent),
     yourInventory: (parent) => createYourInventoryTable(parent),
-    troopInventory: (parent) => createTroopInventoryTable(parent),
+    troopInventory: (parent, action) => createTroopInventoryTable(parent, action),
     needInventory: (parent) => createNeedInventoryTable(parent),
-    yourTrooper: (parent) => createYourTrooperTable(parent),
+    yourTrooper: (parent, action) => createYourTrooperTable(parent, action),
     allTrooper: (parent) => createAllTrooperTable(parent),
-    yourDocuments: (parent) => createYourDocumentsTable(parent),
+    yourDocuments: (parent, action) => createYourDocumentsTable(parent, action),
 }
 
 const tableFilters = {
@@ -129,7 +129,7 @@ function createTable(parent, title, icon, filters, fields, button) {
     }
 
     const container = document.createElement('div');
-    container.className = "need-skeleton mt-12 mb-6 px-2";
+    container.className = "need-skeleton hidden mt-12 mb-6 px-2";
     container.innerHTML = `
         <div class="bg-white py-6 px-4 max-w-7xl relative shadow-default mx-auto rounded-default">
             <h2 class="text-green text-4xl max-sm:text-2xl font-extrabold mb-8">
@@ -151,9 +151,17 @@ function createTable(parent, title, icon, filters, fields, button) {
         </div>
     `;
     parent.appendChild(container);
+
+    // **Bind event listener dynamically**
+    if (button && button.action) {
+        const btn = document.getElementById(button.id);
+        if (btn) {
+            btn.addEventListener("click", button.action);
+        }
+    }
 }
 
-function createCurrentOrdersTable(parent) {
+function createCurrentOrdersTable(parent, action) {
     const title = "Current Orders";
     const icon = "hourglass-half"
     const filterIds = "current-orders";
@@ -165,7 +173,8 @@ function createCurrentOrdersTable(parent) {
     const button = {
         id: "add-order",
         title: "Add New Order",
-        icon: "cart-plus"
+        icon: "cart-plus",
+        action: () => action("add")
     }
     createTable(parent, title, icon, filters, tableSchemas.orders.headers, button);
 }
@@ -185,21 +194,17 @@ function createCompletedOrdersTable(parent) {
 function createYourInventoryTable(parent) {
     const title = "Your Inventory";
     const icon = "box"
-    const button = {
-        id: "add-your-cookies",
-        title: "Add New Cookies",
-        icon: "cookie-bite"
-    }
-    createTable(parent, title, icon, null, tableSchemas.inventory.headers, button);
+    createTable(parent, title, icon, null, tableSchemas.inventory.headers, null);
 }
 
-function createTroopInventoryTable(parent) {
+function createTroopInventoryTable(parent, action) {
     const title = "Troop Inventory";
     const icon = "boxes-stacked"
     const button = {
         id: "add-troop-cookies",
         title: "Add New Cookies",
-        icon: "cookie-bite"
+        icon: "cookie-bite",
+        action: () => action("add")
     }
     createTable(parent, title, icon, null, tableSchemas.inventory.headers, button);
 }
@@ -210,13 +215,14 @@ function createNeedInventoryTable(parent) {
     createTable(parent, title, icon, null, tableSchemas.inventoryNeed.headers);
 }
 
-function createYourTrooperTable(parent) {
+function createYourTrooperTable(parent, action) {
     const title = "Your Troopers";
     const icon = "user"
     const button = {
         id: "add-trooper",
         title: "Add Trooper",
-        icon: "user-plus"
+        icon: "user-plus",
+        action: () => action("add")
     }
     createTable(parent, title, icon, null, tableSchemas.troopers.headers, button);
 }
@@ -225,21 +231,17 @@ function createAllTrooperTable(parent) {
     const title = "All Troopers";
     const icon = "users"
     const filters = [tableFilters.search("all-troopers")];
-    const button = {
-        id: "add-trooper",
-        title: "Add Trooper",
-        icon: "user-plus"
-    }
-    createTable(parent, title, icon, filters, tableSchemas.troopers.headers, button);
+    createTable(parent, title, icon, filters, tableSchemas.troopers.headers);
 }
 
-function createYourDocumentsTable(parent) {
+function createYourDocumentsTable(parent, action) {
     const title = "Your Documents";
     const icon = "folder-open"
     const button = {
         id: "upload-files",
         title: "Upload Files",
-        icon: "cloud-arrow-up"
+        icon: "cloud-arrow-up",
+        action: action
     }
     createTable(parent, title, icon, null, tableSchemas.files.headers, button);
 }
@@ -421,13 +423,13 @@ function searchAllTrooperRows(searchName) {
 //#region TABLE ROWS ------------------------------------------------
 const handleTableRow = {
     currentRowEditing: null,
-    currentOrder: (data, editAction, deleteAction, completeAction) => addOrderRow(data, true, editAction, deleteAction, completeAction),
-    completedOrder: (data, editAction, deleteAction) => addOrderRow(data, false, editAction, deleteAction, null),
-    yourInventory: (data, editAction, deleteAction) => addInventoryRow(data, "your-inventory", editAction, deleteAction),
-    troopInventory: (data, editAction, deleteAction) => addInventoryRow(data, "troop-inventory", editAction, deleteAction),
-    needInventory: (data, editAction, deleteAction) => addInventoryRow(data, "need-to-order", editAction, deleteAction),
-    yourTrooper: (data, editAction, deleteAction) => addTrooperRow(data, "your", editAction, deleteAction),
-    allTrooper: (data, editAction, deleteAction) => addTrooperRow(data, "all", editAction, deleteAction),
+    currentOrder: (orderId, data, editAction, deleteAction, completeAction) => addOrderRow(orderId, data, true, editAction, deleteAction, completeAction),
+    completedOrder: (orderId, data, editAction, deleteAction) => addOrderRow(orderId, data, false, editAction, deleteAction, null),
+    yourInventory: (cookieId, data, editAction, deleteAction) => addInventoryRow(cookieId, data, "your-inventory", editAction, deleteAction),
+    troopInventory: (cookieId, data, editAction, deleteAction) => addInventoryRow(cookieId, data, "troop-inventory", editAction, deleteAction),
+    needInventory: (cookieId, data, editAction, deleteAction) => addInventoryRow(cookieId, data, "need-to-order", editAction, deleteAction),
+    yourTrooper: (trooperId, data, editAction, deleteAction) => addTrooperRow(trooperId, data, "your", editAction, deleteAction),
+    allTrooper: (trooperId, data, editAction, deleteAction) => addTrooperRow(trooperId, data, "all", editAction, deleteAction),
     yourDocuments: (data, downloadAction, deleteAction) => addFileRow(data, downloadAction, deleteAction),
     updateOrderRow: (row, data) => editRowData(row, tableSchemas.orders.fields, data),
     updateInventoryRow: (row, data) => editRowData(row, tableSchemas.inventory.fields, data),
@@ -491,11 +493,12 @@ function setupRowFields(tr, hasDropdown, fields, data, buttons) {
     tr.appendChild(actionTd);
 }
 
-function addOrderRow(data, isCurrentOrder, editAction, deleteAction, completeAction) {
+function addOrderRow(orderId, data, isCurrentOrder, editAction, deleteAction, completeAction) {
     const tableName = isCurrentOrder ? "current" : "completed";
     const tbody = document.getElementById(`${tableName}-orders-tbody`);
     const fields = isCurrentOrder ? tableSchemas.orders.fields : tableSchemas.completedOrders.fields;
     let tr = document.createElement("tr");
+    tr.setAttribute('data-oid', orderId);
     tr.className = "even:bg-gray text-sm text-black [&_td]:p-4";
 
     // Button configurations
@@ -509,10 +512,11 @@ function addOrderRow(data, isCurrentOrder, editAction, deleteAction, completeAct
     tbody.appendChild(tr);
 }
 
-function addInventoryRow(data, tbodyId, editAction, deleteAction) {
+function addInventoryRow(cookieId, data, tbodyId, editAction, deleteAction) {
     const fields = tbodyId === "need-to-order" ? tableSchemas.inventoryNeed.fields : tableSchemas.inventory.fields;
     const tbody = document.getElementById(`${tbodyId}-tbody`);
     let tr = document.createElement("tr");
+    tr.setAttribute('data-cid', cookieId);
     tr.className = "even:bg-gray text-sm text-black [&_td]:p-4";
 
     // Button configurations
@@ -525,9 +529,10 @@ function addInventoryRow(data, tbodyId, editAction, deleteAction) {
     tbody.appendChild(tr);
 }
 
-function addTrooperRow(data, tbodyId, editAction, deleteAction) {
+function addTrooperRow(trooperId, data, tbodyId, editAction, deleteAction) {
     const tbody = document.getElementById(`${tbodyId}-troopers-tbody`);
     let tr = document.createElement("tr");
+    tr.setAttribute('data-uid', trooperId);
     tr.className = "[&:nth-child(4n-1)]:bg-gray text-sm text-black [&_td]:p-4";
 
     // Button configurations

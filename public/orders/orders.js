@@ -1,30 +1,68 @@
 import { showToast, STATUS_COLOR } from "../utils/toasts.js";
 import { callApi } from "../utils/apiCall.js";
-import { regExpCalls, setupDropdown, handleTableRow, searchTableRows, handleTableCreation } from "../utils/utils.js";
+import { regExpCalls, setupDropdown, addOptionToDropdown, handleTableRow, searchTableRows, handleTableCreation } from "../utils/utils.js";
 import { createModals } from "../utils/confirmModal.js";
 import { handleSkeletons } from "../utils/skeletons.js";
+import { openFileUploadModal } from "./uploadFiles.js";
+import { manageLoader } from "../utils/loader.js";
 
 //#region CREATE TABLES/LOAD DATA -----------------------------------
-//First create all the necessary tables
+let userData, userRole, userTroopers;
+
+//First show skeleton loaders as order info is waiting to be pulled
 const mainContent = document.getElementsByClassName('main-content')[0];
-handleTableCreation.yourDocuments(mainContent);
-handleTableCreation.currentOrder(mainContent);
-handleTableCreation.completedOrder(mainContent);
-
-//Then show skeleton loaders as the order information is pulled from database
-handleSkeletons.hideNeedSkeletons(mainContent);
 handleSkeletons.tableSkeleton(mainContent, 3);
-setTimeout(() => {
-    handleSkeletons.removeSkeletons(mainContent);
-}, 2000);
 
-//Next setup the filters for the tables
-searchTableRows.currentOrders("current-orders-search", "current-orders-datestart", "current-orders-dateend", "current-orders-clear-filters");
-searchTableRows.completedOrders("completed-orders-search", "completed-orders-datestart", "completed-orders-dateend", "completed-orders-clear-filters");
-//#endregino CREATE TABLES/LOAD DATA --------------------------------
+//Wait for auth setup then pull user role and orders
+document.addEventListener("authStateReady", async () => {
+    userData = JSON.parse(sessionStorage.getItem("userData"));
+    userRole = JSON.parse(sessionStorage.getItem('userRole'));
+
+    //Create necessary tables based on user role
+    if (userRole && userData.id) {
+        //Create table and setup filters
+        handleTableCreation.yourDocuments(mainContent, openFileUploadModal);
+        handleTableCreation.currentOrder(mainContent, openOrderModal);
+        handleTableCreation.completedOrder(mainContent);
+        searchTableRows.currentOrders("current-orders-search", "current-orders-datestart", "current-orders-dateend", "current-orders-clear-filters");
+        searchTableRows.completedOrders("completed-orders-search", "completed-orders-datestart", "completed-orders-dateend", "completed-orders-clear-filters");
+
+        //Get the troopers associated with the user
+        userTroopers = await callApi(`/troopersOwnerId/${userData.id}`);
+        if (userRole.role === "parent") {
+            //const userOrders = await callApi(`/ordersUsers/${userData.id}`);
+            //loadOrderTableRows(userOrders, true);
+        } else if (userRole.role === "leader") {
+            //const allOrders = await callApi('/order');
+            //loadOrderTableRows(allOrders, true);
+        }
+
+        setupAndLoadDropdowns();
+    } else {
+        showToast("Error Loading Data", "There was an error loading user data. Please refresh the page to try again.", STATUS_COLOR.RED, false);
+        return;
+    }
+
+    //Remove the skeletons and setup add order modal
+    handleSkeletons.removeSkeletons(mainContent);
+});
+
+function loadOrderTableRows(orders, isCurrentOrders) {
+    orders.forEach((order) => {
+        const orderData = {
+
+        }
+
+        if (isCurrentOrders) {
+            handleTableRow.currentOrder(orderData, editCurrentOrder, createModals.deleteItem(deleteCurrentOrder), createModals.completeOrder(completeCurrentOrder));
+        } else {
+            handleTableRow.completedOrder(orderData, editCompletedOrder, createModals.deleteItem(deleteCompletedOrder));
+        }
+    });
+}
+//#endregion CREATE TABLES/LOAD DATA --------------------------------
 
 //#region Add/Edit Orders -------------------------------------------
-let addOrderBtn = document.getElementById('add-order');
 let orderForm = document.getElementById('order-form');
 let orderTitle = document.getElementById('order-title');
 let orderSubtitle = document.getElementById('order-subtitle');
@@ -33,7 +71,8 @@ let orderSubmit = document.getElementById('order-submit');
 let orderClose = document.getElementById('order-close');
 
 //Input variables
-const orderTName = document.getElementById("order-tname");
+const orderTrooper = document.getElementById("order-trooper-btn");
+const orderBEmail = document.getElementById("order-bemail");
 const orderAdventurefuls = document.getElementById("order-adventurefuls");
 const orderToastyays = document.getElementById("order-toastyays");
 const orderLemonades = document.getElementById("order-lemonades");
@@ -45,22 +84,34 @@ const orderPBSandwich = document.getElementById("order-pbsandwich");
 const orderGFChocChip = document.getElementById("order-gfchocchip");
 const orderPickup = document.getElementById("order-pickup-btn");
 const orderContact = document.getElementById("order-contact-btn");
+const orderPayment = document.getElementById("order-payment-btn");
 const orderAgreement = document.getElementById("order-agreement");
 
 //Setup dropdowns
-setupDropdown('order-pickup-btn', 'order-pickup-dropdown');
-setupDropdown('order-contact-btn', 'order-contact-dropdown');
+function setupAndLoadDropdowns() {
+    setupDropdown('order-pickup-btn', 'order-pickup-dropdown');
+    setupDropdown('order-contact-btn', 'order-contact-dropdown');
+    setupDropdown('order-payment-btn', 'order-payment-dropdown');
 
-//Show the add order modal version
-addOrderBtn.addEventListener('click', () => {
-    openOrderModal();
-});
+    //Load troopers into dropdown
+    if (userTroopers) {
+        userTroopers.forEach((trooper) => {
+            addOptionToDropdown('order-trooper-dropdown', trooper.trooperName, trooper.id);
+        });
+    } else {
+        addOptionToDropdown('order-trooper-dropdown', "No Troopers in Account", null);
+    }
+    
+    setupDropdown('order-trooper-btn', 'order-trooper-dropdown');
+}
 
 function openOrderModal(mode = "add", orderData) {
     if (mode === "edit") {
         orderTitle.textContent = "Edit Order";
         orderSubtitle.textContent = "Edit the selected order to make changes";
-        orderTName.value = orderData.trooperName;
+        orderTrooper.value = orderData.trooperId;
+        orderTrooper.textContent = orderData.trooperName;
+        orderBEmail.value = orderData.buyerEmail;
         orderAdventurefuls.value = orderData.orderContent.adventurefuls;
         orderToastyays.value = orderData.orderContent.toastyays;
         orderLemonades.value = orderData.orderContent.lemonades;
@@ -72,6 +123,7 @@ function openOrderModal(mode = "add", orderData) {
         orderGFChocChip.value = orderData.orderContent.gfChocChip;
         orderPickup.textContent = orderData.pickup;
         orderContact.textContent = regExpCalls.testPhone(orderData.contact) ? "Phone" : "Email";
+        orderPayment.textContent = orderData.paymentType;
         orderAgreement.checked = orderData.finacialAgreement === "Agreed" ? true : false;
     }
 
@@ -90,7 +142,9 @@ function closeOrderModal() {
     orderForm.setAttribute('data-mode', "add");
     orderForm.classList.remove('flex');
     orderForm.classList.add('hidden');
-    orderTName.value = "";
+    orderTrooper.value = "";
+    orderTrooper.textContent = "Select Trooper";
+    orderBEmail.value = "";
     orderAdventurefuls.value = "";
     orderToastyays.value = "";
     orderLemonades.value = "";
@@ -102,18 +156,20 @@ function closeOrderModal() {
     orderGFChocChip.value = "";
     orderPickup.textContent = "Select Location";
     orderContact.textContent = "Select Preference";
+    orderPayment.textContent = "Select Payment Type";
     orderAgreement.checked = false;
 }
 
 //Verify input and submit new order
 orderSubmit.addEventListener('click', (e) => {
     e.preventDefault();
-    const tName = orderTName.value.trim();
-    const userData = JSON.parse(sessionStorage.getItem('userData'));
+    const tId = orderTrooper.value;
+    const tName = orderTrooper.textContent.trim();
+    const bEmail = orderBEmail.value.trim();
     const pUid = userData.id;
     const pName = userData.name;
-    const email = userData.email;
-    const phone = userData.phone;
+    const pEmail = userData.email;
+    const pPhone = userData.phone;
 
     const adventurefuls = parseInt(orderAdventurefuls.value, 10) || 0;
     const toastyays = parseInt(orderToastyays.value, 10) || 0;
@@ -127,10 +183,16 @@ orderSubmit.addEventListener('click', (e) => {
 
     const pickup = orderPickup.textContent.trim();
     const contact = orderContact.textContent.trim();
+    const payment = orderPayment.textContent.trim();
     const finacialAgreement = orderAgreement.checked;
 
-    if (!regExpCalls.testFullName(tName)) {
-        showToast("Invalid Trooper Name", "Please make sure you have correctly entered the trooper name.", STATUS_COLOR.RED, true, 5);
+    if (tName.includes("Select")) {
+        showToast("Missing Trooper", "Please make sure you have selected a trooper.", STATUS_COLOR.RED, true, 5);
+        return;
+    }
+
+    if (!regExpCalls.testEmail(bEmail)) {
+        showToast("Invalid Buyer Email", "Please make sure you have correctly entered the buyer's email.", STATUS_COLOR.RED, true, 5);
         return;
     }
 
@@ -141,8 +203,8 @@ orderSubmit.addEventListener('click', (e) => {
         return;
     }
 
-    if (pickup.includes("Select") || contact.includes("Select")) {
-        showToast("Missing Information", "Please make sure you have selected a pickup location and contact preference.", STATUS_COLOR.RED, true, 5);
+    if (pickup.includes("Select") || contact.includes("Select") || payment.includes("Select")) {
+        showToast("Missing Information", "Please make sure you have selected a pickup location, contact preference, and payment type.", STATUS_COLOR.RED, true, 5);
         return;
     }
 
@@ -150,6 +212,8 @@ orderSubmit.addEventListener('click', (e) => {
         showToast("Accept Agreement", "You must accept the financial agreement before submitting this order.", STATUS_COLOR.RED, true, 5);
         return;
     }
+
+    const currentMode = orderForm.getAttribute('data-mode');
 
     const orderBoxes = {
         adventurefuls: adventurefuls,
@@ -163,30 +227,81 @@ orderSubmit.addEventListener('click', (e) => {
         gfChocChip: gfChocChip
     };
 
-    const currentMode = orderForm.getAttribute('data-mode');
+    const orderContent = {
+        cookies: [{
+
+        },],
+        totalCost: 0,
+        owe: 0,
+        boxTotal: Object.values(orderBoxes).reduce((sum, num) => sum + num, 0)
+    }
+
+    const pickupDetails = [
+        {
+            receivedBy: 'Received By',
+            address: pickup,
+        },
+        {
+            receivedFrom: 'Received From',
+        }
+    ];
 
     const orderData = {
         dateCreated: currentMode === "add" ? new Date().toLocaleDateString("en-US") : null,
+        trooperId: tId,
         trooperName: tName,
-        parentName: currentMode === "add" ? pName : null,
-        ownerId: currentMode === "add" ? pUid : null,
-        boxTotal: Object.values(orderBoxes).reduce((sum, num) => sum + num, 0),
-        ...(currentMode === "add" ? { orderContent: orderBoxes } : orderBoxes),
-        pickup: pickup,
-        contact: contact === "Phone" ? phone : email,
+        ownerId: pUid,
+        ownerEmail: pEmail,
+        buyerEmail: bEmail,
+        parentName: pName,
+        orderContent: orderContent,
+        pickupDetails: pickupDetails,
+        contact: contact === "Phone" ? pPhone : pEmail,
+        paymentType: payment,
         finacialAgreement: finacialAgreement === true ? "Agreed" : "Declined"
     }
 
     if (currentMode === "add") {
-        handleTableRow.currentOrder(orderData, editCurrentOrder, createModals.deleteItem(deleteCurrentOrder), createModals.completeOrder(completeCurrentOrder));
-        showToast("Order Added", "A new order has been created for your account.", STATUS_COLOR.GREEN, true, 5);
+        createOrderApi(orderData);
     } else if (currentMode === "edit") {
-        handleTableRow.updateOrderRow(handleTableRow.currentRowEditing, orderData);
-        showToast("Order Updated", "The selected order has been updated with the new information.", STATUS_COLOR.GREEN, true, 5);
+        const orderId = handleTableRow.currentRowEditing.getAttribute("data-oid");
+        updateOrderApi(orderData, orderId);
+    }
+});
+
+async function createOrderApi(orderData) {
+    manageLoader(true);
+
+    try {
+        const orderId = await callApi('/order', 'POST', orderData);
+        //Order created, add to table and show message
+        handleTableRow.currentOrder(orderId.id, orderData, editCurrentOrder, createModals.deleteItem(deleteCurrentOrder), createModals.completeOrder(completeCurrentOrder));
+        showToast("Order Added", "A new order has been created for your account.", STATUS_COLOR.GREEN, true, 5);
+    } catch (error) {
+        console.error('Error creating order:', error);
+        showToast("Error Creating Order", 'There was an error with creating this order. Please try again.', STATUS_COLOR.RED, true, 5);
     }
 
+    manageLoader(false);
     orderClose.click();
-});
+}
+
+async function updateOrderApi(orderData, orderId) {
+    manageLoader(true);
+
+    try {
+        await callApi(`/order/${orderId}`, 'PUT', orderData);
+        //Order updated, update data in table and show message
+        handleTableRow.updateOrderRow(handleTableRow.currentRowEditing, orderData);
+        showToast("Order Updated", "The selected order has been updated with the new information.", STATUS_COLOR.GREEN, true, 5);
+    } catch (error) {
+        console.error('Error updating order:', error);
+        showToast("Error Updating Order", 'There was an error with updating this order. Please try again.', STATUS_COLOR.RED, true, 5);
+    }
+
+    manageLoader(false);
+    orderClose.click();
+}
 //#endregion --------------------------------------------------------
 
 //#region TABLE ACTIONS ---------------------------------------------
@@ -247,205 +362,3 @@ function getRowData(row, isCompletedOrders = false, needsDate = false) {
 }
 
 //#endregion TABLE ACTIONS ------------------------------------------
-
-//#region TEST DATA -------------------------------------------------
-const currentOrders = {
-    0: {
-        dateCreated: "3/09/2025",
-        trooperName: "Alice Smith",
-        parentName: "Tammy Smith",
-        boxTotal: 5,
-        orderContent: {
-            adventurefuls: 1,
-            toastyays: 0,
-            lemonades: 1,
-            trefoils: 0,
-            thinMints: 0,
-            pbPatties: 0,
-            caramelDelites: 0,
-            pbSandwich: 1,
-            gfChocChip: 2
-        },
-        pickup: "Shawn's House",
-        contact: "(817) 999-1234",
-        finacialAgreement: "Agreed"
-    },
-    1: {
-        dateCreated: "3/10/2025",
-        trooperName: "Emma Johnson",
-        parentName: "Michael Johnson",
-        boxTotal: 8,
-        orderContent: {
-            adventurefuls: 2,
-            toastyays: 1,
-            lemonades: 0,
-            trefoils: 1,
-            thinMints: 2,
-            pbPatties: 1,
-            caramelDelites: 0,
-            pbSandwich: 0,
-            gfChocChip: 1
-        },
-        pickup: "Shawn's House",
-        contact: "(214) 555-6789",
-        finacialAgreement: "Agreed"
-    },
-    2: {
-        dateCreated: "3/04/2025",
-        trooperName: "Sophia Brown",
-        parentName: "David Brown",
-        boxTotal: 6,
-        orderContent: {
-            adventurefuls: 1,
-            toastyays: 1,
-            lemonades: 2,
-            trefoils: 0,
-            thinMints: 1,
-            pbPatties: 0,
-            caramelDelites: 1,
-            pbSandwich: 0,
-            gfChocChip: 0
-        },
-        pickup: "Shawn's House",
-        contact: "(469) 777-4321",
-        finacialAgreement: "Agreed"
-    },
-    3: {
-        dateCreated: "2/15/2025",
-        trooperName: "Olivia Martinez",
-        parentName: "Carlos Martinez",
-        boxTotal: 10,
-        orderContent: {
-            adventurefuls: 3,
-            toastyays: 0,
-            lemonades: 2,
-            trefoils: 1,
-            thinMints: 2,
-            pbPatties: 0,
-            caramelDelites: 1,
-            pbSandwich: 1,
-            gfChocChip: 0
-        },
-        pickup: "Shawn's House",
-        contact: "(972) 333-9876",
-        finacialAgreement: "Agreed"
-    },
-    4: {
-        dateCreated: "3/12/2025",
-        trooperName: "Mia Wilson",
-        parentName: "Sara Wilson",
-        boxTotal: 4,
-        orderContent: {
-            adventurefuls: 0,
-            toastyays: 2,
-            lemonades: 0,
-            trefoils: 0,
-            thinMints: 1,
-            pbPatties: 1,
-            caramelDelites: 0,
-            pbSandwich: 0,
-            gfChocChip: 0
-        },
-        pickup: "Shawn's House",
-        contact: "(817) 123-4567",
-        finacialAgreement: "Agreed"
-    }
-};
-
-const completedOrders = {
-    0: {
-        dateCreated: "1/19/2025",
-        dateCompleted: "2/01/2025",
-        trooperName: "Lilly Joe",
-        parentName: "Donny Joe",
-        boxTotal: 5,
-        orderContent: {
-            adventurefuls: 1,
-            toastyays: 0,
-            lemonades: 1,
-            trefoils: 0,
-            thinMints: 0,
-            pbPatties: 0,
-            caramelDelites: 0,
-            pbSandwich: 1,
-            gfChocChip: 2
-        },
-        pickup: "Shawn's House",
-        contact: "(817) 888-1234",
-        finacialAgreement: "Agreed"
-    },
-    1: {
-        dateCreated: "3/10/2025",
-        dateCompleted: "3/12/2025",
-        trooperName: "Zoe Adams",
-        parentName: "Henry Adams",
-        boxTotal: 7,
-        orderContent: {
-            adventurefuls: 1,
-            toastyays: 1,
-            lemonades: 1,
-            trefoils: 1,
-            thinMints: 1,
-            pbPatties: 1,
-            caramelDelites: 1,
-            pbSandwich: 0,
-            gfChocChip: 0
-        },
-        pickup: "Shawn's House",
-        contact: "(214) 666-5432",
-        finacialAgreement: "Agreed"
-    },
-    2: {
-        dateCreated: "2/05/2025",
-        dateCompleted: "2/10/2025",
-        trooperName: "Charlotte Green",
-        parentName: "Linda Green",
-        boxTotal: 6,
-        orderContent: {
-            adventurefuls: 2,
-            toastyays: 0,
-            lemonades: 0,
-            trefoils: 2,
-            thinMints: 1,
-            pbPatties: 0,
-            caramelDelites: 1,
-            pbSandwich: 0,
-            gfChocChip: 0
-        },
-        pickup: "Shawn's House",
-        contact: "(817) 777-1122",
-        finacialAgreement: "Agreed"
-    },
-    3: {
-        dateCreated: "2/15/2025",
-        dateCompleted: "2/17/2025",
-        trooperName: "Ava Thomas",
-        parentName: "Robert Thomas",
-        boxTotal: 9,
-        orderContent: {
-            adventurefuls: 3,
-            toastyays: 2,
-            lemonades: 1,
-            trefoils: 0,
-            thinMints: 2,
-            pbPatties: 0,
-            caramelDelites: 1,
-            pbSandwich: 0,
-            gfChocChip: 0
-        },
-        pickup: "Shawn's House",
-        contact: "(469) 888-7654",
-        finacialAgreement: "Agreed"
-    }
-};
-
-
-(function loadTestData() {
-    for (const [key, value] of Object.entries(currentOrders)) {
-        handleTableRow.currentOrder(value, editCurrentOrder, createModals.deleteItem(deleteCurrentOrder), createModals.completeOrder(completeCurrentOrder));
-    };
-    for (const [key, value] of Object.entries(completedOrders)) {
-        handleTableRow.completedOrder(value, editCompletedOrder, createModals.deleteItem(deleteCompletedOrder));
-    };
-})();
-//#endregion --------------------------------------------------------
