@@ -1,49 +1,197 @@
 const { Firestore } = require('../firebaseConfig');
 const { sendEmail } = require('../utils/emailSender');
 const { orderDataFormat } = require('../dataFormat');
-const {completedOrderDataFormat} = require('../dataFormat');
+const { completedOrderDataFormat } = require('../dataFormat');
 const { updateSaleData } = require('./test');
 
 
 
 const createOrder = async ({ trooperName, trooperId, ownerId, ownerEmail, buyerEmail, parentName, contact, financialAgreement, orderContent, paymentType }) => {
   try {
-    const newOrderRef = Firestore.collection('orders').doc();
-    const newOrderData = {
-      ...orderDataFormat,
-      dateCreated: new Date().toISOString(),
-      trooperId,
-      trooperName,
-      ownerId,
-      ownerEmail,
-      buyerEmail,
-      parentName,
-      contact,
-      financialAgreement,
-      orderContent,
-      paymentType,
-    };
-    await newOrderRef.set(newOrderData);
+    await Firestore.runTransaction(async (transaction) => {
+      const newOrderRef = Firestore.collection('orders').doc();
+      const newOrderData = {
+        ...orderDataFormat,
+        dateCreated: new Date().toISOString(),
+        trooperId,
+        trooperName,
+        ownerId,
+        ownerEmail,
+        buyerEmail,
+        parentName,
+        contact,
+        financialAgreement,
+        orderContent,
+        paymentType,
+      };
 
-    // Send email to owner
-    /* 
-    await sendEmail({
-      to: ownerEmail,
-      subject: 'Order Created',
-      text: `Order ${newOrderRef.id} has been created for trooper ${trooperName}.`,
+      let inStock = true;
+      let totalCost = 0;
+      let boxTotal = 0;
+
+      // Calculate totalCost and boxTotal
+      orderContent.cookies.forEach(cookie => {
+        cookie.cookieTotalCost = cookie.boxes * cookie.boxPrice;
+        totalCost += cookie.cookieTotalCost;
+        boxTotal += cookie.boxes;
+      });
+
+      newOrderData.orderContent.totalCost = totalCost;
+      newOrderData.orderContent.boxTotal = boxTotal;
+
+      // Check and update leader inventory
+      const leaderInventoryRef = Firestore.collection('inventory').doc(leaderId);
+      const leaderInventoryDoc = await transaction.get(leaderInventoryRef);
+
+      if (!leaderInventoryDoc.exists) {
+        throw new Error('Leader inventory not found');
+      }
+
+      const leaderInventory = leaderInventoryDoc.data().inventory;
+
+      orderContent.cookies.forEach(cookie => {
+        const inventoryItem = leaderInventory.find(item => item.varietyId === cookie.varietyId);
+        if (!inventoryItem || inventoryItem.boxes < cookie.boxes) {
+          inStock = false;
+        }
+      });
+
+      if (inStock) {
+        // Update leader inventory
+        orderContent.cookies.forEach(cookie => {
+          const inventoryItem = leaderInventory.find(item => item.varietyId === cookie.varietyId);
+          inventoryItem.boxes -= cookie.boxes;
+        });
+
+        transaction.update(leaderInventoryRef, { inventory: leaderInventory });
+
+        // Send email to leader
+        await sendEmail({
+          to: ownerEmail,
+          subject: 'Order Submitted',
+          text: `Order ${newOrderRef.id} has been submitted for trooper ${trooperName}.`,
+        });
+      } else {
+        // Add order to leader's order pile
+        newOrderData.needToOrder = true;
+
+        // Send email to parent and leader
+        await sendEmail({
+          to: ownerEmail,
+          subject: 'Order Needs Attention',
+          text: `Order ${newOrderRef.id} for trooper ${trooperName} needs attention.`,
+        });
+
+        await sendEmail({
+          to: buyerEmail,
+          subject: 'Order Needs Attention',
+          text: `Order ${newOrderRef.id} for trooper ${trooperName} needs attention.`,
+        });
+      }
+
+      await transaction.set(newOrderRef, newOrderData);
     });
 
-    // Send email to buyer
-    await sendEmail({
-      to: parentEmail,
-      subject: 'Order Created',
-      text: `Order ${newOrderRef.id} placed for trooper ${trooperName}.`,
-    });
-    */
-    
-    return newOrderRef.id;
+    return { message: 'Order created successfully' };
   } catch (error) {
     throw new Error(`Failed to create order: ${error.message}`);
+  }
+};
+
+const updateOrder = async (id, { trooperName, trooperId, ownerId, ownerEmail, buyerEmail, parentName, contact, financialAgreement, orderContent, paymentType }) => {
+  try {
+    await Firestore.runTransaction(async (transaction) => {
+      const orderRef = Firestore.collection('orders').doc(id);
+      const orderDoc = await transaction.get(orderRef);
+      if (!orderDoc.exists) {
+        throw new Error('Order not found');
+      }
+
+      const updatedOrderData = {
+        ...orderDataFormat,
+        dateCreated: orderDoc.data().dateCreated,
+        trooperId,
+        trooperName,
+        ownerId,
+        ownerEmail,
+        buyerEmail,
+        parentName,
+        contact,
+        financialAgreement,
+        orderContent,
+        paymentType,
+      };
+
+      let inStock = true;
+      let totalCost = 0;
+      let boxTotal = 0;
+
+      // Calculate totalCost and boxTotal
+      orderContent.cookies.forEach(cookie => {
+        cookie.cookieTotalCost = cookie.boxes * cookie.boxPrice;
+        totalCost += cookie.cookieTotalCost;
+        boxTotal += cookie.boxes;
+      });
+
+      updatedOrderData.orderContent.totalCost = totalCost;
+      updatedOrderData.orderContent.boxTotal = boxTotal;
+
+      // Check and update leader inventory
+      const leaderInventoryRef = Firestore.collection('inventory').doc(ownerId);
+      const leaderInventoryDoc = await transaction.get(leaderInventoryRef);
+
+      if (!leaderInventoryDoc.exists) {
+        throw new Error('Leader inventory not found');
+      }
+
+      const leaderInventory = leaderInventoryDoc.data().inventory;
+
+      orderContent.cookies.forEach(cookie => {
+        const inventoryItem = leaderInventory.find(item => item.varietyId === cookie.varietyId);
+        if (!inventoryItem || inventoryItem.boxes < cookie.boxes) {
+          inStock = false;
+        }
+      });
+
+      if (inStock) {
+        // Update leader inventory
+        orderContent.cookies.forEach(cookie => {
+          const inventoryItem = leaderInventory.find(item => item.varietyId === cookie.varietyId);
+          inventoryItem.boxes -= cookie.boxes;
+        });
+
+        transaction.update(leaderInventoryRef, { inventory: leaderInventory });
+
+        // Send email to leader
+        await sendEmail({
+          to: ownerEmail,
+          subject: 'Order Updated',
+          text: `Order ${id} has been updated for trooper ${trooperName}.`,
+        });
+      } else {
+        // Add order to leader's order pile
+        updatedOrderData.needToOrder = true;
+
+        // Send email to parent and leader
+        await sendEmail({
+          to: ownerEmail,
+          subject: 'Order Needs Attention',
+          text: `Order ${id} for trooper ${trooperName} needs attention.`,
+        });
+
+        await sendEmail({
+          to: buyerEmail,
+          subject: 'Order Needs Attention',
+          text: `Order ${id} for trooper ${trooperName} needs attention.`,
+        });
+      }
+
+      transaction.update(orderRef, updatedOrderData);
+    });
+
+    return { message: 'Order updated successfully' };
+  } catch (error) {
+    throw new Error(`Failed to update order: ${error.message}`);
   }
 };
 
@@ -59,44 +207,7 @@ const getAllOrders = async () => {
   }
 };
 
-const updateOrder = async (id, { trooperName, trooperId, ownerId, ownerEmail, buyerEmail, parentName, contact, orderContent, paymentType }) => {
-  try {
-    const ref = Firestore.collection('orders').doc(id);
-    const updatedOrderData = {
-      trooperName,
-      trooperId,
-      ownerId,
-      ownerEmail,
-      buyerEmail,
-      parentName,
-      contact,
-      orderContent,
-      paymentType,
-    };
-    await ref.update(updatedOrderData);
-    // Send email to owner
-    /* 
-    await sendEmail({
-      to: ownerEmail,
-      subject: 'Order Created',
-      text: `Order ${ref.id} has been updated.`,
-    });
 
-    // Send email to buyer
-    await sendEmail({
-      to: parentEmail,
-      subject: 'Order Created',
-      text: `Order ${ref.id} has been updated.`,
-    });
-    */
-
-    return { message: 'Order updated successfully' };
-  } catch (error) {
-    throw new Error('Error updating Order');
-  }
-};
-
-// Service to delete a Order by ID
 const deleteOrder = async (id) => {
   try {
     const ref = Firestore.collection('orders').doc(id);
@@ -107,9 +218,7 @@ const deleteOrder = async (id) => {
   }
 };
 
-
-
-const markOrderComplete = async (id, {pickupDetails}) => {
+const markOrderComplete = async (id, { pickupDetails }) => {
   try {
     const ref = Firestore.collection('orders').doc(id);
     const orderSnapshot = await ref.get();

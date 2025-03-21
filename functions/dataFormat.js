@@ -14,7 +14,8 @@ Need ownerId field:
 
 
 
-const userDataFormat = { // for this, attach a 'role' custom claim to the uid when creating the user
+const userDataFormat = { 
+    // for this, attach a 'role' custom claim to the uid when creating the user
     name: '',
     email: '',
     phone: '',
@@ -27,7 +28,6 @@ const rewardDataFormat = {
     boxesNeeded: 0,
 };
 
-// might need to remove
 const cookieDataFormat = {
     variety: '',
     description: '',
@@ -40,20 +40,25 @@ const cookieDataFormat = {
 //////////////////////////////////////////////////////////
 // need ownerId
 
+// also contain trooperInventory
 const trooperDataFormat = {
     troopNumber: '',
     trooperName: '',
-    ownerId: '',
+    parentId: '',
     parentName: '',
     troopLeader:'',
     age: '',
     grade: '',
     shirtSize: '',
-    currentBalance: 0.0,
-    boxesSold: 0,
-    // from here down is not sure
     squad: '',
     currentReward: [],
+    // start of Inventory
+    currentBalance: 0.0,
+    //boxesSold: 0, 
+    inventory: [
+        {varietyId: '',variety: '',boxes: 0,boxPrice: 0.0,}, 
+        {owe: 0.0,}
+    ],
 };
 
 // might not need
@@ -69,32 +74,41 @@ const completedOrderDataFormat = {
 };
 
 
-// take from inventory (of the trooper) when order made
+// 
 const orderDataFormat = {
+    leaderId: '',
+    leaderEmail: '',
     dateCreated: '',
+    //ownerId: '', // whoever create the order
+    //ownerEmail: '',
 
     trooperId: '',
     trooperName: '',
-    ownerId: '', // whoever create the order
-    ownerEmail: '',
     parentName:'', // parent of trooper
     parentEmail:'',
     buyerName:'',
     buyerEmail: '',
 
+    contact: '',
+    financialAgreement: false,
+    paymentType: 'cash', // only support cash for now, leader input owe manually
+    //SU: '',
+
+    //fill: false,
+    pickupable: false, //Leader hit a button to make it pickupable
+    orderIsCorrect: false,
+    dateCompleted: '', //Date.now(), will be complete after owe is paid
+
+
     pickupDetails: [{
         receivedBy: '',
         address: '',
         troopNumber: '',
+        datePickup: '', //Date.now(),  
     }, {
         receivedFrom: '',
         troopNumber: '',
     }],
-    contact: '',
-    financialAgreement: false,
-    dateCompleted: '', //Date.now()
-    //SU: '',
-
     orderContent: [{
         cookies: [{
             varietyId: '',
@@ -105,41 +119,21 @@ const orderDataFormat = {
             //cases: 0,
         },],
         totalCost: 0,
-        owe: 0,
+        owe: 0, 
         boxTotal: 0,
         //totalPackages: 0,
     }],
-    paymentType: '',
+    
 };
 
-// parent can see sale data for their own trooper, 
-// leader can see every trooper saleData
-const saleDataformatforTrooper = {
-    ownerId: '',
-    trooperId: '',
-    trooperName: '',
-    orderId: [], // archived order or order?
-    cookieData: [
-        {varietyId: '', variety: '', boxPrice: '', boxTotal: 0, cookieTotalCost: 0.0,},
-    ],
-    totalMoneyMade: 0.0, 
-    totalBoxesSold: 0,
-};
-
-
-// leaderInventory = for every parent in the troop, associate to leader, shared among parents
-// parentInventory = only for parent's own troopers
-// when order is made, take from inventory of both parent and leader
 const parentInventoryDataFormat = {
     ownerId: '',
     owe: 0.0,
-    inventory: [{
-        varietyId: '',
-        variety: '',
-        boxes: 0,
-        boxPrice: 0.0,
-    },],  
+    inventory: [
+        { varietyId: '',variety: '',boxes: 0,boxPrice: 0.0,},
+    ],  
 };
+
 
 // when order is made and not in fulfilled, put the missing boxes in needToOrder
 const leaderInventoryDataFormat = {
@@ -151,16 +145,25 @@ const leaderInventoryDataFormat = {
         boxPrice: 0.0,
     },],  
 
-    parentInventory: [{}],
-    
-    totalCookies:[{}],
-
     needToOrder: [{
         varietyId: '',
         variety: '',
         boxes: 0,
         boxPrice: 0.0,
     },],  
+};
+
+const saleDataformatforTrooper = {
+    ownerId: '',
+    trooperId: '',
+    trooperName: '',
+    orderId: [], // archived order or order?
+    cookieData: [
+        {varietyId: '', variety: '', boxPrice: '', boxTotal: 0, cookieTotalCost: 0.0,},
+    ],
+    totalMoneyMade: 0.0, 
+    totalBoxesSold: 0,
+    currentBalance: 0.0,
 };
 
 // not use for now, could be use to allow access to saleData
