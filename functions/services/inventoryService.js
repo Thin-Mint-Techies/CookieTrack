@@ -1,6 +1,7 @@
 const { Firestore } = require('../firebaseConfig');
 const { parentInventoryDataFormat, leaderInventoryDataFormat, trooperInventoryDataFormat } = require('../dataFormat');
 
+// Store recent orders that has been picked up
 const createParentInventory = async ({ ownerId, trooperId, trooperName, trooperNumber, inventory }) => {
   try {
     const newInventoryRef = Firestore.collection('inventory').doc();
@@ -35,6 +36,7 @@ const createLeaderInventory = async ({ ownerId, inventory, needToOrder }) => {
   }
 };
 
+// Store cookies assigned by a parent
 const createTrooperInventory = async ({ parentId, trooperId, trooperName, trooperNumber, inventory }) => {
   try {
     const newInventoryRef = Firestore.collection('inventory').doc();
@@ -124,7 +126,6 @@ const updateTrooperInventory = async (id, { ownerId, trooperId, trooperName, tro
   }
 };
 
-// 
 const updateTrooperCookie = async (trooperId, cookiesToAdd) => {
   try {
     await Firestore.runTransaction(async (transaction) => {
@@ -218,6 +219,7 @@ module.exports = {
   createTrooperInventory,
   updateParentInventory,
   updateLeaderInventory,
+  updateTrooperInventory,
   updateTrooperCookie,
   getAllInventories,
   getInventoryByOwnerId,

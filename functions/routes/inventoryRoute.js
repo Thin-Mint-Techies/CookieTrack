@@ -4,15 +4,34 @@ const router = express.Router();
 const { requireLogin, checkRole, checkUserOwnership } = require('../utils/roleCheck');
 
 
-router.post('/parentInventory', requireLogin, inventoryController.createParentInventory);
-router.post('/leaderInventory',requireLogin, checkRole(['leader']), inventoryController.createLeaderInventory);
+//requireLogin, 
+router.post('/parentInventory', inventoryController.createParentInventory);
 
-router.put('/parentInventory/:id', requireLogin, inventoryController.updateParentInventory);
-router.put('/leaderInventory/:id', requireLogin, checkRole(['leader']), inventoryController.updateLeaderInventory);
+//requireLogin, checkRole(['leader']),
+router.post('/leaderInventory',  inventoryController.createLeaderInventory);
 
-router.get('/inventories',requireLogin, checkRole(['leader']), inventoryController.getAllInventories);
-router.get('/inventory/:id',requireLogin,  inventoryController.getInventoryByOwnerId);
-router.delete('/inventory/:id',requireLogin, checkRole(['leader']), inventoryController.deleteInventory);
+//requireLogin,
+router.post('/trooperInventory',  inventoryController.createTrooperInventory);
 
+// requireLogin,
+router.put('/parentInventory/:id',inventoryController.updateParentInventory);
+
+// requireLogin, checkRole(['leader']), 
+router.put('/leaderInventory/:id',inventoryController.updateLeaderInventory);
+
+//requireLogin,
+router.put('/trooperInventory/:id',  inventoryController.updateTrooperInventory);
+
+//requireLogin, 
+router.put('/trooperCookie/:trooperId', inventoryController.updateTrooperCookie);
+
+//requireLogin, checkRole(['leader']),
+router.get('/inventories',  inventoryController.getAllInventories);
+
+//requireLogin,
+router.get('/inventory/:id',  inventoryController.getInventoryByOwnerId);
+
+// requireLogin, checkRole(['leader']),
+router.delete('/inventory/:id', inventoryController.deleteInventory);
 
 module.exports = router;

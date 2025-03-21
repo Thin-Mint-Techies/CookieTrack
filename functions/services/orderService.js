@@ -2,7 +2,9 @@ const { Firestore } = require('../firebaseConfig');
 const { sendEmail } = require('../utils/emailSender');
 const { orderDataFormat } = require('../dataFormat');
 const { completedOrderDataFormat } = require('../dataFormat');
-const { updateSaleData } = require('./test');
+//const { updateSaleData } = require('./test');
+const { updateSaleData } = require('./saleDataService');
+
 
 
 
@@ -24,31 +26,19 @@ const createOrder = async ({ trooperName, trooperId, ownerId, ownerEmail, buyerE
         orderContent,
         paymentType,
       };
-
       let inStock = true;
       let totalCost = 0;
       let boxTotal = 0;
 
-      // Calculate totalCost and boxTotal
-      orderContent.cookies.forEach(cookie => {
-        cookie.cookieTotalCost = cookie.boxes * cookie.boxPrice;
-        totalCost += cookie.cookieTotalCost;
-        boxTotal += cookie.boxes;
-      });
-
-      newOrderData.orderContent.totalCost = totalCost;
-      newOrderData.orderContent.boxTotal = boxTotal;
-
-      // Check and update leader inventory
+      // Check leader existence
       const leaderInventoryRef = Firestore.collection('inventory').doc(leaderId);
       const leaderInventoryDoc = await transaction.get(leaderInventoryRef);
-
       if (!leaderInventoryDoc.exists) {
         throw new Error('Leader inventory not found');
       }
 
+      // Check LeaderInventory
       const leaderInventory = leaderInventoryDoc.data().inventory;
-
       orderContent.cookies.forEach(cookie => {
         const inventoryItem = leaderInventory.find(item => item.varietyId === cookie.varietyId);
         if (!inventoryItem || inventoryItem.boxes < cookie.boxes) {
@@ -56,18 +46,32 @@ const createOrder = async ({ trooperName, trooperId, ownerId, ownerEmail, buyerE
         }
       });
 
+      // Calculate totalCost and boxTotal
+      orderContent.cookies.forEach(cookie => {
+        cookie.cookieTotalCost = cookie.boxes * cookie.boxPrice;
+        totalCost += cookie.cookieTotalCost;
+        boxTotal += cookie.boxes;
+      });
+      newOrderData.orderContent.totalCost = totalCost;
+      newOrderData.orderContent.boxTotal = boxTotal;
+
+
+      // Process the order
       if (inStock) {
         // Update leader inventory
         orderContent.cookies.forEach(cookie => {
           const inventoryItem = leaderInventory.find(item => item.varietyId === cookie.varietyId);
           inventoryItem.boxes -= cookie.boxes;
         });
-
         transaction.update(leaderInventoryRef, { inventory: leaderInventory });
-
         // Send email to leader
         await sendEmail({
           to: ownerEmail,
+          subject: 'Order Submitted',
+          text: `Order ${newOrderRef.id} has been submitted for trooper ${trooperName}.`,
+        });
+        await sendEmail({
+          to: parentEmail,
           subject: 'Order Submitted',
           text: `Order ${newOrderRef.id} has been submitted for trooper ${trooperName}.`,
         });
@@ -78,16 +82,18 @@ const createOrder = async ({ trooperName, trooperId, ownerId, ownerEmail, buyerE
         // Send email to parent and leader
         await sendEmail({
           to: ownerEmail,
-          subject: 'Order Needs Attention',
-          text: `Order ${newOrderRef.id} for trooper ${trooperName} needs attention.`,
+          subject: 'Cannot Fulfill Order',
+          text: `Order ${newOrderRef.id} for trooper ${trooperName} does not have enough inventory.`,
         });
 
         await sendEmail({
           to: buyerEmail,
-          subject: 'Order Needs Attention',
-          text: `Order ${newOrderRef.id} for trooper ${trooperName} needs attention.`,
+          subject: 'Cannot Fulfill Order',
+          text: `Order ${newOrderRef.id} for trooper ${trooperName} does not have enough inventory.`,
         });
       }
+
+
 
       await transaction.set(newOrderRef, newOrderData);
     });
@@ -98,6 +104,7 @@ const createOrder = async ({ trooperName, trooperId, ownerId, ownerEmail, buyerE
   }
 };
 
+// Might need some rework
 const updateOrder = async (id, { trooperName, trooperId, ownerId, ownerEmail, buyerEmail, parentName, contact, financialAgreement, orderContent, paymentType }) => {
   try {
     await Firestore.runTransaction(async (transaction) => {
@@ -207,7 +214,6 @@ const getAllOrders = async () => {
   }
 };
 
-
 const deleteOrder = async (id) => {
   try {
     const ref = Firestore.collection('orders').doc(id);
@@ -220,37 +226,40 @@ const deleteOrder = async (id) => {
 
 const markOrderComplete = async (id, { pickupDetails }) => {
   try {
-    const ref = Firestore.collection('orders').doc(id);
-    const orderSnapshot = await ref.get();
+    await Firestore.runTransaction(async (transaction) => {
+      const ref = Firestore.collection('orders').doc(id);
+      const orderSnapshot = await transaction.get(ref);
 
-    if (!orderSnapshot.exists) {
-      throw new Error('Order not found');
-    }
+      if (!orderSnapshot.exists) {
+        throw new Error('Order not found');
+      }
 
-    const orderData = orderSnapshot.data();
-    const completedOrderData = {
-      ...orderData,
-      pickupDetails,
-      dateCompleted: new Date().toISOString(),
-    };
+      const orderData = orderSnapshot.data();
+      const completedOrderData = {
+        ...orderData,
+        pickupDetails,
+        dateCompleted: new Date().toISOString(),
+      };
 
-    // Update order with dateCompleted
-    await ref.update(completedOrderData);
-    await updateSaleData({ ...completedOrderData, id });
+      // Update order with dateCompleted
+      transaction.update(ref, completedOrderData);
 
+      // Update sale data
+      await updateSaleData(orderData.saleDataId, { orderId: id, orderContent: orderData.orderContent });
 
-    // Send email to owner
-    await sendEmail({
-      to: orderData.ownerEmail,
-      subject: 'Order Completed',
-      text: `Order ${id} has been completed for trooper ${orderData.trooperName}.`,
-    });
+      // Send email to owner
+      await sendEmail({
+        to: orderData.ownerEmail,
+        subject: 'Order Completed',
+        text: `Order ${id} has been completed for trooper ${orderData.trooperName}.`,
+      });
 
-    // Send email to buyer
-    await sendEmail({
-      to: orderData.buyerEmail,
-      subject: 'Order Completed',
-      text: `Order ${id} has been completed for trooper ${orderData.trooperName}.`,
+      // Send email to buyer
+      await sendEmail({
+        to: orderData.buyerEmail,
+        subject: 'Order Completed',
+        text: `Order ${id} has been completed for trooper ${orderData.trooperName}.`,
+      });
     });
 
     return { message: 'Order marked as completed successfully' };
@@ -314,6 +323,53 @@ const getOrdersByTrooperId = async (trooperId) => {
   }
 };
 
+const getOrdersByParentId = async (parentId) => {
+  try {
+    const snapshot = await Firestore.collection('orders').where('parentId', '==', parentId).get();
+    if (snapshot.empty) {
+      throw new Error('No orders found for the given parent ID');
+    }
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (error) {
+    throw new Error(`Error fetching orders by parent ID: ${error.message}`);
+  }
+};
+
+const parentPickup = async (orderId, parentEmail) => {
+  try {
+    await Firestore.runTransaction(async (transaction) => {
+      const orderRef = Firestore.collection('orders').doc(orderId);
+      const orderDoc = await transaction.get(orderRef);
+      if (!orderDoc.exists) {
+        throw new Error('Order not found');
+      }
+
+      const orderData = orderDoc.data();
+      const updatedOrderData = {
+        ...orderData,
+        status: 'Picked Up',
+        datePickedUp: new Date().toISOString(),
+      };
+
+      transaction.update(orderRef, updatedOrderData);
+
+      // Send email to parent for confirmation
+      await sendEmail({
+        to: parentEmail,
+        subject: 'Order Picked Up',
+        text: `Order ${orderId} for trooper ${orderData.trooperName} has been marked as picked up. Please confirm the order.`,
+      });
+    });
+
+    return { message: 'Order marked as picked up successfully' };
+  } catch (error) {
+    throw new Error(`Failed to mark order as picked up: ${error.message}`);
+  }
+};
+
+
+
+
 
 
 
@@ -325,5 +381,7 @@ module.exports = {
   getUserOrders,
   markOrderComplete,
   archiveOrders,
-  getOrdersByTrooperId
+  getOrdersByTrooperId,
+  getOrdersByParentId,
+  parentPickup,
 };
