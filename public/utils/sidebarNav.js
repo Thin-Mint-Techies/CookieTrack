@@ -79,12 +79,12 @@ function createSidebar() {
     const mainSidebar = `
         <nav id="sidebar" class="lg:w-[270px] max-lg:fixed transition-all duration-500 shrink-0 z-[101]">
             <div id="sidebar-collapse-menu" class="bg-green shadow-default h-screen fixed top-0 left-0 overflow-auto overflow-x-hidden z-[99] lg:w-[270px] max-lg:w-0 max-lg:invisible transition-all duration-500">
-                <div class="bg-white flex items-center gap-4 pt-6 pb-2 px-4 sticky top-0 min-h-[64px] z-[100]">
+                <div class="bg-white dark:bg-black flex items-center gap-4 pt-6 pb-2 px-4 sticky top-0 min-h-[64px] z-[100]">
                     <a href="/public/dashboard/dashboard.html" title="CookieTrack Logo">
                         <img src="/public/resources/images/cookietrack_logo.png" alt="logo" class="w-40 max-lg:mr-5 accent-green" />
                     </a>
-                    <button id="close-sidebar" title="Close Sidebar" class="ml-auto hover:bg-off-white p-2 rounded-default transition-all duration-300">
-                        <i class="fa-solid fa-bars-staggered text-xl text-black"></i>
+                    <button id="close-sidebar" title="Close Sidebar" class="ml-auto hover:bg-off-white hover:dark:bg-black-light p-2 rounded-default transition-all duration-300">
+                        <i class="fa-solid fa-bars-staggered text-xl text-black dark:text-white"></i>
                     </button>
                 </div>
                 <div class="py-4 px-4">
@@ -107,7 +107,6 @@ function createSidebar() {
                     <div class="absolute bottom-6 w-[238px]">
                         <hr class="border-black my-6" />
                         <ul class="space-y-2">
-                            ${page("user/settings.html", "Settings", "gear")}
                             <li>
                                 <button id="nav-signout" title="Sign Out" class="w-full gap-1 text-black text-lg flex items-center cursor-pointer hover:bg-green-light rounded-default px-3 py-2.5 transition-all duration-300">
                                     <i class="fa-solid fa-right-from-bracket -ml-1"></i>
@@ -144,7 +143,7 @@ function createSidebar() {
     const shrunkSidebar = `
         <nav id="shrunk-sidebar" class="max-lg:fixed max-lg:hidden transition-all duration-500 shrink-0 z-[100]">
             <div class="bg-green shadow-default h-screen fixed top-0 left-0 overflow-auto overflow-x-hidden z-[99] w-12 max-lg:w-0 max-lg:invisible transition-all duration-500">
-                <div class="bg-white flex items-center p-2 sticky top-0 min-h-[64px] z-[100]"></div>
+                <div class="bg-white dark:bg-black flex items-center p-2 sticky top-0 min-h-[64px] z-[100]"></div>
                 <div class="py-4 px-[2px]">
                     <ul class="space-y-2">
                         ${shrunkPage("dashboard/dashboard.html", "Dashboard", "house")}
@@ -163,7 +162,6 @@ function createSidebar() {
                     <div class="absolute bottom-6 w-[44px]">
                         <hr class="border-black my-6" />
                         <ul class="space-y-2">
-                            ${shrunkPage("user/settings.html", "Settings", "gear")}
                             <li>
                                 <button id="nav-sm-signout" title="Sign Out" class="w-full gap-1 text-black text-lg flex items-center cursor-pointer hover:bg-green-light rounded-default px-3 py-2.5 transition-all duration-300">
                                     <i class="fa-solid fa-right-from-bracket"></i>
@@ -180,8 +178,8 @@ function createSidebar() {
     `;
 
     const openSidebar = `
-        <button id="open-sidebar" title="Open Sidebar" class="max-lg:-left-[5px] max-lg:pr-[4px] max-lg:bg-white max-lg:shadow-default ml-auto fixed top-[20px] left-[7px] z-[100] hover:bg-off-white p-2 rounded-default transition-all duration-300">
-            <i class="fa-solid fa-bars-staggered max-lg:text-lg text-xl text-black"></i>
+        <button id="open-sidebar" title="Open Sidebar" class="max-lg:-left-[5px] max-lg:pr-[4px] max-lg:bg-white max-lg:dark:bg-black max-lg:shadow-default ml-auto fixed top-[20px] left-[7px] z-[100] hover:bg-off-white hover:dark:bg-black-light p-2 rounded-default transition-all duration-300">
+            <i class="fa-solid fa-bars-staggered max-lg:text-lg text-xl text-black dark:text-white"></i>
         </button>
     `;
 

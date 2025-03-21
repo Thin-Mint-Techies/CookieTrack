@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: 'class',
   content: ['./public/**/*.{html,js}', './public/404.html'],
   theme: {
     extend: {
@@ -13,10 +14,10 @@ module.exports = {
         'white': '#ffffff',
         'off-white': '#d9d9d9',
         'white-overlay': 'rgba(255,255,255,0.6)',
-        'black-overlay': 'rgba(0,0,0,0.5)',
+        'black-overlay': 'rgba(52,52,52,0.6)',
         'loading-overlay': 'rgba(0,0,0,0.25)',
         'black': '#343434',
-        'black-light': '#5d5d5d',
+        'black-light': '#4d4d4d',
         'gray': '#D1D5DB',
         'red': '#d53d3d',
         'red-light': '#e27777',
@@ -39,4 +40,3 @@ module.exports = {
   },
   plugins: [],
 }
-

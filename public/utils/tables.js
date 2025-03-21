@@ -3,7 +3,7 @@ const tableSchemas = {
     orders: {
         headers: [
             "Date Created", "Trooper Name", "Parent Name", "Box Total", "# Adventurefuls", "# Toast-Yays!", "# Lemonades",
-            "# Trefoils", "# Thin Mints", "# Peanut Butter Patties", "# Caramel deLites", "# Peanut Butter Sandwich", 
+            "# Trefoils", "# Thin Mints", "# Peanut Butter Patties", "# Caramel deLites", "# Peanut Butter Sandwich",
             "# GF Caramel Chocolate Chip", "Pickup Location", "Contact Preference", "Financial Agreement"
         ],
         fields: [
@@ -15,7 +15,7 @@ const tableSchemas = {
     completedOrders: {
         headers: [
             "Date Created", "Date Completed", "Trooper Name", "Parent Name", "Box Total", "# Adventurefuls", "# Toast-Yays!", "# Lemonades",
-            "# Trefoils", "# Thin Mints", "# Peanut Butter Patties", "# Caramel deLites", "# Peanut Butter Sandwich", 
+            "# Trefoils", "# Thin Mints", "# Peanut Butter Patties", "# Caramel deLites", "# Peanut Butter Sandwich",
             "# GF Caramel Chocolate Chip", "Pickup Location", "Contact Preference", "Financial Agreement"
         ],
         fields: [
@@ -43,6 +43,10 @@ const tableSchemas = {
     files: {
         headers: ["File Name", "File Size", "Date Uploaded"],
         fields: ["fileName", "fileSize", "dateUploaded"]
+    },
+    rewards: {
+        headers: ["Reward Name", "Description", "Boxes Needed", "Image"],
+        fields: ["rewardName", "description", "boxesNeeded", "imageLink"]
     }
 };
 
@@ -56,6 +60,8 @@ const handleTableCreation = {
     yourTrooper: (parent, action) => createYourTrooperTable(parent, action),
     allTrooper: (parent) => createAllTrooperTable(parent),
     yourDocuments: (parent, action) => createYourDocumentsTable(parent, action),
+    troopRewards: (parent, action) => createTroopRewardsTable(parent, action),
+    rewardBox: (parent, rewardData) => createRewardBox(parent, rewardData),
 }
 
 const tableFilters = {
@@ -63,10 +69,10 @@ const tableFilters = {
         return `
             <div class="flex relative w-full">
                 <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                    <i class="fa-solid fa-magnifying-glass w-4 h-4 text-black"></i>
+                    <i class="fa-solid fa-magnifying-glass w-4 h-4 text-black dark:text-white"></i>
                 </div>
                 <input type="search" id="${searchId}-search" placeholder="Search by trooper or parent names"
-                    class="block w-full p-2 ps-10 text-sm text-black border-2 border-gray rounded-default bg-white focus:ring-green focus:border-green outline-none"
+                    class="block w-full p-2 ps-10 text-sm text-black dark:text-white border-2 border-gray rounded-default bg-white dark:bg-black focus:ring-green focus:border-green outline-none"
                 />
             </div>
         `;
@@ -76,20 +82,20 @@ const tableFilters = {
             <div class="flex items-center gap-4 max-sm:w-full sm:col-span-2 xl:col-span-1 xl:order-2">
                 <div class="relative flex-1 min-w-0">
                     <label for="${startId}-datestart"
-                        class="absolute text-sm text-green left-1 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2">
+                        class="absolute text-sm text-green left-1 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-black px-2">
                         Start date
                     </label>
                     <input id="${startId}-datestart" name="start" type="date"
-                        class="block w-full min-w-0 p-2.5 bg-white border-2 border-gray text-black text-sm rounded-default focus:ring-green focus:border-green outline-none appearance-none">
+                        class="block w-full min-w-0 p-2.5 bg-white dark:bg-black border-2 border-gray text-black dark:text-white text-sm rounded-default focus:ring-green focus:border-green outline-none appearance-none">
                 </div>
                 <span class="text-black">to</span>
                 <div class="relative flex-1 min-w-0">
                     <label for="${endId}-dateend"
-                        class="absolute text-sm text-green left-1 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2">
+                        class="absolute text-sm text-green left-1 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-black px-2">
                         End date
                     </label>
                     <input id="${endId}-dateend" name="end" type="date"
-                        class="block w-full min-w-0 p-2.5 bg-white border-2 border-gray text-black text-sm rounded-default focus:ring-green focus:border-green outline-none appearance-none">
+                        class="block w-full min-w-0 p-2.5 bg-white dark:bg-black border-2 border-gray text-black dark:text-white text-sm rounded-default focus:ring-green focus:border-green outline-none appearance-none">
                 </div>
             </div>
         `;
@@ -109,7 +115,7 @@ const tableFilters = {
 function createTable(parent, title, icon, filters, fields, button) {
     let filtersClass = (filters !== null && filters.length > 1) ? "grid grid-cols-1 sm:grid-cols-[auto_auto] xl:grid-cols-[40%_auto_auto] gap-4" : "flex";
     let filtersContainer = "", buttonContainer = "";
-    
+
     if (filters !== null) {
         filtersContainer = `
             <div id="${title.replace(' ', '-').toLowerCase() + "-filters"}" class="${filtersClass} mb-4 items-center">
@@ -131,7 +137,7 @@ function createTable(parent, title, icon, filters, fields, button) {
     const container = document.createElement('div');
     container.className = "need-skeleton hidden mt-12 mb-6 px-2";
     container.innerHTML = `
-        <div class="bg-white py-6 px-4 max-w-7xl relative shadow-default mx-auto rounded-default">
+        <div class="bg-white dark:bg-black py-6 px-4 max-w-7xl relative shadow-default mx-auto rounded-default">
             <h2 class="text-green text-4xl max-sm:text-2xl font-extrabold mb-8">
                 <i class="fa-solid fa-${icon}"></i> ${title}
             </h2>
@@ -246,6 +252,86 @@ function createYourDocumentsTable(parent, action) {
     createTable(parent, title, icon, null, tableSchemas.files.headers, button);
 }
 
+function createTroopRewardsTable(parent, action) {
+    const title = "Troop Rewards";
+    const icon = "gifts"
+    const button = {
+        id: "add-reward",
+        title: "Add Reward",
+        icon: "gift",
+        action: action
+    }
+    createTable(parent, title, icon, null, tableSchemas.rewards.headers, button);
+}
+
+function createRewardBox(parent, rewardData) {
+    const rewards = (reward) => {
+        const btnClass = reward.redeemed ? "bg-gray text-black" : "bg-green text-white hover:bg-green-light";
+        const btnText = reward.redeemed ? "Locked" : "Redeem";
+        return `
+        <div class="bg-white rounded-default shadow-default w-full overflow-hidden mx-auto">
+            <div class="min-h-24 h-44">
+                <img src=${reward.image} class="w-full h-44 max-md::h-56 object-cover" />
+            </div>
+            <div class="p-4">
+                <p class="text-base text-green">${reward.name}</p>
+                <p class="text-xl text-orange mt-2">${reward.boxesNeeded}+ Boxes</p>
+                <button class="mt-2 w-full py-2 rounded-default shadow-default ${btnClass}" ${reward.redeemed ? "disabled" : ""}>${btnText}</button>
+            </div>
+        </div>
+    `};
+
+    const container = document.createElement('div');
+    container.className = "need-skeleton hidden mt-12 mb-6 px-2";
+    container.innerHTML = `
+        <div class="max-w-7xl mx-auto bg-white rounded-default shadow-default p-6">
+            <h2 class="text-green text-4xl max-sm:text-2xl font-extrabold mb-8">
+                <i class="fa-solid fa-award"></i>Rewards for ${rewardData.trooperName}
+            </h2>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-lg text-green mb-2">Rewards Available</h3>
+                    <div class="bg-white p-6 rounded-default shadow-default">
+                        <div class="flex flex-col justify-center items-center h-full pb-4">
+                            <div
+                                class="flex flex-row justify-center items-center gap-5 max-[320px]:flex-col">
+                                <i class="fa-solid fa-gift text-3xl text-orange"></i>
+                                <h4 class="text-7xl font-bold text-orange max-sm:text-5xl">${rewardData.available}</h4>
+                            </div>
+                            <p class="text-sm text-black mt-2 text-center">Sell more boxes to earn more
+                                rewards!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg text-green mb-2">Boxes Sold</h3>
+                    <div class="bg-white p-6 rounded-default shadow-default">
+                        <div class="flex flex-col justify-center items-center h-full pb-4">
+                            <div
+                                class="flex flex-row justify-center items-center gap-5 max-[320px]:flex-col">
+                                <i class="fa-solid fa-boxes-stacked text-3xl text-orange"></i>
+                                <h4 class="text-7xl font-bold text-orange max-sm:text-5xl">${rewardData.boxesSold}</h4>
+                            </div>
+                            <p class="text-sm text-black mt-2 text-center">Keep selling your boxes for more
+                                rewards!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="text-lg text-green mt-6 mb-2">Redeem</h3>
+            <div class="overflow-x-auto mt-4">
+                <div class="flex flex-row gap-4 p-[0_5px_10px] w-max">
+                    ${rewardData.rewards.map(reward => rewards(reward)).join('')}
+                </div>
+            </div>
+        </div>
+    `;
+    parent.appendChild(container);
+}
 //#endregion TABLE CREATION -----------------------------------------
 
 //#region TABLE FILTERS ---------------------------------------------
@@ -431,9 +517,11 @@ const handleTableRow = {
     yourTrooper: (trooperId, data, editAction, deleteAction) => addTrooperRow(trooperId, data, "your", editAction, deleteAction),
     allTrooper: (trooperId, data, editAction, deleteAction) => addTrooperRow(trooperId, data, "all", editAction, deleteAction),
     yourDocuments: (data, downloadAction, deleteAction) => addFileRow(data, downloadAction, deleteAction),
+    troopReward: (rewardId, data, editAction, deleteAction) => addRewardRow(rewardId, data, editAction, deleteAction),
     updateOrderRow: (row, data) => editRowData(row, tableSchemas.orders.fields, data),
     updateInventoryRow: (row, data) => editRowData(row, tableSchemas.inventory.fields, data),
-    updateTrooperRow: (row, data) => editRowData(row, tableSchemas.troopers.fields, data)
+    updateTrooperRow: (row, data) => editRowData(row, tableSchemas.troopers.fields, data),
+    updateRewardRow: (row, data) => editRowData(row, tableSchemas.rewards.fields, data),
 }
 
 function setupRowFields(tr, hasDropdown, fields, data, buttons) {
@@ -499,7 +587,7 @@ function addOrderRow(orderId, data, isCurrentOrder, editAction, deleteAction, co
     const fields = isCurrentOrder ? tableSchemas.orders.fields : tableSchemas.completedOrders.fields;
     let tr = document.createElement("tr");
     tr.setAttribute('data-oid', orderId);
-    tr.className = "even:bg-gray text-sm text-black [&_td]:p-4";
+    tr.className = "bg-white dark:bg-black even:bg-gray even:dark:bg-black-light text-sm text-black dark:text-white [&_td]:p-4";
 
     // Button configurations
     let buttons = [
@@ -517,7 +605,7 @@ function addInventoryRow(cookieId, data, tbodyId, editAction, deleteAction) {
     const tbody = document.getElementById(`${tbodyId}-tbody`);
     let tr = document.createElement("tr");
     tr.setAttribute('data-cid', cookieId);
-    tr.className = "even:bg-gray text-sm text-black [&_td]:p-4";
+    tr.className = "bg-white dark:bg-black even:bg-gray even:dark:bg-black-light text-sm text-black dark:text-white [&_td]:p-4";
 
     // Button configurations
     let buttons = [
@@ -533,7 +621,7 @@ function addTrooperRow(trooperId, data, tbodyId, editAction, deleteAction) {
     const tbody = document.getElementById(`${tbodyId}-troopers-tbody`);
     let tr = document.createElement("tr");
     tr.setAttribute('data-uid', trooperId);
-    tr.className = "[&:nth-child(4n-1)]:bg-gray text-sm text-black [&_td]:p-4";
+    tr.className = "bg-white dark:bg-black [&:nth-child(4n-1)]:bg-gray [&:nth-child(4n-1)]:dark:bg-black-light text-sm text-black dark:text-white [&_td]:p-4";
 
     // Button configurations
     let buttons = [
@@ -564,7 +652,7 @@ function addTrooperRow(trooperId, data, tbodyId, editAction, deleteAction) {
 function addFileRow(data, downloadAction, deleteAction) {
     const tbody = document.getElementById("your-documents-tbody");
     let tr = document.createElement("tr");
-    tr.className = "even:bg-gray text-sm text-black [&_td]:p-4";
+    tr.className = "bg-white dark:bg-black even:bg-gray even:dark:bg-black-light text-sm text-black dark:text-white [&_td]:p-4";
 
     // Button configurations
     let buttons = [
@@ -573,6 +661,21 @@ function addFileRow(data, downloadAction, deleteAction) {
     ];
 
     setupRowFields(tr, false, tableSchemas.files.fields, data, buttons);
+    tbody.appendChild(tr);
+}
+
+function addRewardRow(data, editAction, deleteAction) {
+    const tbody = document.getElementById("reward-tbody");
+    let tr = document.createElement("tr");
+    tr.className = "bg-white dark:bg-black even:bg-gray even:dark:bg-black-light text-sm text-black dark:text-white [&_td]:p-4";
+
+    // Button configurations
+    let buttons = [
+        { title: "Edit", iconClass: "fa-pen-to-square text-blue hover:text-blue-light", action: editAction },
+        { title: "Delete", iconClass: "fa-trash-can text-red hover:text-red-light", action: deleteAction }
+    ];
+
+    setupRowFields(tr, false, tableSchemas.rewards.fields, data, buttons);
     tbody.appendChild(tr);
 }
 

@@ -16,11 +16,12 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/public/resources/pwa/favicon-16x16.png">
     <link rel="manifest" href="/public/resources/pwa/site.webmanifest">
 
+    <script src="../utils/darkMode.js"></script>
     <script type="module" src="../utils/auth.js"></script>
 </head>
 
-<body class="bg-main-bg bg-repeat">
-    <div class="relative h-full min-h-screen font-sans bg-white-overlay">
+<body class="bg-main-bg bg-repeat bg-white dark:bg-black">
+    <div class="relative h-full min-h-screen font-sans bg-white-overlay dark:bg-black-overlay">
         <div class="flex items-start">
             <section class="main-content w-full p-6 overflow-auto ">
                 <div class="flex items-center flex-wrap gap-6 max-lg:ml-3">
@@ -28,104 +29,71 @@
                         <h3 class="text-lg font-semibold text-green">
                             Rewards
                         </h3>
-                        <p class="text-xs text-gray-300">
+                        <p class="text-xs text-black dark:text-white">
                             View your troopers points and available rewards.
                         </p>
                     </div>
                 </div>
-                <div class="need-skeleton mt-12 mb-6 px-2">
-                    <div class="max-w-7xl mx-auto bg-white rounded-default shadow-default p-6">
-                        <h2 class="text-green text-4xl max-sm:text-2xl font-extrabold mb-8">
-                            <i class="fa-solid fa-award"></i>Trooper Name's Rewards
-                        </h2>
-
-                        <div class="grid md:grid-cols-2 gap-6">
+                <div id="reward-form"
+                    class="hidden fixed inset-0 p-4 flex-wrap justify-center items-center w-full h-full z-[1000] before:fixed before:inset-0 before:w-full before:h-full before:bg-black-overlay shadow-default overflow-auto">
+                    <form class="w-full max-w-lg bg-white dark:bg-black shadow-default rounded-default p-6 relative">
+                        <div class="flex items-center pb-3 border-b border-gray">
+                            <div class="flex-1">
+                                <h3 id="reward-title" class="text-green text-xl font-bold">Add Reward</h3>
+                                <p id="reward-subtitle" class="text-black dark:text-white text-sm mt-1">
+                                    Add a new reward for the troop
+                                </p>
+                            </div>
+                            <i id="reward-close"
+                                class="fa-solid fa-xmark text-xl text-black hover:text-black-light dark:text-white hover:dark:text-black-light shrink-0 ml-2 w-3 cursor-pointer"></i>
+                        </div>
+                        <div class="grid gap-4 mt-6">
                             <div>
-                                <h3 class="text-lg text-green mb-2">Rewards Available</h3>
-                                <div class="bg-white p-6 rounded-default shadow-default">
-                                    <div class="flex flex-col justify-center items-center h-full pb-4">
-                                        <div
-                                            class="flex flex-row justify-center items-center gap-5 max-[320px]:flex-col">
-                                            <i class="fa-solid fa-gift text-3xl text-orange"></i>
-                                            <h4 class="text-7xl font-bold text-orange max-sm:text-5xl">2</h4>
-                                        </div>
-                                        <p class="text-sm text-black mt-2 text-center">Sell more boxes to earn more
-                                            rewards!
-                                        </p>
-                                    </div>
+                                <label class="text-black dark:text-white text-base mb-2 block">Reward Name</label>
+                                <div class="relative flex items-center">
+                                    <input id="reward-name" type="text" required
+                                        class="bg-white dark:bg-black border border-gray w-full text-base text-black dark:text-white px-4 py-2.5 rounded-default accent-green"
+                                        placeholder="Enter the reward name" />
+                                    <i class="fa-solid fa-gift absolute right-4 dark:text-white"></i>
                                 </div>
                             </div>
                             <div>
-                                <h3 class="text-lg text-green mb-2">Boxes Sold</h3>
-                                <div class="bg-white p-6 rounded-default shadow-default">
-                                    <div class="flex flex-col justify-center items-center h-full pb-4">
-                                        <div
-                                            class="flex flex-row justify-center items-center gap-5 max-[320px]:flex-col">
-                                            <i class="fa-solid fa-boxes-stacked text-3xl text-orange"></i>
-                                            <h4 class="text-7xl font-bold text-orange max-sm:text-5xl">76</h4>
-                                        </div>
-                                        <p class="text-sm text-black mt-2 text-center">Keep selling your boxes for more
-                                            rewards!
-                                        </p>
-                                    </div>
+                                <label class="text-black dark:text-white text-base mb-2 block">Description</label>
+                                <div class="relative flex items-center">
+                                    <textarea id="reward-description" rows="3" required
+                                        class="bg-white dark:bg-black border border-gray w-full text-base text-black dark:text-white px-4 py-2.5 rounded-default accent-green"
+                                        placeholder="Enter the reward description"></textarea>
                                 </div>
+                            </div>
+                            <div>
+                                <label class="text-black dark:text-white text-base mb-2 block">Boxes Needed To
+                                    Redeem</label>
+                                <div class="relative flex items-center">
+                                    <input id="reward-boxes" type="number" min="0"
+                                        class="bg-white dark:bg-black border border-gray w-full text-base text-black dark:text-white px-4 py-2.5 rounded-default accent-green"
+                                        placeholder="Enter the boxes needed" />
+                                    <i class="fa-solid fa-hashtag absolute right-4 dark:text-white"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-base text-black dark:text-white mb-2 block">Upload Reward
+                                    Image</label>
+                                <input id="reward-image" type="file" accept=".png,.jpeg,.jpg,.svg,.webp,.gif"
+                                    class="bg-white dark:bg-black border border-gray w-full text-base text-black dark:text-white cursor-pointer file:border-0 file:py-3 file:px-4 file:mr-4 file:bg-gray file:hover:bg-off-white file:text-black file:font-sans rounded accent-green" />
+                                <p class="text-xs text-orange mt-2">Only PNG, JPG, SVG, WEBP, and GIF are Allowed.</p>
                             </div>
                         </div>
-
-                        <h3 class="text-lg text-green mt-6 mb-2">Redeem</h3>
-                        <div class="overflow-x-auto mt-4">
-                            <div class="flex flex-row gap-4 p-[0_5px_10px] w-max">
-                                <div class="bg-white rounded-default shadow-default w-full overflow-hidden mx-auto">
-                                    <div class="min-h-24 h-44">
-                                        <img src="https://www.girlscoutsfl.org/en/members/for-girl-scouts/for-cookie-sellers/2024-cookie-rewards/_jcr_content/root/container/rowcolumn_1375946533_349215731/par_0/image.coreimg.png/1725901552947/25%2B-packages--theme-patch.png"
-                                            class="w-full h-44 max-md::h-56 object-cover" />
-                                    </div>
-                                    <div class="p-4">
-                                        <p class="text-base text-green">Theme Patch</p>
-                                        <p class="text-xl text-orange mt-2">36+ Boxes</p>
-                                        <button
-                                            class="mt-2 w-full bg-green text-white py-2 rounded-default shadow-default hover:bg-green-light">Redeem</button>
-                                    </div>
-                                </div>
-                                <div class="bg-white rounded-default shadow-default w-full overflow-hidden mx-auto">
-                                    <div class="min-h-24">
-                                        <img src="https://m.media-amazon.com/images/I/91PWyi0ksOL._AC_UF894,1000_QL80_.jpg"
-                                            class="w-full h-44 max-md:h-56 object-cover" />
-                                    </div>
-                                    <div class="p-4">
-                                        <p class="text-base text-green">Removable Stickers</p>
-                                        <p class="text-xl text-orange mt-2">75+ Boxes</p>
-                                        <button
-                                            class="mt-2 w-full bg-green text-white py-2 rounded-default shadow-default hover:bg-green-light">Redeem</button>
-                                    </div>
-                                </div>
-                                <div class="bg-white rounded-default shadow-default w-full overflow-hidden mx-auto">
-                                    <div class="min-h-24">
-                                        <img src="https://www.girlscoutshop.com/site/Product_Images/12993_main-01.default.jpg?resizeid=19&resizeh=500&resizew=500"
-                                            class="w-full h-44 max-md::h-56 object-cover" />
-                                    </div>
-                                    <div class="p-4">
-                                        <p class="text-base text-green">Bracelet with Charm</p>
-                                        <p class="text-xl text-orange mt-2">125+ Boxes</p>
-                                        <button class="mt-2 w-full bg-gray text-black py-2 rounded-default shadow-default"
-                                            disabled>Locked</button>
-                                    </div>
-                                </div>
-                                <div class="bg-white rounded-default shadow-default w-full overflow-hidden mx-auto">
-                                    <div class="min-h-24">
-                                        <img src="https://cdn.shoplightspeed.com/shops/669066/files/66025460/1652x1652x2/streamline-cookie-crumble-stationary-set-deer.jpg"
-                                            class="w-full h-44 max-md:h-56 object-cover" />
-                                    </div>
-                                    <div class="p-4">
-                                        <p class="text-base text-green">Stationary Set</p>
-                                        <p class="text-xl text-orange mt-2">175+ Boxes</p>
-                                        <button class="mt-2 w-full bg-gray text-black py-2 rounded-default shadow-default"
-                                            disabled>Locked</button>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="border-t border-gray pt-6 flex justify-between gap-4 mt-6">
+                            <button id="reward-cancel" type="button"
+                                class="w-full px-4 py-2 rounded-default text-black dark:text-white text-sm border-none tracking-wide bg-white hover:bg-gray dark:bg-black hover:dark:bg-black-light accent-green">
+                                Cancel
+                            </button>
+                            <button id="reward-submit" type="submit"
+                                class="w-full px-4 py-2 rounded-default text-white text-sm border-none tracking-wide bg-green hover:bg-green-light accent-orange">
+                                Submit
+                            </button>
                         </div>
-                    </div>
+                    </form>
                 </div>
             </section>
         </div>
