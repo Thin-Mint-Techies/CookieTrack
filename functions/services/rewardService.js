@@ -1,13 +1,10 @@
 const { Firestore } = require('../firebaseConfig');
 
 // Service to create a new Reward
-const createReward = async ({ name, description }) => {
+const createReward = async ({ name, description, boxesNeeded,imageName }) => {
   try {
     const newRewardRef = Firestore.collection('rewards').doc();
-    await newRewardRef.set({
-      name,
-      description,
-    });
+    await newRewardRef.set({name,description,boxesNeeded,imageName});
     return newRewardRef.id;
   } catch (error) {
     throw new Error('Error creating Reward');
@@ -28,13 +25,10 @@ const getAllRewards = async () => {
 };
 
 // Service to update a Reward by ID
-const updateReward = async (id, { name, description, price }) => {
+const updateReward = async (id, { name, description, boxesNeeded,imageName }) => {
   try {
     const ref = Firestore.collection('rewards').doc(id);
-    await ref.update({
-      name,
-      description,
-    });
+    await ref.update({name,description,boxesNeeded,imageName });
     return { message: 'Reward updated successfully' };
   } catch (error) {
     throw new Error('Error updating Reward');

@@ -5,9 +5,9 @@ const { requireLogin, checkRole, checkUserOwnership } = require('../utils/roleCh
 
 router.post('/cookie', cookieController.createCookie);
 router.get('/cookie', cookieController.getAllCookie);
-router.get('/cookies', cookieController.getMonthlyCookies);
+//router.get('/cookies', cookieController.getMonthlyCookies);
 router.put('/cookie/:id', cookieController.updateCookie);
 router.delete('/cookie/:id', cookieController.deleteCookie);
-router.post('/cookieManager', cookieController.createCookie);
+//router.post('/cookieManager', cookieController.createCookie);
 
 module.exports = router;

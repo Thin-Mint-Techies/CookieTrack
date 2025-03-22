@@ -77,7 +77,7 @@ const createOrder = async ({ trooperName, trooperId, ownerId, ownerEmail, buyerE
         });
       } else {
         // Add order to leader's order pile
-        newOrderData.needToOrder = true;
+        // newOrderData.needToOrder = true;
 
         // Send email to parent and leader
         await sendEmail({
@@ -335,6 +335,7 @@ const getOrdersByParentId = async (parentId) => {
   }
 };
 
+// parent confirm the cookies is correct and pickup the cookies
 const parentPickup = async (orderId, parentEmail) => {
   try {
     await Firestore.runTransaction(async (transaction) => {

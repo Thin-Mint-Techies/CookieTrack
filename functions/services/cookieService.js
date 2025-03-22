@@ -4,11 +4,11 @@ const createCookie = async ({ variety, description, price }) => {
   try {
     // Check if a cookie with the same name already exists
     const existingCookieSnapshot = await Firestore.collection('cookies')
-      .where('name', '==', name)
+      .where('variety', '==', variety)
       .get();
 
     if (!existingCookieSnapshot.empty) {
-      throw new Error(`Cookie with name "${name}" already exists`);
+      throw new Error(`Cookie with name "${variety}" already exists`);
     }
     const newCookieRef = Firestore.collection('cookies').doc();
     await newCookieRef.set({
@@ -35,23 +35,23 @@ const getAllCookies = async () => {
   }
 };
 
-const updateCookie = async (id, { name, description, price }) => {
+const updateCookie = async (id, { variety, description, price }) => {
   try {
     // Check if a cookie with the same name already exists
     const existingCookieSnapshot = await Firestore.collection('cookies')
-      .where('name', '==', name)
+      .where('id', '==', id)
       .get();
 
     if (!existingCookieSnapshot.empty) {
       const existingCookie = existingCookieSnapshot.docs[0];
       if (existingCookie.id !== id) {
-        throw new Error(`Cookie with name "${name}" already exists`);
+        throw new Error(`Cookie with variety "${variety}" already exists`);
       }
     }
 
     const ref = Firestore.collection('cookies').doc(id);
     await ref.update({
-      name,
+      variety,
       description,
       price,
     });

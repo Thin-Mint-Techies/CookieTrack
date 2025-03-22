@@ -24,7 +24,7 @@ const userDataFormat = {
 const rewardDataFormat = {
     name: '',
     description: '',
-    imageLink: '',
+    imageName: '',
     boxesNeeded: 0,
 };
 
@@ -134,6 +134,13 @@ const parentInventoryDataFormat = {
     ],  
 };
 
+const trooperInventoryDataFormat = {
+    ownerId: '',
+    owe: 0.0,
+    inventory: [
+        { varietyId: '',variety: '',boxes: 0,boxPrice: 0.0,},
+    ],  
+};
 
 // when order is made and not in fulfilled, put the missing boxes in needToOrder
 const leaderInventoryDataFormat = {

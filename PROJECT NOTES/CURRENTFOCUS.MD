@@ -79,6 +79,5 @@
 - Data Flow
     - Leader inventory -> Parent place orders -> Take the cookies from the leader inventory -> Cookies goes into the order -> Leader confirm order is picked up -> Cookies from order now in parent inventory -> assign cookie to trooper inventory -> take cookie from parent -> cookie goes into trooper inventory
         - If the order is cancel, the cookies go back to leader inventory
-    - 
     - Owe is calculated from orders
     - 
