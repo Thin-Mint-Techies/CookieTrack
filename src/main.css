@@ -6,12 +6,26 @@
 a>i,
 nav div>i,
 nav button>i {
-  width: 30px;
+    width: 30px;
 }
 
 h2>i {
     margin-right: 10px;
 }
+
+@layer base {
+
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    input[type="number"] {
+        appearance: textfield;
+    }
+}
+
 /*#endregion GENERAL CSS*/
 
 /*#region NOTIFICATION TOAST*/

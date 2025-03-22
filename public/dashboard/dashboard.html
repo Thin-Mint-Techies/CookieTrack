@@ -15,12 +15,12 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/public/resources/pwa/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/public/resources/pwa/favicon-16x16.png">
     <link rel="manifest" href="/public/resources/pwa/site.webmanifest">
-
+    <script src="../utils/darkMode.js"></script>
     <script type="module" src="../utils/auth.js"></script>
 </head>
 
-<body class="bg-main-bg bg-repeat">
-    <div class="relative h-full min-h-screen font-sans bg-white-overlay">
+<body class="bg-main-bg bg-repeat bg-white dark:bg-black">
+    <div class="relative h-full min-h-screen font-sans bg-white-overlay dark:bg-black-overlay">
         <div class="flex items-start">
             <section class="main-content w-full p-6 overflow-auto ">
                 <div class="flex items-center flex-wrap gap-6 max-lg:ml-3">
@@ -28,7 +28,7 @@
                         <h3 id="welcome-greeting" class="text-lg font-semibold text-green">
                             Welcome back
                         </h3>
-                        <p class="text-xs text-gray-300">
+                        <p class="text-xs text-black dark:text-white">
                             View your dashboard for the latest stats and updates.
                         </p>
                     </div>
@@ -65,50 +65,58 @@
                         </div>
                     </div>
                     <div id="troop-statistics"
-                        class="need-skeleton bg-white px-4 py-12 rounded-default shadow-default max-w-7xl m-auto mb-8">
+                        class="need-skeleton bg-white dark:bg-black px-4 py-12 rounded-default shadow-default max-w-7xl m-auto mb-8">
                         <div class="max-sm:max-w-sm mx-auto">
                             <h2 class="text-green text-4xl max-sm:text-2xl font-extrabold mb-8"><i
                                     class="fa-solid fa-chart-line"></i> Troop Current Statistics</h2>
                             <div class="grid md:grid-cols-4 sm:grid-cols-2 gap-5">
-                                <div class="bg-white rounded-default border shadow-default px-7 py-8">
-                                    <p class="text-black text-base font-semibold mb-1">Revenue this Month</p>
+                                <div class="bg-white dark:bg-black rounded-default border shadow-default px-7 py-8">
+                                    <p class="text-black dark:text-white text-base font-semibold mb-1">Revenue this
+                                        Month</p>
                                     <h3 class="text-green text-3xl font-extrabold">$400+</h3>
                                 </div>
-                                <div class="bg-white rounded-default border shadow-default px-7 py-8">
-                                    <p class="text-black text-base font-semibold mb-1">Boxes Sold this Month</p>
+                                <div class="bg-white dark:bg-black rounded-default border shadow-default px-7 py-8">
+                                    <p class="text-black dark:text-white text-base font-semibold mb-1">Boxes Sold this
+                                        Month</p>
                                     <h3 class="text-green text-3xl font-extrabold">57</h3>
                                 </div>
-                                <div class="bg-white rounded-default border shadow-default px-7 py-8">
-                                    <p class="text-black text-base font-semibold mb-1">Current Inventory</p>
+                                <div class="bg-white dark:bg-black rounded-default border shadow-default px-7 py-8">
+                                    <p class="text-black dark:text-white text-base font-semibold mb-1">Current Inventory
+                                    </p>
                                     <h3 class="text-green text-3xl font-extrabold">343</h3>
                                 </div>
-                                <div class="bg-white rounded-default border shadow-default px-7 py-8">
-                                    <p class="text-black text-base font-semibold mb-1">Hottest Seller</p>
+                                <div class="bg-white dark:bg-black rounded-default border shadow-default px-7 py-8">
+                                    <p class="text-black dark:text-white text-base font-semibold mb-1">Hottest Seller
+                                    </p>
                                     <h3 class="text-green text-3xl font-extrabold">Thin Mints</h3>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div id="your-statistics"
-                        class="need-skeleton bg-white px-4 py-12 rounded-default shadow-default max-w-7xl m-auto">
+                        class="need-skeleton bg-white dark:bg-black px-4 py-12 rounded-default shadow-default max-w-7xl m-auto">
                         <div class="max-sm:max-w-sm mx-auto">
                             <h2 class="text-green text-4xl max-sm:text-2xl font-extrabold mb-8"><i
                                     class="fa-solid fa-chart-line"></i>Your Current Statistics</h2>
                             <div class="grid md:grid-cols-4 sm:grid-cols-2 gap-5">
-                                <div class="bg-white rounded-default border shadow-default px-7 py-8">
-                                    <p class="text-black text-base font-semibold mb-1">Revenue this Month</p>
+                                <div class="bg-white dark:bg-black rounded-default border shadow-default px-7 py-8">
+                                    <p class="text-black dark:text-white text-base font-semibold mb-1">Revenue this
+                                        Month</p>
                                     <h3 class="text-green text-3xl font-extrabold">$400+</h3>
                                 </div>
-                                <div class="bg-white rounded-default border shadow-default px-7 py-8">
-                                    <p class="text-black text-base font-semibold mb-1">Boxes Sold this Month</p>
+                                <div class="bg-white dark:bg-black rounded-default border shadow-default px-7 py-8">
+                                    <p class="text-black dark:text-white text-base font-semibold mb-1">Boxes Sold this
+                                        Month</p>
                                     <h3 class="text-green text-3xl font-extrabold">57</h3>
                                 </div>
-                                <div class="bg-white rounded-default border shadow-default px-7 py-8">
-                                    <p class="text-black text-base font-semibold mb-1">Current Inventory</p>
+                                <div class="bg-white dark:bg-black rounded-default border shadow-default px-7 py-8">
+                                    <p class="text-black dark:text-white text-base font-semibold mb-1">Current Inventory
+                                    </p>
                                     <h3 class="text-green text-3xl font-extrabold">343</h3>
                                 </div>
-                                <div class="bg-white rounded-default border shadow-default px-7 py-8">
-                                    <p class="text-black text-base font-semibold mb-1">Hottest Seller</p>
+                                <div class="bg-white dark:bg-black rounded-default border shadow-default px-7 py-8">
+                                    <p class="text-black dark:text-white text-base font-semibold mb-1">Hottest Seller
+                                    </p>
                                     <h3 class="text-green text-3xl font-extrabold">Thin Mints</h3>
                                 </div>
                             </div>
