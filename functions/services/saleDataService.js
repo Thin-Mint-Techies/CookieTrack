@@ -5,16 +5,31 @@ const { saleDataformatforTrooper } = require('../dataFormat');
 const createSaleData = async ({ trooperId, trooperName, orderId, cookieData, totalMoneyMade, totalBoxesSold }) => {
   try {
     const newSaleDataRef = Firestore.collection('saleData').doc();
-    const newSaleData = {
-      ...saleDataformatforTrooper,
-      trooperId,
-      trooperName,
-      orderId,
-      cookieData,
-      totalMoneyMade,
-      totalBoxesSold,
-    };
-    await newSaleDataRef.set(newSaleData);
+
+    await Firestore.runTransaction(async (transaction) => {
+      // Check for duplicate orderId (optional)
+      const existingSaleDataSnapshot = await Firestore.collection('saleData')
+        .where('orderId', 'array-contains', orderId)
+        .get();
+
+      if (!existingSaleDataSnapshot.empty) {
+        throw new Error('Sale data with this orderId already exists');
+      }
+
+      const newSaleData = {
+        ...saleDataformatforTrooper,
+        trooperId,
+        trooperName,
+        orderId,
+        cookieData,
+        totalMoneyMade,
+        totalBoxesSold,
+      };
+
+      // Create the new sale data document
+      transaction.set(newSaleDataRef, newSaleData);
+    });
+
     return newSaleDataRef.id;
   } catch (error) {
     throw new Error(`Failed to create sale data: ${error.message}`);
@@ -36,8 +51,19 @@ const getSaleData = async (id) => {
 
 const deleteSaleData = async (id) => {
   try {
-    const saleDataRef = Firestore.collection('saleData').doc(id);
-    await saleDataRef.delete();
+    await Firestore.runTransaction(async (transaction) => {
+      const saleDataRef = Firestore.collection('saleData').doc(id);
+
+      // Fetch the document within the transaction
+      const saleDataDoc = await transaction.get(saleDataRef);
+      if (!saleDataDoc.exists) {
+        throw new Error('Sale data not found');
+      }
+
+      // Delete the document within the transaction
+      transaction.delete(saleDataRef);
+    });
+
     return { message: 'Sale data deleted successfully' };
   } catch (error) {
     throw new Error(`Error deleting sale data: ${error.message}`);

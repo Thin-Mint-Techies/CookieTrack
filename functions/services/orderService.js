@@ -202,25 +202,55 @@ const updateOrder = async (id, { trooperName, trooperId, ownerId, ownerEmail, bu
   }
 };
 
-const getAllOrders = async () => {
-  try {
-    const snapshot = await Firestore.collection('orders').get();
-    if (!snapshot.empty) {
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    }
-    throw new Error('No Orders found');
-  } catch (error) {
-    throw new Error(`Error fetching Orders: ${error.message}`);
-  }
-};
-
 const deleteOrder = async (id) => {
   try {
-    const ref = Firestore.collection('orders').doc(id);
-    await ref.delete();
+    await Firestore.runTransaction(async (transaction) => {
+      const orderRef = Firestore.collection('orders').doc(id);
+      const orderDoc = await transaction.get(orderRef);
+
+      if (!orderDoc.exists) {
+        throw new Error('Order not found');
+      }
+
+      transaction.delete(orderRef);
+    });
+
     return { message: 'Order deleted successfully' };
   } catch (error) {
     throw new Error(`Error deleting Order: ${error.message}`);
+  }
+};
+
+// parent confirm the cookies is correct and pickup the cookies
+const parentPickup = async (orderId, parentEmail) => {
+  try {
+    await Firestore.runTransaction(async (transaction) => {
+      const orderRef = Firestore.collection('orders').doc(orderId);
+      const orderDoc = await transaction.get(orderRef);
+      if (!orderDoc.exists) {
+        throw new Error('Order not found');
+      }
+
+      const orderData = orderDoc.data();
+      const updatedOrderData = {
+        ...orderData,
+        status: 'Picked Up',
+        datePickedUp: new Date().toISOString(),
+      };
+
+      transaction.update(orderRef, updatedOrderData);
+
+      // Send email to parent for confirmation
+      await sendEmail({
+        to: parentEmail,
+        subject: 'Order Picked Up',
+        text: `Order ${orderId} for trooper ${orderData.trooperName} has been marked as picked up. Please confirm the order.`,
+      });
+    });
+
+    return { message: 'Order marked as picked up successfully' };
+  } catch (error) {
+    throw new Error(`Failed to mark order as picked up: ${error.message}`);
   }
 };
 
@@ -299,6 +329,8 @@ const archiveOrders = async () => {
   }
 };
 
+
+
 const getUserOrders = async (userId) => {
   try {
     const snapshot = await Firestore.collection('orders').where('ownerId', '==', userId).get();
@@ -335,38 +367,19 @@ const getOrdersByParentId = async (parentId) => {
   }
 };
 
-// parent confirm the cookies is correct and pickup the cookies
-const parentPickup = async (orderId, parentEmail) => {
+const getAllOrders = async () => {
   try {
-    await Firestore.runTransaction(async (transaction) => {
-      const orderRef = Firestore.collection('orders').doc(orderId);
-      const orderDoc = await transaction.get(orderRef);
-      if (!orderDoc.exists) {
-        throw new Error('Order not found');
-      }
-
-      const orderData = orderDoc.data();
-      const updatedOrderData = {
-        ...orderData,
-        status: 'Picked Up',
-        datePickedUp: new Date().toISOString(),
-      };
-
-      transaction.update(orderRef, updatedOrderData);
-
-      // Send email to parent for confirmation
-      await sendEmail({
-        to: parentEmail,
-        subject: 'Order Picked Up',
-        text: `Order ${orderId} for trooper ${orderData.trooperName} has been marked as picked up. Please confirm the order.`,
-      });
-    });
-
-    return { message: 'Order marked as picked up successfully' };
+    const snapshot = await Firestore.collection('orders').get();
+    if (!snapshot.empty) {
+      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    }
+    throw new Error('No Orders found');
   } catch (error) {
-    throw new Error(`Failed to mark order as picked up: ${error.message}`);
+    throw new Error(`Error fetching Orders: ${error.message}`);
   }
 };
+
+
 
 
 

@@ -24,25 +24,46 @@ const getAllRewards = async () => {
   }
 };
 
-// Service to update a Reward by ID
 const updateReward = async (id, { name, description, boxesNeeded, downloadUrl }) => {
   try {
-    const ref = Firestore.collection('rewards').doc(id);
-    await ref.update({name,description,boxesNeeded,downloadUrl });
+    await Firestore.runTransaction(async (transaction) => {
+      const ref = Firestore.collection('rewards').doc(id);
+
+      // Fetch the reward document within the transaction
+      const rewardDoc = await transaction.get(ref);
+      if (!rewardDoc.exists) {
+        throw new Error('Reward not found');
+      }
+
+      // Update the reward document
+      transaction.update(ref, { name, description, boxesNeeded, downloadUrl });
+    });
+
     return { message: 'Reward updated successfully' };
   } catch (error) {
-    throw new Error('Error updating Reward');
+    throw new Error('Error updating Reward: ' + error.message);
   }
 };
 
 // Service to delete a Reward by ID
 const deleteReward = async (id) => {
   try {
-    const ref = Firestore.collection('rewards').doc(id);
-    await ref.delete();
+    await Firestore.runTransaction(async (transaction) => {
+      const ref = Firestore.collection('rewards').doc(id);
+
+      // Fetch the reward document within the transaction
+      const rewardDoc = await transaction.get(ref);
+      if (!rewardDoc.exists) {
+        throw new Error('Reward not found');
+      }
+
+      // Delete the reward document
+      transaction.delete(ref);
+    });
+
     return { message: 'Reward deleted successfully' };
   } catch (error) {
-    throw new Error('Error deleting Reward');
+    throw new Error('Error deleting Reward: ' + error.message);
   }
 };
 
@@ -50,36 +71,39 @@ const deleteReward = async (id) => {
 // Allow user to select a reward for a specific troop
 const selectRewardForTroop = async (troopId, rewardId, userId) => {
   try {
-    // Validate trooper association
-    const trooperRef = Firestore.collection('troopers').doc(troopId);
-    const trooperDoc = await trooperRef.get();
+    await Firestore.runTransaction(async (transaction) => {
+      // Validate trooper association
+      const trooperRef = Firestore.collection('troopers').doc(troopId);
+      const trooperDoc = await transaction.get(trooperRef);
 
-    if (!trooperDoc.exists) {
-      throw new Error('Trooper not found');
-    }
+      if (!trooperDoc.exists) {
+        throw new Error('Trooper not found');
+      }
 
-    const trooperData = trooperDoc.data();
+      const trooperData = trooperDoc.data();
 
-    // Validate reward existence
-    const rewardRef = Firestore.collection('rewards').doc(rewardId);
-    const rewardDoc = await rewardRef.get();
+      // Validate reward existence
+      const rewardRef = Firestore.collection('rewards').doc(rewardId);
+      const rewardDoc = await transaction.get(rewardRef);
 
-    if (!rewardDoc.exists) {
-      throw new Error('Reward not found');
-    }
+      if (!rewardDoc.exists) {
+        throw new Error('Reward not found');
+      }
 
-    const rewardData = rewardDoc.data();
-    rewardData.id = rewardId;
+      const rewardData = rewardDoc.data();
+      rewardData.id = rewardId;
 
-    // Add reward selection to the trooper's currentReward array
-    const currentReward = trooperData.currentReward || [];
-    currentReward.push({
-      ...rewardData,
-      selectedBy: userId,
-      selectedAt: new Date().toISOString(),
+      // Add reward selection to the trooper's currentReward array
+      const currentReward = trooperData.currentReward || [];
+      currentReward.push({
+        ...rewardData,
+        selectedBy: userId,
+        selectedAt: new Date().toISOString(),
+      });
+
+      // Update the trooper's currentReward within the transaction
+      transaction.update(trooperRef, { currentReward });
     });
-
-    await trooperRef.update({ currentReward });
 
     return { message: 'Reward selected successfully for the trooper' };
   } catch (error) {

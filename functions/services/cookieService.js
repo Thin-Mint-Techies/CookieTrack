@@ -37,24 +37,35 @@ const getAllCookies = async () => {
 
 const updateCookie = async (id, { variety, description, price }) => {
   try {
-    // Check if a cookie with the same name already exists
-    const existingCookieSnapshot = await Firestore.collection('cookies')
-      .where('id', '==', id)
-      .get();
+    await Firestore.runTransaction(async (transaction) => {
+      const ref = Firestore.collection('cookies').doc(id);
 
-    if (!existingCookieSnapshot.empty) {
-      const existingCookie = existingCookieSnapshot.docs[0];
-      if (existingCookie.id !== id) {
-        throw new Error(`Cookie with variety "${variety}" already exists`);
+      // Fetch the cookie document within the transaction
+      const cookieDoc = await transaction.get(ref);
+      if (!cookieDoc.exists) {
+        throw new Error('Cookie not found');
       }
-    }
 
-    const ref = Firestore.collection('cookies').doc(id);
-    await ref.update({
-      variety,
-      description,
-      price,
+      // Check if a cookie with the same variety already exists (excluding the current one)
+      const existingCookieSnapshot = await Firestore.collection('cookies')
+        .where('variety', '==', variety)
+        .get();
+
+      if (!existingCookieSnapshot.empty) {
+        const existingCookie = existingCookieSnapshot.docs[0];
+        if (existingCookie.id !== id) {
+          throw new Error(`Cookie with variety "${variety}" already exists`);
+        }
+      }
+
+      // Update the cookie document
+      transaction.update(ref, {
+        variety,
+        description,
+        price,
+      });
     });
+
     return { message: 'Cookie updated successfully' };
   } catch (error) {
     throw new Error(`Error updating cookie: ${error.message}`);
@@ -63,8 +74,19 @@ const updateCookie = async (id, { variety, description, price }) => {
 
 const deleteCookie = async (id) => {
   try {
-    const ref = Firestore.collection('cookies').doc(id);
-    await ref.delete();
+    await Firestore.runTransaction(async (transaction) => {
+      const ref = Firestore.collection('cookies').doc(id);
+
+      // Fetch the cookie document within the transaction
+      const cookieDoc = await transaction.get(ref);
+      if (!cookieDoc.exists) {
+        throw new Error('Cookie not found');
+      }
+
+      // Delete the cookie document
+      transaction.delete(ref);
+    });
+
     return { message: 'Cookie deleted successfully' };
   } catch (error) {
     throw new Error(`Error deleting cookie: ${error.message}`);

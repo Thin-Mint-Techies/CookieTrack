@@ -82,41 +82,43 @@ const updateTrooper = async (troopId, troopNumber, trooperName, ownerId, troopLe
 */
 const updateTrooper = async (troopId, updateData) => {
   try {
-    const ref = Firestore.collection('troopers').doc(troopId);
+    await Firestore.runTransaction(async (transaction) => {
+      const ref = Firestore.collection('troopers').doc(troopId);
 
-    // Fetch the current trooper data
-    const doc = await ref.get();
-    if (!doc.exists) {
-      throw new Error('Trooper not found');
-    }
-
-    // Define the allowed fields to be updated
-    const allowedFields = [
-      'troopNumber',
-      'trooperName',
-      'ownerId',
-      'troopLeader',
-      'age',
-      'grade',
-      'shirtSize',
-      'currentBalance',
-      'boxesSold',
-      'squad',
-      'currentReward'
-    ];
-
-    // Filter the updateData to include only allowed fields
-    const filteredUpdateData = {};
-    for (const key in updateData) {
-      if (allowedFields.includes(key)) {
-        filteredUpdateData[key] = updateData[key];
+      // Fetch the current trooper data within the transaction
+      const doc = await transaction.get(ref);
+      if (!doc.exists) {
+        throw new Error('Trooper not found');
       }
-    }
 
-    // Update the trooper with the filtered data
-    await ref.update(filteredUpdateData);
+      // Define the allowed fields to be updated
+      const allowedFields = [
+        'troopNumber',
+        'trooperName',
+        'ownerId',
+        'troopLeader',
+        'age',
+        'grade',
+        'shirtSize',
+        'currentBalance',
+        'boxesSold',
+        'squad',
+        'currentReward'
+      ];
 
-    return { message: 'Update trooper successfully' };
+      // Filter the updateData to include only allowed fields
+      const filteredUpdateData = {};
+      for (const key in updateData) {
+        if (allowedFields.includes(key)) {
+          filteredUpdateData[key] = updateData[key];
+        }
+      }
+
+      // Update the trooper with the filtered data within the transaction
+      transaction.update(ref, filteredUpdateData);
+    });
+
+    return { message: 'Trooper updated successfully' };
   } catch (error) {
     throw new Error(`Error updating trooper: ${error.message}`);
   }
@@ -124,11 +126,22 @@ const updateTrooper = async (troopId, updateData) => {
 
 const deleteTrooper = async (id) => {
   try {
-    const ref = Firestore.collection('troopers').doc(id);
-    await ref.delete();
-    return { message: 'Troop deleted successfully' };
+    await Firestore.runTransaction(async (transaction) => {
+      const ref = Firestore.collection('troopers').doc(id);
+
+      // Fetch the trooper document within the transaction
+      const doc = await transaction.get(ref);
+      if (!doc.exists) {
+        throw new Error('Trooper not found');
+      }
+
+      // Delete the trooper document within the transaction
+      transaction.delete(ref);
+    });
+
+    return { message: 'Trooper deleted successfully' };
   } catch (error) {
-    throw new Error(`Error deleting troop: ${error.message}`);
+    throw new Error(`Error deleting trooper: ${error.message}`);
   }
 };
 

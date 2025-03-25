@@ -193,8 +193,16 @@ const getAllInventories = async () => {
 
 const deleteInventory = async (id) => {
   try {
-    const ref = Firestore.collection('inventory').doc(id);
-    await ref.delete();
+    await Firestore.runTransaction(async (transaction) => {
+      const ref = Firestore.collection('inventory').doc(id);
+      const doc = await transaction.get(ref);
+      if (!doc.exists) {
+        throw new Error('Inventory not found');
+      }
+
+      transaction.delete(ref);
+    });
+
     return { message: 'Inventory deleted successfully' };
   } catch (error) {
     throw new Error(`Error deleting Inventory: ${error.message}`);
