@@ -1,6 +1,14 @@
 import { showToast, STATUS_COLOR } from "../utils/toasts.js";
 import { handleTableRow } from "../utils/utils.js";
 import { createModals } from "../utils/confirmModal.js";
+import { manageLoader } from "../utils/loader.js";
+import { callApi, uploadDocumentXHR } from "../utils/apiCall.js";
+
+//Wait for auth setup then pull user data
+let userData;
+document.addEventListener("authStateReady", async () => {
+    userData = JSON.parse(sessionStorage.getItem("userData"));
+});
 
 //#region Add/Edit Files --------------------------------------------
 let uploadFilesForm = document.getElementById('upload-files-form');
@@ -12,6 +20,7 @@ let uploadFilesSubmit = document.getElementById('upload-files-submit');
 let uploadFilesClose = document.getElementById('upload-files-close');
 let uploadedFiles = [];
 let uploadProgress = {}; //Track progress per file
+let downloadUrls = {}; //Hold urls for each file
 
 export function openFileUploadModal() {
     uploadFilesForm.classList.remove('hidden');
@@ -37,6 +46,11 @@ function closeFileUploadModal() {
 
 //Submit the files and close the modal
 uploadFilesSubmit.addEventListener("click", () => {
+    //First remove the option to remove files
+    document.querySelectorAll(".remove-file").forEach((btn) => {
+        btn.remove();
+    });
+
     if (uploadFilesSubmit.textContent === "Submit") {
         if (uploadedFiles.length > 0) {
             uploadFilesSubmit.disabled = true;
@@ -44,13 +58,22 @@ uploadFilesSubmit.addEventListener("click", () => {
             uploadedFiles.forEach((file, index) => uploadFiles(file, index));
         }
     } else if (uploadFilesSubmit.textContent === "Done") {
-        uploadedFiles.forEach((file) => {
+        uploadedFiles.forEach((file, index) => {
             let fileData = {
                 fileName: file.name,
                 fileSize: formatFileSize(file.size),
-                dateUploaded: new Date().toLocaleDateString("en-US")
+                dateUploaded: new Date().toLocaleDateString("en-US"),
             }
-            handleTableRow.yourDocuments(fileData, downloadFile, deleteUploadedFile);
+            handleTableRow.yourDocuments(downloadUrls[index], fileData, downloadFile, deleteUploadedFile);
+            //Update session storage with new documents
+            let userFileData = {
+                name: file.name,
+                size: formatFileSize(file.size),
+                dateUploaded: new Date().toLocaleDateString("en-US"),
+                url: downloadUrls[index]
+            }
+            userData.documents.push(userFileData);
+            sessionStorage.setItem("userData", JSON.stringify(userData));
         });
         closeFileUploadModal();
     }
@@ -127,37 +150,34 @@ function renderFileProgress() {
     });
 };
 
-function formatFileSize(bytes) {
+export function formatFileSize(bytes) {
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1048576) return `${(bytes / 1024).toFixed(2)} KB`;
     return `${(bytes / 1048576).toFixed(2)} MB`;
 }
 
 //Upload the files to the cloud and show progress
-function uploadFiles(file, index) {
-    //First remove the option to remove files
-    document.querySelectorAll(".remove-file").forEach((btn) => {
-        btn.remove();
-    });
-
-    let progress = 0;
+async function uploadFiles(file, index) {
     const progressElement = document.getElementById(`progress-${index}`);
     const progressText = document.getElementById(`progress-text-${index}`);
-    const uploadSpeed = file.size / 10000; // Slower for larger files
 
-    const interval = setInterval(() => {
-        progress += Math.floor(Math.random() * 10) + 5; // Random increment between 5-15
-        if (progress >= 100) {
-            progress = 100;
-            clearInterval(interval);
-            uploadProgress[index] = progress;
-            progressText.textContent = "Upload complete!";
-            checkUploadsComplete();
-        } else {
-            progressText.textContent = `${progress}% done`;
-        }
-        progressElement.style.width = progress + "%";
-    }, uploadSpeed);
+    try {
+        const fileUrl = await uploadDocumentXHR(`/document/${userData.id}`, file, (progress) => {
+            //Update progress bar
+            progressElement.style.width = progress + "%";
+            progressText.textContent = `${Math.round(progress)}% done`;
+        });
+
+        //Successful upload
+        uploadProgress[index] = 100;
+        progressText.textContent = "Upload complete!";
+        progressElement.style.width = "100%";
+        checkUploadsComplete();
+        downloadUrls[index] = fileUrl.downloadURL;
+    } catch (error) {
+        console.error('Error uploading file:', error);
+        showToast("Error Uploading File", 'There was an error with uploading a file. Please try again.', STATUS_COLOR.RED, true, 5);
+    }
 };
 
 //Makes sure all uploads are done before allowing modal closure
@@ -172,13 +192,31 @@ function checkUploadsComplete() {
 //#endregion Add/Edit Files -----------------------------------------
 
 //#region TABLE ACTIONS ---------------------------------------------
-function downloadFile() {
+export function downloadFile() {
+    const downloadUrl = handleTableRow.currentRowEditing.getAttribute('data-url');
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.click();
+    link.remove();
     showToast("File Downloaded", "The selected file has been downloaded.", STATUS_COLOR.GREEN, true, 5);
 }
 
-function deleteUploadedFile() {
-    const rowElem = this.parentElement.parentElement;
-    rowElem.remove();
-    showToast("File Deleted", "The selected file has been deleted.", STATUS_COLOR.GREEN, true, 5);
+export async function deleteUploadedFile() {
+    manageLoader(true);
+
+    try {
+        const fileNameTd = handleTableRow.currentRowEditing.querySelector('td');
+        await callApi(`/document/${userData.id}`, 'DELETE', {fileName: fileNameTd.textContent.trim()});
+        //Document deleted, remove the file from userData in sessionStorage and from tables and show message
+        userData.documents = userData.documents.filter(doc => doc.name !== fileNameTd.textContent.trim());
+        sessionStorage.setItem("userData", JSON.stringify(userData));
+        handleTableRow.currentRowEditing.remove();
+        showToast("Document Deleted", "The selected document has been deleted.", STATUS_COLOR.GREEN, true, 5);  
+    } catch (error) {
+        console.error('Error deleting document:', error);
+        showToast("Error Deleting Document", 'There was an error with deleting this document. Please try again.', STATUS_COLOR.RED, true, 5);
+    }
+
+    manageLoader(false);
 }
 //#endregion TABLE ACTIONS ------------------------------------------

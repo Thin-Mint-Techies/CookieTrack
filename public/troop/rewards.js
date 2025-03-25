@@ -1,6 +1,6 @@
 import { showToast, STATUS_COLOR } from "../utils/toasts.js";
-import { callApi } from "../utils/apiCall.js";
-import { regExpCalls, handleTableCreation, handleTableRow } from "../utils/utils.js";
+import { callApi, uploadDocumentXHR } from "../utils/apiCall.js";
+import { regExpCalls, handleTableCreation, handleTableRow, imageStorageHandler } from "../utils/utils.js";
 import { createModals } from "../utils/confirmModal.js";
 import { handleSkeletons } from "../utils/skeletons.js";
 import { manageLoader } from "../utils/loader.js";
@@ -20,20 +20,19 @@ document.addEventListener("authStateReady", async () => {
     //Create necessary tables based on user role
     if (userRole && userData.id) {
         //Get the troopers associated with the user
-        //userTroopers = await callApi(`/troopersOwnerId/${userData.id}`);
+        userTroopers = await callApi(`/troopersOwnerId/${userData.id}`);
+
+        //Load the troop reward data
+        const rewardData = await callApi('/reward');
 
         //Create the table for adding new rewards 
         if (userRole.role === "leader") {
             handleTableCreation.troopRewards(mainContent, openAddRewardModal);
+            if (rewardData) loadRewardTableRows(rewardData);
+        }
 
-            //const rewardData = await callApi('/reward');
-            //if (rewardData) loadRewardTableRows(rewardData);
-        } 
-
-        //Create all the reward boxes for all the parent's troopers
-        //userTroopers.forEach((trooper) => {
-            //handleTableCreation.rewardBox(mainContent, trooper);
-        //});
+        //Create all the reward boxes for all the users's troopers
+        loadRewardBoxes(userTroopers, rewardData);
     } else {
         showToast("Error Loading Data", "There was an error loading user data. Please refresh the page to try again.", STATUS_COLOR.RED, false);
         return;
@@ -45,7 +44,49 @@ document.addEventListener("authStateReady", async () => {
 
 function loadRewardTableRows(rewards) {
     rewards.forEach((reward) => {
-        handleTableRow.troopReward(reward.id, reward, editReward, createModals.deleteItem(deleteReward));
+        const rewardId = reward.id;
+        handleTableRow.troopReward(rewardId, reward, editReward, createModals.deleteItem(deleteReward));
+    });
+}
+
+function loadRewardBoxes(troopers, rewardData) {
+    troopers.forEach((trooper) => {
+        //Set all the current rewards from trooper to redeemed
+        trooper.currentReward.forEach((reward) => {
+            reward.redeemed = "Redeemed";
+            console.log(reward);
+        });
+
+        //Merge the trooper current rewards and rewardData arrays
+        let rewards = rewardData;
+        if (trooper.currentReward.length > 0 && rewardData.length > 0) {
+            // Create a map to merge rewards while prioritizing trooper.currentReward
+            const uniqueRewards = new Map();
+
+            // First, add current rewards (ensures redeemed status is kept)
+            trooper.currentReward.forEach((reward) => {
+                uniqueRewards.set(reward.id, reward);
+            });
+
+            // Then, add rewards from rewardData (only if they don't already exist)
+            rewardData.forEach((reward) => {
+                if (!uniqueRewards.has(reward.id)) {
+                    uniqueRewards.set(reward.id, reward);
+                }
+            });
+
+            rewards = Array.from(uniqueRewards.values());
+        }
+
+        //Sort rewards ion ascending order based on boxesNeeded
+        rewards.sort((a, b) => a.boxesNeeded - b.boxesNeeded);
+
+        // Calculate the number of available rewards (unredeemed and eligible based on boxesSold)
+        trooper.available = rewards.filter(reward =>
+            reward.redeemed !== "Redeemed" && trooper.boxesSold >= reward.boxesNeeded
+        ).length;
+
+        handleTableCreation.rewardBox(mainContent, trooper, rewards, redeemReward);
     });
 }
 //#endregion CREATE TABLES/LOAD DATA --------------------------------
@@ -63,6 +104,7 @@ const rewardName = document.getElementById('reward-name');
 const rewardDesc = document.getElementById('reward-description');
 const rewardBoxes = document.getElementById('reward-boxes');
 const rewardImage = document.getElementById('reward-image');
+let selectedFile = null;
 
 function openAddRewardModal(mode = "add", rewardData) {
     if (mode === "edit") {
@@ -71,7 +113,6 @@ function openAddRewardModal(mode = "add", rewardData) {
         rewardName.value = rewardData.name;
         rewardDesc.value = rewardData.description;
         rewardBoxes.value = rewardData.boxesNeeded;
-        rewardImage.value = rewardData.imageLink;
     }
 
     rewardForm.setAttribute('data-mode', mode);
@@ -93,23 +134,23 @@ function closeRewardModal() {
     rewardDesc.value = "";
     rewardBoxes.value = "";
     rewardImage.value = "";
+    selectedFile = null;
 }
+
+rewardImage.addEventListener("change", (e) => {
+    selectedFile = e.target.files[0];
+});
 
 //Verify input and submit new reward
 rewardSubmit.addEventListener('click', (e) => {
     e.preventDefault();
     const name = rewardName.value.trim();
-    const desc = rewardDesc.value.trim();
+    const desc = rewardDesc.value.trim() || "";
     const boxes = parseInt(rewardBoxes.value, 10) || 0;
-    const img = rewardImage.value;
+    const currentMode = rewardForm.getAttribute('data-mode');
 
     if (!name) {
         showToast("Missing Reward Name", "Please make sure you have correctly entered the reward's name.", STATUS_COLOR.RED, true, 5);
-        return;
-    }
-
-    if (!desc) {
-        showToast("Missing Description", "Please make sure you have entered a description for the reward.", STATUS_COLOR.RED, true, 5);
         return;
     }
 
@@ -118,18 +159,16 @@ rewardSubmit.addEventListener('click', (e) => {
         return;
     }
 
-    if (!img) {
+    if (!selectedFile && currentMode === "add") {
         showToast("Missing Image", "Please make sure you have uploaded an image for the reward.", STATUS_COLOR.RED, true, 5);
         return;
     }
 
-    const currentMode = orderForm.getAttribute('data-mode');
-
     const rewardData = {
         name: name,
         description: desc,
-        imageLink: img,
-        boxesNeeded: boxes
+        boxesNeeded: boxes,
+        downloadUrl: selectedFile
     }
 
     if (currentMode === "add") {
@@ -144,7 +183,17 @@ async function createRewardApi(rewardData) {
     manageLoader(true);
 
     try {
+        //First compress the reward image and remove it from rewardData
+        const compressedImg = await imageStorageHandler.compress(rewardData.downloadUrl, 224, 224);
+        delete rewardData.downloadUrl;
+
+        //Next upload the reward
         const rewardId = await callApi('/reward', 'POST', rewardData);
+
+        //Then upload the reward img
+        const downloadUrl = await uploadDocumentXHR(`/rewardImg/${rewardId.id}`, compressedImg);
+        rewardData.downloadUrl = downloadUrl.downloadURL;
+
         //Reward created, add to table and show message
         handleTableRow.troopReward(rewardId.id, rewardData, editReward, createModals.deleteItem(deleteReward));
         showToast("Reward Added", "A new reward has been created for the troop.", STATUS_COLOR.GREEN, true, 5);
@@ -161,6 +210,19 @@ async function updateRewardApi(rewardData, rewardId) {
     manageLoader(true);
 
     try {
+        let newDownloadUrl = null;
+        //First upload the new reward image if there is one
+        if (rewardData.downloadUrl !== null) {
+            const compressedImg = await imageStorageHandler.compress(rewardData.downloadUrl, 224, 224);
+            newDownloadUrl = await uploadDocumentXHR(`/rewardImg/${rewardId}`, compressedImg);
+            rewardData.downloadUrl = newDownloadUrl.downloadURL;
+        } else {
+            //If there is not a new reward image, get the original img link
+            const tr = handleTableRow.currentRowEditing;
+            const imgSrc = tr.querySelector('img').src;
+            rewardData.downloadUrl = imgSrc;
+        }
+
         await callApi(`/reward/${rewardId}`, 'PUT', rewardData);
         //Reward updated, update data in table and show message
         handleTableRow.updateReward(handleTableRow.currentRowEditing, rewardData);
@@ -173,18 +235,45 @@ async function updateRewardApi(rewardData, rewardId) {
     manageLoader(false);
     rewardClose.click();
 }
+
+async function redeemReward(trooperId, rewardId) {
+    manageLoader(true);
+
+    try {
+        await callApi(`/selectReward/${trooperId}`, 'POST', { rewardId: rewardId, userId: userData.id });
+        //Reward selected, update selection in reward box and show message
+        const redeemBtn = document.getElementById(trooperId + "-" + rewardId);
+        redeemBtn.disabled = true;
+        redeemBtn.textContent = "Redeemed";
+        redeemBtn.classList.remove("bg-green", "text-white", "hover:bg-green-light");
+        redeemBtn.classList.add("bg-green-super-light", "text-black");
+
+        const availableRewards = document.getElementById(trooperId + "-available");
+        const availableNum = parseInt(availableRewards.textContent);
+        availableRewards.textContent = availableNum - 1;
+
+        showToast("Reward Redeemed", "The chosen reward has been redeemed.", STATUS_COLOR.GREEN, true, 5);
+    } catch (error) {
+        console.error('Error redeeming reward:', error);
+        showToast("Error Redeeming Reward", 'There was an error with redeeming this reward. Please try again.', STATUS_COLOR.RED, true, 5);
+    }
+
+    manageLoader(false);
+}
 //#endregion --------------------------------------------------------
 
 //#region TABLE ACTIONS ---------------------------------------------
 function editReward() {
-    openRewardModal("edit", getRowData(handleTableRow.currentRowEditing));
+    openAddRewardModal("edit", getRowData(handleTableRow.currentRowEditing));
 }
 
 async function deleteReward() {
     manageLoader(true);
 
     try {
+        //First delete reward from storage then from firestore
         const rewardId = handleTableRow.currentRowEditing.getAttribute('data-rid');
+        await callApi(`/rewardImg/${rewardId}`, 'DELETE');
         await callApi(`/reward/${rewardId}`, 'DELETE');
         //Reward deleted, remove from tables and show message
         handleTableRow.currentRowEditing.remove();
@@ -206,7 +295,6 @@ function getRowData(row) {
         name: tds[index++]?.textContent.trim(),
         description: tds[index++]?.textContent.trim(),
         boxesNeeded: tds[index++]?.textContent.trim(),
-        imageLink: tds[index++]?.textContent.trim()
     };
 
     return rewardData;

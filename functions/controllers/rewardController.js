@@ -15,7 +15,7 @@ const createReward = async (req, res) => {
 const getAllReward = async (req, res) => {
   try {
     const Rewards = await rewardService.getAllRewards();
-    console.log('Reward created successfully:', Rewards);
+    console.log('Rewards fetched successfully:', Rewards);
     res.status(200).json(Rewards);
   } catch (error) {
     console.error('Failed to fetch all rewards: ', error.message)
@@ -64,9 +64,9 @@ const deleteAllReward = async (req, res) => {
 
 const selectRewardForTroop = async (req, res) => {
   const { id } = req.params;
-  const { rewardId } = req.body;
+  const { rewardId, userId } = req.body;
   try {
-    const result = await rewardService.selectRewardForTroop(id,rewardId);
+    const result = await rewardService.selectRewardForTroop(id,rewardId,userId);
     console.log('Reward selection is successful:', result);
     res.status(200).json(result);
   } catch (error) {

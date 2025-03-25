@@ -34,10 +34,10 @@ const tableSchemas = {
     },
     troopers: {
         headers: [
-            "", "Troop Number", "Trooper Name", /*"Parent Name",*/ "Troop Leader", "Current Balance", "Boxes Sold", "Age", "Grade", "Shirt/Jacket Size"
+            "", "Troop Number", "Trooper Name", "Parent Name", "Troop Leader", "Current Balance", "Boxes Sold", "Age", "Grade", "Shirt/Jacket Size"
         ],
         fields: [
-            "troopNumber", "trooperName", /*"parentName",*/ "troopLeader", "currentBalance", "boxesSold", "age", "grade", "shirtSize"
+            "troopNumber", "trooperName", "parentName", "troopLeader", "currentBalance", "boxesSold", "age", "grade", "shirtSize"
         ]
     },
     files: {
@@ -46,7 +46,7 @@ const tableSchemas = {
     },
     rewards: {
         headers: ["Reward Name", "Description", "Boxes Needed", "Image"],
-        fields: ["rewardName", "description", "boxesNeeded", "imageLink"]
+        fields: ["name", "description", "boxesNeeded", "downloadUrl"]
     }
 };
 
@@ -61,7 +61,9 @@ const handleTableCreation = {
     allTrooper: (parent) => createAllTrooperTable(parent),
     yourDocuments: (parent, action) => createYourDocumentsTable(parent, action),
     troopRewards: (parent, action) => createTroopRewardsTable(parent, action),
-    rewardBox: (parent, rewardData) => createRewardBox(parent, rewardData),
+    rewardBox: (parent, trooperData, rewardData, action) => createRewardBox(parent, trooperData, rewardData, action),
+    monthlyCookie: (parent, cookieData) => createMonthlyCookie(parent, cookieData),
+    statBox: (parent, statData) => createStatsBox(parent, statData),
 }
 
 const tableFilters = {
@@ -259,24 +261,38 @@ function createTroopRewardsTable(parent, action) {
         id: "add-reward",
         title: "Add Reward",
         icon: "gift",
-        action: action
+        action: () => action("add")
     }
     createTable(parent, title, icon, null, tableSchemas.rewards.headers, button);
 }
 
-function createRewardBox(parent, rewardData) {
-    const rewards = (reward) => {
-        const btnClass = reward.redeemed ? "bg-gray text-black" : "bg-green text-white hover:bg-green-light";
-        const btnText = reward.redeemed ? "Locked" : "Redeem";
+function createRewardBox(parent, trooperData, rewardData, action) {
+    const rewards = (reward, boxesSold, trooperId) => {
+        let btnClass = "bg-gray text-black", btnText = "Locked", disabled = "disabled";
+
+        if (reward.redeemed === "Redeemed") {
+            btnText = reward.redeemed;
+            btnClass = "bg-green-super-light text-black";
+        } else if (!reward.hasOwnProperty('redeemed') && reward.boxesNeeded <= boxesSold) {
+            btnText = "Redeem";
+            btnClass = "bg-green text-white hover:bg-green-light";
+            disabled = "";
+        }
+
         return `
-        <div class="bg-white rounded-default shadow-default w-full overflow-hidden mx-auto">
-            <div class="min-h-24 h-44">
-                <img src=${reward.image} class="w-full h-44 max-md::h-56 object-cover" />
+        <div class="bg-white rounded-default shadow-default w-72 overflow-hidden mx-auto flex flex-col">
+            <div class="h-56">
+                <img src=${reward.downloadUrl} class="w-full h-full object-cover" />
             </div>
-            <div class="p-4">
-                <p class="text-base text-green">${reward.name}</p>
-                <p class="text-xl text-orange mt-2">${reward.boxesNeeded}+ Boxes</p>
-                <button class="mt-2 w-full py-2 rounded-default shadow-default ${btnClass}" ${reward.redeemed ? "disabled" : ""}>${btnText}</button>
+            <div class="p-4 flex flex-col flex-grow justify-between">
+                <div>
+                    <p class="text-xl text-green">${reward.name}</p>
+                    <p class="text-xs text-black mt-2">${reward.description ? reward.description : "&nbsp;"}</p>
+                    <p class="text-3xl text-orange mt-2">${reward.boxesNeeded}+ Boxes</p>
+                </div>
+                <button id=${trooperId + "-" + reward.id} data-tid=${trooperId} data-rid=${reward.id}
+                    class="redeem-btn mt-2 w-full py-2 rounded-default shadow-default ${btnClass}" ${disabled}>${btnText}
+                </button>
             </div>
         </div>
     `};
@@ -286,7 +302,7 @@ function createRewardBox(parent, rewardData) {
     container.innerHTML = `
         <div class="max-w-7xl mx-auto bg-white rounded-default shadow-default p-6">
             <h2 class="text-green text-4xl max-sm:text-2xl font-extrabold mb-8">
-                <i class="fa-solid fa-award"></i>Rewards for ${rewardData.trooperName}
+                <i class="fa-solid fa-award"></i>Rewards for ${trooperData.trooperName}
             </h2>
 
             <div class="grid md:grid-cols-2 gap-6">
@@ -297,7 +313,7 @@ function createRewardBox(parent, rewardData) {
                             <div
                                 class="flex flex-row justify-center items-center gap-5 max-[320px]:flex-col">
                                 <i class="fa-solid fa-gift text-3xl text-orange"></i>
-                                <h4 class="text-7xl font-bold text-orange max-sm:text-5xl">${rewardData.available}</h4>
+                                <h4 id=${trooperData.id + "-available"} class="text-7xl font-bold text-orange max-sm:text-5xl">${trooperData.available}</h4>
                             </div>
                             <p class="text-sm text-black mt-2 text-center">Sell more boxes to earn more
                                 rewards!
@@ -312,7 +328,7 @@ function createRewardBox(parent, rewardData) {
                             <div
                                 class="flex flex-row justify-center items-center gap-5 max-[320px]:flex-col">
                                 <i class="fa-solid fa-boxes-stacked text-3xl text-orange"></i>
-                                <h4 class="text-7xl font-bold text-orange max-sm:text-5xl">${rewardData.boxesSold}</h4>
+                                <h4 class="text-7xl font-bold text-orange max-sm:text-5xl">${trooperData.boxesSold}</h4>
                             </div>
                             <p class="text-sm text-black mt-2 text-center">Keep selling your boxes for more
                                 rewards!
@@ -325,7 +341,71 @@ function createRewardBox(parent, rewardData) {
             <h3 class="text-lg text-green mt-6 mb-2">Redeem</h3>
             <div class="overflow-x-auto mt-4">
                 <div class="flex flex-row gap-4 p-[0_5px_10px] w-max">
-                    ${rewardData.rewards.map(reward => rewards(reward)).join('')}
+                    ${rewardData ? 
+                        rewardData.map(reward => rewards(reward, trooperData.boxesSold, trooperData.id)).join('') 
+                        : `<p class="text-sm text-black mt-2 text-center">No rewards available.</p>`}
+                </div>
+            </div>
+        </div>
+    `;
+    parent.appendChild(container);
+
+    // Attach event listeners after elements are added to the DOM
+    container.querySelectorAll(".redeem-btn").forEach(button => {
+        button.addEventListener("click", (event) => {
+            const trooperId = event.target.dataset.tid;
+            const rewardId = event.target.dataset.rid;
+            action(trooperId, rewardId);
+        });
+    });
+}
+
+function createMonthlyCookie(parent, cookieData) {
+    const container = document.createElement('div');
+    container.className = "need-skeleton hidden mt-12 mb-6 px-2";
+    container.innerHTML = `
+        <div class="bg-green relative max-w-7xl shadow-default mx-auto rounded-default overflow-hidden">
+            <div class="grid sm:grid-cols-2 max-sm:gap-6">
+                <div class="text-center p-6 flex flex-col justify-center items-center">
+                    <h3 class="font-extrabold text-5xl text-white leading-tight">Monthly Cookie</h3>
+                    <h6 class="text-lg text-white mt-4">Predicted best selling cookies this month...</h6>
+                    <h6 class="text-3xl text-white mt-4 underline decoration-wavy decoration-orange decoration-2">
+                        ${cookieData.name}
+                    </h6>
+                </div>
+
+                <div class="flex justify-end max-sm:justify-center items-center p-2 bg-gradient-to-b from-orange to-orange-light rounded-bl-[230px] max-sm:rounded-bl-none w-full h-full">
+                    <div class="h-72 w-72 rounded-full bg-gradient-to-tr from-orange to-orange-light p-5">
+                        <img src=${cookieData.image} class="w-full h-full rounded-full object-contain border-8 border-white bg-white" alt="Monthly Cookie" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="absolute -top-[50px] -left-[50px] w-28 h-28 rounded-full bg-orange opacity-40 shadow-lg"></div>
+            <div class="absolute -top-10 -left-10 w-28 h-28 rounded-full bg-orange opacity-40 shadow-lg"></div>
+        </div>
+    `;
+    parent.appendChild(container);
+}
+
+function createStatsBox(parent, statData) {
+    const stats = (stat) => {
+        return `
+        <div class="bg-white dark:bg-black rounded-default border border-off-white dark:border-black-light shadow-default px-7 py-8">
+            <p class="text-black dark:text-white text-base font-semibold mb-1">${stat.title}</p>
+            <h3 class="text-green text-3xl font-extrabold">${stat.stat}</h3>
+        </div>
+    `};
+
+    const container = document.createElement('div');
+    container.className = "need-skeleton hidden mt-12 mb-6 px-2";
+    container.innerHTML = `
+        <div class="bg-white dark:bg-black px-4 py-12 rounded-default shadow-default max-w-7xl m-auto">
+            <div class="max-sm:max-w-sm mx-auto">
+                <h2 class="text-green text-4xl max-sm:text-2xl font-extrabold mb-8"><i
+                        class="fa-solid fa-chart-line"></i> ${statData.id} Current Statistics</h2>
+                <div class="grid 2xl:grid-cols-4 md:grid-cols-2 gap-5">
+                    ${statData.stats.map(stat => stats(stat)).join('')}
                 </div>
             </div>
         </div>
@@ -516,7 +596,7 @@ const handleTableRow = {
     needInventory: (cookieId, data, editAction, deleteAction) => addInventoryRow(cookieId, data, "need-to-order", editAction, deleteAction),
     yourTrooper: (trooperId, data, editAction, deleteAction) => addTrooperRow(trooperId, data, "your", editAction, deleteAction),
     allTrooper: (trooperId, data, editAction, deleteAction) => addTrooperRow(trooperId, data, "all", editAction, deleteAction),
-    yourDocuments: (data, downloadAction, deleteAction) => addFileRow(data, downloadAction, deleteAction),
+    yourDocuments: (fileUrl, data, downloadAction, deleteAction) => addFileRow(fileUrl, data, downloadAction, deleteAction),
     troopReward: (rewardId, data, editAction, deleteAction) => addRewardRow(rewardId, data, editAction, deleteAction),
     updateOrderRow: (row, data) => editRowData(row, tableSchemas.orders.fields, data),
     updateInventoryRow: (row, data) => editRowData(row, tableSchemas.inventory.fields, data),
@@ -553,8 +633,19 @@ function setupRowFields(tr, hasDropdown, fields, data, buttons) {
     // Populate the row with data fields
     fields.forEach(field => {
         let td = document.createElement("td");
-        // If field exists in orderContent, get it from orderContent, otherwise get it from the main data object
-        td.textContent = data.orderContent?.[field] ?? data[field] ?? ""; // Handle missing or undefined fields
+
+        // If field needs to show an image, create an img instead of doing text content
+        if (field === "downloadUrl") {
+            let img = document.createElement("img");
+            img.className = "w-16 md:w-24 max-w-full max-h-full rounded-default shadow-default";
+            img.src = data[field];
+            img.alt = "Reward Image";
+            td.appendChild(img);
+        } else {
+            // If field exists in orderContent, get it from orderContent, otherwise get it from the main data object
+            td.textContent = data.orderContent?.[field] ?? data[field] ?? ""; // Handle missing or undefined fields
+        }
+
         tr.appendChild(td);
     });
 
@@ -649,9 +740,10 @@ function addTrooperRow(trooperId, data, tbodyId, editAction, deleteAction) {
     tbody.appendChild(hiddenTr);
 }
 
-function addFileRow(data, downloadAction, deleteAction) {
+function addFileRow(fileUrl, data, downloadAction, deleteAction) {
     const tbody = document.getElementById("your-documents-tbody");
     let tr = document.createElement("tr");
+    tr.setAttribute('data-url', fileUrl);
     tr.className = "bg-white dark:bg-black even:bg-gray even:dark:bg-black-light text-sm text-black dark:text-white [&_td]:p-4";
 
     // Button configurations
@@ -664,9 +756,10 @@ function addFileRow(data, downloadAction, deleteAction) {
     tbody.appendChild(tr);
 }
 
-function addRewardRow(data, editAction, deleteAction) {
-    const tbody = document.getElementById("reward-tbody");
+function addRewardRow(rewardId, data, editAction, deleteAction) {
+    const tbody = document.getElementById("troop-rewards-tbody");
     let tr = document.createElement("tr");
+    tr.setAttribute('data-rid', rewardId);
     tr.className = "bg-white dark:bg-black even:bg-gray even:dark:bg-black-light text-sm text-black dark:text-white [&_td]:p-4";
 
     // Button configurations

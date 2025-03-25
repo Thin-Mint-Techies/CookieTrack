@@ -809,6 +809,9 @@ video {
 .h-5 {
   height: 1.25rem;
 }
+.h-56 {
+  height: 14rem;
+}
 .h-6 {
   height: 1.5rem;
 }
@@ -847,6 +850,9 @@ video {
 }
 .max-h-\[500px\] {
   max-height: 500px;
+}
+.max-h-full {
+  max-height: 100%;
 }
 .min-h-24 {
   min-height: 6rem;
@@ -996,6 +1002,9 @@ video {
 .shrink-0 {
   flex-shrink: 0;
 }
+.flex-grow {
+  flex-grow: 1;
+}
 .border-separate {
   border-collapse: separate;
 }
@@ -1047,6 +1056,9 @@ video {
 }
 .cursor-pointer {
   cursor: pointer;
+}
+.resize {
+  resize: both;
 }
 .appearance-none {
   -webkit-appearance: none;
@@ -1198,6 +1210,10 @@ video {
   --tw-border-opacity: 1;
   border-color: rgb(26 153 136 / var(--tw-border-opacity));
 }
+.border-off-white {
+  --tw-border-opacity: 1;
+  border-color: rgb(217 217 217 / var(--tw-border-opacity));
+}
 .border-transparent {
   border-color: transparent;
 }
@@ -1254,6 +1270,10 @@ video {
 }
 .bg-white-overlay {
   background-color: rgba(255,255,255,0.6);
+}
+.bg-green-super-light {
+  --tw-bg-opacity: 1;
+  background-color: rgb(141 204 196 / var(--tw-bg-opacity));
 }
 .bg-gradient-to-b {
   background-image: linear-gradient(to bottom, var(--tw-gradient-stops));
@@ -1445,9 +1465,6 @@ video {
 }
 .text-\[18px\] {
   font-size: 18px;
-}
-.text-\[9px\] {
-  font-size: 9px;
 }
 .text-base {
   font-size: 1rem;
@@ -2028,11 +2045,6 @@ h2>i {
   background-color: rgba(52,52,52,0.6);
 }
 
-.dark\:bg-white:is(.dark *) {
-  --tw-bg-opacity: 1;
-  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
-}
-
 .dark\:text-white:is(.dark *) {
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity));
@@ -2048,9 +2060,9 @@ h2>i {
   background-color: rgb(77 77 77 / var(--tw-bg-opacity));
 }
 
-.dark\:hover\:bg-black-light:hover:is(.dark *) {
-  --tw-bg-opacity: 1;
-  background-color: rgb(77 77 77 / var(--tw-bg-opacity));
+.dark\:hover\:text-green:hover:is(.dark *) {
+  --tw-text-opacity: 1;
+  color: rgb(26 153 136 / var(--tw-text-opacity));
 }
 
 .hover\:dark\:text-black-light:is(.dark *):hover {
@@ -2061,11 +2073,6 @@ h2>i {
 .hover\:dark\:text-off-white:is(.dark *):hover {
   --tw-text-opacity: 1;
   color: rgb(217 217 217 / var(--tw-text-opacity));
-}
-
-.dark\:hover\:text-green:hover:is(.dark *) {
-  --tw-text-opacity: 1;
-  color: rgb(26 153 136 / var(--tw-text-opacity));
 }
 
 @media not all and (min-width: 1024px) {
@@ -2319,6 +2326,10 @@ h2>i {
     margin-bottom: 4rem;
   }
 
+  .md\:w-24 {
+    width: 6rem;
+  }
+
   .md\:max-w-sm {
     max-width: 24rem;
   }
@@ -2375,6 +2386,13 @@ h2>i {
 
   .xl\:justify-self-auto {
     justify-self: auto;
+  }
+}
+
+@media (min-width: 1536px) {
+
+  .\32xl\:grid-cols-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 

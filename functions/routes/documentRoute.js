@@ -4,7 +4,10 @@ const router = express.Router();
 const upload = require('../utils/fileUpload'); 
 const { requireLogin, checkRole, checkUserOwnership } = require('../utils/roleCheck');
 
-
-router.post('/document', upload.single('file'), sharedController.uploadDocument);
+router.post('/document/:id', upload.single('file'), sharedController.uploadDocument);
+router.post('/profilePic/:id', upload.single('file'), sharedController.uploadProfilePic);
+router.post('/rewardImg/:id', upload.single('file'), sharedController.uploadRewardImg);
+router.delete('/document/:id', sharedController.deleteDocument);
+router.delete('/rewardImg/:id', sharedController.deleteReward);
 
 module.exports = router;

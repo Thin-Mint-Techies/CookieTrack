@@ -1,4 +1,5 @@
 const { storage, Firestore } = require('../firebaseConfig'); // Import Firebase config
+const admin = require('firebase-admin');
 
 // Create a document
 async function createDoc(file, userId) {
@@ -7,12 +8,22 @@ async function createDoc(file, userId) {
     const filePath = `users/${userId}/documents/${file.originalname}`;
     const fileRef = bucket.file(filePath);
 
-    // Save the file buffer to the bucket
-    await fileRef.save(file.buffer);
+    // Set the cache expiration to 1 year
+    const fileMetadata = {
+      cacheControl: 'public, max-age=31536000',
+    };
 
-    // Generate an expiration date for the signed URL (1 week from now)
+    // Save the file buffer to the bucket
+    await fileRef.save(file.buffer, fileMetadata);
+
+    // Retrieve metadata (file size & creation time)
+    const [metadata] = await fileRef.getMetadata();
+    const fileSize = metadata.size; // Size in bytes
+    const uploadTime = metadata.timeCreated; // Upload timestamp
+
+    // Set expiration data to one year after today
     const expirationDate = new Date();
-    expirationDate.setDate(expirationDate.getDate() + 7); // Set expiration to 7 days in the future
+    expirationDate.setUTCFullYear(expirationDate.getUTCFullYear() + 1);
 
     // Generate a signed URL for downloading the file
     const [downloadURL] = await fileRef.getSignedUrl({
@@ -23,10 +34,11 @@ async function createDoc(file, userId) {
     // Update the user's document field in Firestore
     const userRef = Firestore.collection('users').doc(userId);
     await userRef.update({
-      documents: Firestore.FieldValue.arrayUnion({
+      documents: admin.firestore.FieldValue.arrayUnion({
         name: file.originalname,
         url: downloadURL,
-        owner: userId,
+        size: fileSize,
+        dateUploaded: new Date(uploadTime).toLocaleDateString("en-US"),
       }),
     });
 
@@ -37,78 +49,88 @@ async function createDoc(file, userId) {
   }
 }
 
-// Fetch specific documents based on the userId
-async function fetchUserDoc(userId) {
+async function createProfilePic(file, userId) {
   try {
     const bucket = storage.bucket(process.env.FIREBASE_STORAGE_BUCKET);
+    const folderPath = `users/${userId}/profilePic/`;
+    const filePath = `${folderPath}${file.originalname}`;
+    const fileRef = bucket.file(filePath);
 
-    // List all files in the user's directory
-    const [files] = await bucket.getFiles({ prefix: `users/${userId}/documents/` });
+    // Delete all existing files in the profilePic folder
+    const [files] = await bucket.getFiles({ prefix: folderPath });
+    const deletePromises = files.map((file) => file.delete());
+    await Promise.all(deletePromises);
 
-    // Check if there are any files
-    if (!files.length) {
-      console.log(`No files found for user ID: ${userId}`);
-      return [];
-    }
+    // Set the cache expiration to 1 year
+    const fileMetadata = {
+      cacheControl: 'public, max-age=31536000',
+    };
 
-    // Generate signed URLs for each file
-    const userFiles = await Promise.all(
-      files.map(async (file) => {
-        const [url] = await file.getSignedUrl({
-          action: 'read',
-          expires: Date.now() + 7 * 24 * 60 * 60 * 1000, // 7 days
-        });
-        return { name: file.name, url };
-      })
-    );
+    // Save the file buffer to the bucket
+    await fileRef.save(file.buffer, fileMetadata);
 
-    console.log(`Fetched ${userFiles.length} files for user ID: ${userId}`);
-    return userFiles;
-  } catch (error) {
-    console.error('Error fetching user files:', error);
-    throw error;
-  }
-}
-
-// Update a document's metadata or content
-async function updateDoc(userId, oldFileName, newFile) {
-  try {
-    const bucket = storage.bucket(process.env.FIREBASE_STORAGE_BUCKET);
-    const oldFileRef = bucket.file(`users/${userId}/documents/${oldFileName}`);
-    const newFileRef = bucket.file(`users/${userId}/documents/${newFile.originalname}`);
-
-    // Delete the old file
-    await oldFileRef.delete();
-
-    // Save the new file buffer to the bucket
-    await newFileRef.save(newFile.buffer);
-
-    // Generate an expiration date for the signed URL (1 week from now)
+    // Set expiration data to one year after today
     const expirationDate = new Date();
-    expirationDate.setDate(expirationDate.getDate() + 7); // Set expiration to 7 days in the future
+    expirationDate.setUTCFullYear(expirationDate.getUTCFullYear() + 1);
 
-    // Generate a signed URL for downloading the new file
-    const [downloadURL] = await newFileRef.getSignedUrl({
+    // Generate a signed URL for downloading the file
+    const [downloadURL] = await fileRef.getSignedUrl({
       action: 'read',
       expires: expirationDate,
     });
 
-    // Update the user's document field in Firestore
+    // Update the user's profilePic field in Firestore
     const userRef = Firestore.collection('users').doc(userId);
     await userRef.update({
-      documents: Firestore.FieldValue.arrayRemove({ name: oldFileName }),
-    });
-    await userRef.update({
-      documents: Firestore.FieldValue.arrayUnion({
-        name: newFile.originalname,
-        url: downloadURL,
-        owner: userId,
-      }),
+      profilePic: downloadURL,
     });
 
     return downloadURL;
   } catch (error) {
-    console.error('Error updating document:', error);
+    console.error('Error uploading file:', error);
+    throw error;
+  }
+}
+
+async function createRewardImg(file, rewardId) {
+  try {
+    const bucket = storage.bucket(process.env.FIREBASE_STORAGE_BUCKET);
+    const folderPath = `rewards/${rewardId}/`;
+    const filePath = `${folderPath}${file.originalname}`;
+    const fileRef = bucket.file(filePath);
+
+    // Delete all existing files in the rewards folder for a specific reward
+    const [files] = await bucket.getFiles({ prefix: folderPath });
+    const deletePromises = files.map((file) => file.delete());
+    await Promise.all(deletePromises);
+
+    // Set the cache expiration to 1 year
+    const fileMetadata = {
+      cacheControl: 'public, max-age=31536000',
+    };
+
+    // Save the file buffer to the bucket
+    await fileRef.save(file.buffer, fileMetadata);
+
+    // Set expiration data to one year after today
+    const expirationDate = new Date();
+    expirationDate.setUTCFullYear(expirationDate.getUTCFullYear() + 1);
+
+    // Generate a signed URL for downloading the file
+    const [downloadURL] = await fileRef.getSignedUrl({
+      action: 'read',
+      expires: expirationDate,
+    });
+
+    // Update the rewards downloadUrl field in Firestore
+    const rewardRef = Firestore.collection('rewards').doc(rewardId);
+    await rewardRef.update({
+      downloadUrl: downloadURL,
+    });
+
+    return downloadURL;
+  } catch (error) {
+    console.error('Error uploading file:', error);
     throw error;
   }
 }
@@ -124,9 +146,27 @@ async function deleteDoc(userId, fileName) {
 
     // Update the user's document field in Firestore
     const userRef = Firestore.collection('users').doc(userId);
-    await userRef.update({
-      documents: Firestore.FieldValue.arrayRemove({ name: fileName }),
-    });
+    const userDoc = await userRef.get();
+
+    if (!userDoc.exists) {
+      throw new Error('User document not found');
+    }
+
+    const userData = userDoc.data();
+    const updatedDocuments = userData.documents.filter(doc => doc.name !== fileName);
+
+    // Update Firestore with the new documents array
+    if (updatedDocuments.length === 0) {
+      // Remove the 'documents' key entirely if no documents remain
+      await userRef.update({
+        documents: admin.firestore.FieldValue.delete(),
+      });
+    } else {
+      // Otherwise, update the documents array
+      await userRef.update({
+        documents: updatedDocuments,
+      });
+    }
 
     return { message: 'Document deleted successfully' };
   } catch (error) {
@@ -135,9 +175,33 @@ async function deleteDoc(userId, fileName) {
   }
 }
 
+async function deleteRewardImg(rewardId) {
+  try {
+    const bucket = storage.bucket(process.env.FIREBASE_STORAGE_BUCKET);
+    const folderPath = `rewards/${rewardId}/`;
+
+    // List all files in the folder
+    const [files] = await bucket.getFiles({ prefix: folderPath });
+
+    if (files.length === 0) {
+      console.log('No files found for this reward.');
+      return { message: 'No files found for this reward.' };
+    }
+
+    // Delete all files
+    await Promise.all(files.map(file => file.delete()));
+
+    return { message: 'Reward images deleted successfully' };
+  } catch (error) {
+    console.error('Error deleting reward images:', error);
+    throw error;
+  }
+}
+
 module.exports = {
   createDoc,
-  fetchUserDoc,
-  updateDoc,
+  createProfilePic,
+  createRewardImg,
   deleteDoc,
+  deleteRewardImg,
 };

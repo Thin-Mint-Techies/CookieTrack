@@ -3,7 +3,7 @@ import { callApi } from "../utils/apiCall.js";
 import { regExpCalls, setupDropdown, addOptionToDropdown, handleTableRow, searchTableRows, handleTableCreation } from "../utils/utils.js";
 import { createModals } from "../utils/confirmModal.js";
 import { handleSkeletons } from "../utils/skeletons.js";
-import { openFileUploadModal } from "./uploadFiles.js";
+import { openFileUploadModal, formatFileSize, downloadFile, deleteUploadedFile } from "./uploadFiles.js";
 import { manageLoader } from "../utils/loader.js";
 
 //#region CREATE TABLES/LOAD DATA -----------------------------------
@@ -19,13 +19,16 @@ document.addEventListener("authStateReady", async () => {
     userRole = JSON.parse(sessionStorage.getItem('userRole'));
 
     //Create necessary tables based on user role
-    if (userRole && userData.id) {
+    if (userRole && userData) {
         //Create table and setup filters
         handleTableCreation.yourDocuments(mainContent, openFileUploadModal);
         handleTableCreation.currentOrder(mainContent, openOrderModal);
         handleTableCreation.completedOrder(mainContent);
         searchTableRows.currentOrders("current-orders-search", "current-orders-datestart", "current-orders-dateend", "current-orders-clear-filters");
         searchTableRows.completedOrders("completed-orders-search", "completed-orders-datestart", "completed-orders-dateend", "completed-orders-clear-filters");
+
+        //Load the documents that the user has if any
+        loadFileTableRows(userData.documents);
 
         //Get the troopers associated with the user
         userTroopers = await callApi(`/troopersOwnerId/${userData.id}`);
@@ -58,6 +61,18 @@ function loadOrderTableRows(orders, isCurrentOrders) {
         } else {
             handleTableRow.completedOrder(orderData, editCompletedOrder, createModals.deleteItem(deleteCompletedOrder));
         }
+    });
+}
+
+function loadFileTableRows(files) {
+    files.forEach((file) => {
+        const fileData = {
+            fileName: file.name,
+            fileSize: formatFileSize(file.size),
+            dateUploaded: new Date(file.dateUploaded).toLocaleDateString("en-US"),
+        }
+
+        handleTableRow.yourDocuments(file.url, fileData, downloadFile, createModals.deleteItem(deleteUploadedFile));
     });
 }
 //#endregion CREATE TABLES/LOAD DATA --------------------------------

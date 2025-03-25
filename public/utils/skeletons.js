@@ -61,7 +61,7 @@ function createGreetingSkeleton(parent) {
 
 function createMonthlyCookieSkeleton(parent) {
     const skeleton = document.createElement('div');
-    skeleton.className = "skeleton bg-green relative max-w-7xl shadow-default mx-auto rounded-default overflow-hidden mb-8";
+    skeleton.className = "skeleton bg-green relative max-w-7xl shadow-default mx-auto rounded-default overflow-hidden mt-8 mb-8";
     skeleton.innerHTML = `
     <div class="grid sm:grid-cols-2 max-sm:gap-6">
         <div class="p-6 flex flex-col justify-center items-center w-full">

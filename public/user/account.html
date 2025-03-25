@@ -40,7 +40,7 @@
                         <div class="bg-green h-32 w-full">
                             <div class="relative top-[45px] m-auto h-40 w-40 rounded-full shadow-default">
                                 <img id="user-photo" src="/public/resources/images/avatar.png"
-                                    class="w-full h-full rounded-full object-contain border-2 border-white bg-white"
+                                    class="w-full h-full rounded-full object-cover border-2 border-white bg-white"
                                     alt="Profile Picture" />
                             </div>
                         </div>
@@ -87,9 +87,9 @@
                             <div>
                                 <label class="text-base text-black dark:text-white mb-2 block">Upload New Profile
                                     Picture</label>
-                                <input id="user-upload-photo" type="file" accept=".png,.jpeg,.svg,.webp,.gif"
+                                <input id="user-upload-photo" type="file" accept=".png,.jpeg,.jpg,.webp"
                                     class="bg-white dark:bg-black border border-gray w-full text-base text-black dark:text-white cursor-pointer file:border-0 file:py-3 file:px-4 file:mr-4 file:bg-gray file:hover:bg-off-white file:text-black file:font-sans rounded accent-green" />
-                                <p class="text-xs text-orange mt-2">Only PNG, JPG, SVG, WEBP, and GIF are Allowed.</p>
+                                <p class="text-xs text-orange mt-2">Only PNG, JPG, and WEBP are Allowed.</p>
                             </div>
                             <div class="!mt-8">
                                 <button type="button" id="save-changes"

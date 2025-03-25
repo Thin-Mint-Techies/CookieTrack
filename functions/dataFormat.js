@@ -24,8 +24,8 @@ const userDataFormat = {
 const rewardDataFormat = {
     name: '',
     description: '',
-    imageName: '',
     boxesNeeded: 0,
+    downloadUrl: '',
 };
 
 const cookieDataFormat = {

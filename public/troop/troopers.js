@@ -51,7 +51,7 @@ function loadTrooperTableRows(troopers, isAllTroopers) {
         const trooperData = {
             troopNumber: trooper.troopNumber,
             trooperName: trooper.trooperName,
-            /*parentName:trooper.parentName,*/
+            parentName:trooper.parentName,
             troopLeader: trooper.troopLeader,
             currentBalance: trooper.currentBalance,
             boxesSold: trooper.boxesSold,
@@ -162,7 +162,7 @@ trooperSubmit.addEventListener('click', (e) => {
         troopNumber: number,
         trooperName: name,
         ownerId: pUid,
-        /*parentName: pName,*/
+        parentName: pName,
         troopLeader: leader,
         age: age,
         grade: grade,
@@ -245,7 +245,7 @@ function getRowData(row) {
     let trooperData = {
         troopNumber: tds[index++]?.textContent.trim(),
         trooperName: tds[index++]?.textContent.trim(),
-        /*parentName: tds[index++]?.textContent.trim(),*/
+        parentName: tds[index++]?.textContent.trim(),
         troopLeader: tds[index++]?.textContent.trim(),
         currentBalance: tds[index++]?.textContent.trim(),
         boxesSold: tds[index++]?.textContent.trim(),

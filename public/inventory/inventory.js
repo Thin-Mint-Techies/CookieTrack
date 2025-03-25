@@ -51,7 +51,7 @@ function loadInventoryTableRows(inventory, inventoryType) {
         }
     });
 }
-//#endregino CREATE TABLES/LOAD DATA --------------------------------
+//#endregion CREATE TABLES/LOAD DATA --------------------------------
 
 //#region Add/Edit Inventory -------------------------------------------------
 let cookieForm = document.getElementById('cookie-form');
@@ -122,6 +122,7 @@ cookieSubmit.addEventListener('click', (e) => {
 
     const cookieData = {
         variety: cName,
+        description: "",
         price: (cPrice).toLocaleString('en-US', { style: 'currency', currency: 'USD' }),
     }
 
@@ -139,6 +140,7 @@ async function createCookieApi(cookieData) {
     try {
         const cookieId = await callApi('/cookie', 'POST', cookieData);
         //Cookie created, add to table and show message
+        delete cookieData.description;
         handleTableRow.troopInventory(cookieId.id, cookieData, editCookie, createModals.deleteItem(deleteCookie));
         showToast("Cookie Added", "A new cookie has been created and added to the troop inventory.", STATUS_COLOR.GREEN, true, 5);
     } catch (error) {
@@ -156,6 +158,7 @@ async function updateCookieApi(cookieData, cookieId) {
     try {
         await callApi(`/cookie/${cookieId}`, 'PUT', cookieData);
         //Cookie updated, update data in table and show message
+        delete cookieData.description;
         handleTableRow.updateInventoryRow(handleTableRow.currentRowEditing, cookieData);
         showToast("Cookie Updated", "The selected cookie has been updated with the new information.", STATUS_COLOR.GREEN, true, 5);
     } catch (error) {
@@ -185,7 +188,7 @@ function getRowData(row) {
 
     let cookieData = {
         variety: tds[index++]?.textContent.trim(),
-        price: tds[index++]?.textContent.trim(),
+        price: tds[index++]?.textContent.trim().replace("$", ''),
         boxesInStock: tds[index++]?.textContent.trim()
     }
 

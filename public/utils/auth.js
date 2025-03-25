@@ -3,6 +3,7 @@ import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/fi
 import { getFirestore } from 'https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js';
 import { callApi } from "../utils/apiCall.js";
 import { handleSkeletons } from './skeletons.js';
+import { imageStorageHandler } from './utils.js';
 
 const firebaseConfig = {
     apiKey: "AIzaSyAq0uKOOdjO-UDVX80oZ0TFkRH6aUf941s",
@@ -48,6 +49,15 @@ onAuthStateChanged(auth, async (user) => {
                 //Load user information and store it in session storage
                 const userData = await callApi(`/user/${user.uid}`);
                 const userRole = await callApi(`/getRole/${user.uid}`);
+
+                //Check if profile pic exists in local storage
+                if (!localStorage.getItem('profilePic')) {
+                    //Check if the user has the profilePic in their info then update localStorage
+                    if (userData.profilePic) {
+                        imageStorageHandler.saveFileUrl('profilePic', userData.profilePic);
+                    }
+                }
+
                 if (userData && userRole) {
                     sessionStorage.setItem("userData", JSON.stringify(userData));
                     sessionStorage.setItem("userRole", JSON.stringify(userRole));
@@ -81,16 +91,17 @@ function updateSidebarWithUserData() {
     // Load user info into sidebars
     let navUserName = document.getElementById("nav-username");
     let navUserEmail = document.getElementById("nav-useremail");
-    /* let navUserPhoto = document.getElementById("nav-userphoto");
-    let navSmUserPhoto = document.getElementById("nav-sm-userphoto"); */
+    let navUserPhoto = document.getElementById("nav-userphoto");
+    let navSmUserPhoto = document.getElementById("nav-sm-userphoto");
 
-    //Get user data from session storage
+    //Get user data from session storage/profile pic from local
     const userData = JSON.parse(sessionStorage.getItem('userData'));
+    const userProfilePic = localStorage.getItem("profilePic");
 
     if (navUserName) navUserName.textContent = userData?.name || null;
     if (navUserEmail) navUserEmail.textContent = userData?.email || null;
-    /* if (navUserPhoto) navUserPhoto.src = user.photoUrl;
-    if (navSmUserPhoto) navSmUserPhoto.src = user.photoUrl; */
+    if (navUserPhoto) navUserPhoto.src = userProfilePic || "/public/resources/images/avatar.png";
+    if (navSmUserPhoto) navSmUserPhoto.src = userProfilePic || "/public/resources/images/avatar.png";
 }
 
 //Sign out functions ------------------------------------------------
@@ -111,6 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Sign-out successful.
             sessionStorage.removeItem('userData');
             sessionStorage.removeItem('userRole');
+            localStorage.removeItem('profilePic');
         }).catch((error) => {
             showToast(error.code, error.message, STATUS_COLOR.RED, true, 10);
         });

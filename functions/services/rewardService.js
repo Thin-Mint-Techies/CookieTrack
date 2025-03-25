@@ -1,10 +1,10 @@
 const { Firestore } = require('../firebaseConfig');
 
 // Service to create a new Reward
-const createReward = async ({ name, description, boxesNeeded,imageName }) => {
+const createReward = async ({ name, description, boxesNeeded }) => {
   try {
     const newRewardRef = Firestore.collection('rewards').doc();
-    await newRewardRef.set({name,description,boxesNeeded,imageName});
+    await newRewardRef.set({name,description,boxesNeeded});
     return newRewardRef.id;
   } catch (error) {
     throw new Error('Error creating Reward');
@@ -25,10 +25,10 @@ const getAllRewards = async () => {
 };
 
 // Service to update a Reward by ID
-const updateReward = async (id, { name, description, boxesNeeded,imageName }) => {
+const updateReward = async (id, { name, description, boxesNeeded, downloadUrl }) => {
   try {
     const ref = Firestore.collection('rewards').doc(id);
-    await ref.update({name,description,boxesNeeded,imageName });
+    await ref.update({name,description,boxesNeeded,downloadUrl });
     return { message: 'Reward updated successfully' };
   } catch (error) {
     throw new Error('Error updating Reward');
@@ -69,11 +69,11 @@ const selectRewardForTroop = async (troopId, rewardId, userId) => {
     }
 
     const rewardData = rewardDoc.data();
+    rewardData.id = rewardId;
 
     // Add reward selection to the trooper's currentReward array
     const currentReward = trooperData.currentReward || [];
     currentReward.push({
-      ...rewardDataFormat,
       ...rewardData,
       selectedBy: userId,
       selectedAt: new Date().toISOString(),

@@ -101,4 +101,106 @@ function addOptionToDropdown(dropdownId, optionText, optionValue) {
 }
 //#endregion --------------------------------------------------------
 
-export { regExpCalls, setupPhoneInput, setupDropdown, addOptionToDropdown, handleTableCreation, searchTableRows, handleTableRow }
+//#region LOCAL STORAGE FILES ---------------------------------------
+const imageStorageHandler = {
+    compress: (file, maxWidth, maxHeight, quality) => compressImageFile(file, maxWidth, maxHeight, quality),
+    saveFile: function (key, file) {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+
+        reader.onloadend = () => {
+            localStorage.setItem(key, reader.result);
+        }
+    },
+    saveFileUrl: async function (key, url) {
+        const response = await fetch(url);
+        const blob = await response.blob();
+
+        const reader = new FileReader();
+        reader.readAsDataURL(blob);
+
+        reader.onloadend = () => {
+            localStorage.setItem(key, reader.result);
+        };
+    },
+    loadFile: function (key, imgElement) {
+        const dataUrl = localStorage.getItem(key);
+        if (dataUrl) {
+            imgElement.src = dataUrl;
+        }
+    }
+}
+
+function compressImageFile(file, maxWidth = 160, maxHeight = 160, quality = 0.8) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        const reader = new FileReader();
+
+        // Preserve the original file type
+        const fileType = file.type || 'image/png';
+
+        // Convert the file into a data URL
+        reader.onload = function (event) {
+            img.src = event.target.result;
+        };
+
+        reader.onerror = function (error) {
+            reject(error);
+        };
+
+        reader.readAsDataURL(file);
+
+        img.onload = function () {
+            // Create a canvas to resize and compress the image
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            // If the image is already smaller than max dimensions, return it as-is
+            if (img.width <= maxWidth && img.height <= maxHeight) {
+                resolve(file);
+                return;
+            }
+
+            // Resize while maintaining aspect ratio
+            const ratio = Math.min(maxWidth / img.width, maxHeight / img.height);
+            const width = Math.round(img.width * ratio);
+            const height = Math.round(img.height * ratio);
+
+            canvas.width = width;
+            canvas.height = height;
+
+            // Draw the image on the canvas
+            ctx.drawImage(img, 0, 0, width, height);
+
+            // Convert canvas to compressed image
+            canvas.toBlob((blob) => {
+                if (!blob) {
+                    reject(new Error("Compression failed"));
+                    return;
+                }
+                // Compare file sizes
+                if (blob.size >= file.size) {
+                    resolve(file); // Return original if compression made it larger
+                    return;
+                }
+                const compressedFile = new File([blob], file.name, {
+                    type: fileType,
+                    lastModified: Date.now(),
+                });
+                resolve(compressedFile); // Resolve with the compressed file
+            }, fileType, quality); // 'quality' is the image quality (0 to 1)
+        };
+    });
+}
+//#endregion --------------------------------------------------------
+
+export {
+    regExpCalls,
+    setupPhoneInput,
+    setupDropdown,
+    addOptionToDropdown,
+    imageStorageHandler,
+    handleTableCreation,
+    searchTableRows,
+    handleTableRow
+}
