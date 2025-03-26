@@ -19,13 +19,23 @@ document.addEventListener("authStateReady", async () => {
 
     //Create necessary tables based on user role
     if (userRole && userData.id) {
+        //First get the inventory data
+        const troopInventoryData = await callApi('/leaderInventory');
+        const parentInventoryData = await callApi(`/inventory/${userData.id}`);
+
         if (userRole.role === "parent") {
+            handleTableCreation.troopInventory(mainContent, null);
             handleTableCreation.yourInventory(mainContent);
-            //loadInventoryTableRows();
+            if (troopInventoryData) loadInventoryTableRows(troopInventoryData.inventory, "troop", false);
+            if (parentInventoryData) loadInventoryTableRows(parentInventoryData.inventory, "your");
         } else if (userRole.role === "leader") {
             handleTableCreation.troopInventory(mainContent, openCookieModal);
             handleTableCreation.needInventory(mainContent);
             handleTableCreation.yourInventory(mainContent);
+
+            if (troopInventoryData) loadInventoryTableRows(troopInventoryData.inventory, "troop");
+            //if (needInventoryData) loadInventoryTableRows(needInventoryData, "need");
+            if (parentInventoryData) loadInventoryTableRows(parentInventoryData.inventory, "your");
         }
     } else {
         showToast("Error Loading Data", "There was an error loading user data. Please refresh the page to try again.", STATUS_COLOR.RED, false);
@@ -36,18 +46,24 @@ document.addEventListener("authStateReady", async () => {
     handleSkeletons.removeSkeletons(mainContent);
 });
 
-function loadInventoryTableRows(inventory, inventoryType) {
+function loadInventoryTableRows(inventory, inventoryType, hasActions = true) {
     inventory.forEach((cookie) => {
         const cookieData = {
-
+            variety: cookie.variety,
+            boxes: cookie.boxes,
+            boxPrice: cookie.boxPrice,
         }
 
         if (inventoryType === "troop") {
-            handleTableRow.troopInventory(cookieData, editCookie, createModals.deleteItem(deleteCookie));
+            if (hasActions) {
+                handleTableRow.troopInventory(cookie.varietyId, cookieData, editCookie, createModals.deleteItem(deleteCookie));
+            } else {
+                handleTableRow.troopInventory(cookie.varietyId, cookieData, null, null);
+            }     
         } else if (inventoryType === "need") {
-            handleTableRow.needInventory(cookieData, editCookie, createModals.deleteItem(deleteCookie));
+            handleTableRow.needInventory(cookie.varietyId, cookieData, editCookie, createModals.deleteItem(deleteCookie));
         } else if (inventoryType === "your") {
-            handleTableRow.yourInventory(cookieData, editCookie, createModals.deleteItem(deleteCookie));
+            handleTableRow.yourInventory(cookie.varietyId, cookieData, editCookie, createModals.deleteItem(deleteCookie));
         }
     });
 }

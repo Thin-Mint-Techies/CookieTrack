@@ -24,7 +24,7 @@ document.addEventListener("authStateReady", async () => {
             handleTableCreation.yourTrooper(mainContent, openTrooperModal);
 
             const yourTrooperData = await callApi(`/troopersOwnerId/${userData.id}`);
-            loadTrooperTableRows(yourTrooperData, false);
+            if (yourTrooperData) loadTrooperTableRows(yourTrooperData, false);
         } else if (userRole.role === "leader") {
             //Create tables and setup search for all troopers
             handleTableCreation.allTrooper(mainContent);
@@ -183,7 +183,16 @@ async function createTrooperApi(trooperData) {
     manageLoader(true);
 
     try {
+        //Create trooper and their inventory
         const trooperId = await callApi('/trooper', 'POST', trooperData);
+        const inventoryData = {
+            ownerId: trooperId.id,
+            parentId: userData.id,
+            trooperId: trooperId.id,
+            trooperName: trooperData.trooperName,
+            troopNumber: trooperData.troopNumber
+        }
+        await callApi('/trooperInventory', 'POST', inventoryData);
         //Trooper created, add to tables and show message
         handleTableRow.yourTrooper(trooperId.id, trooperData, editTrooperData, createModals.deleteItem(deleteTrooper));
         if (userRole === "leader") handleTableRow.allTrooper(trooperData, editTrooperData, createModals.deleteItem(deleteTrooper));

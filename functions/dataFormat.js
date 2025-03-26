@@ -143,8 +143,7 @@ const trooperInventoryDataFormat = {
 };
 
 // when order is made and not in fulfilled, put the missing boxes in needToOrder
-const leaderInventoryDataFormat = {
-    ownerId: '',
+const troopInventoryDataFormat = {
     inventory: [{
         varietyId: '',
         variety: '',
@@ -200,6 +199,7 @@ module.exports = {
     orderDataFormat,
     saleDataformatforTrooper,
     parentInventoryDataFormat,
-    leaderInventoryDataFormat,
+    troopInventoryDataFormat,
+    trooperInventoryDataFormat,
     ACL,
 };

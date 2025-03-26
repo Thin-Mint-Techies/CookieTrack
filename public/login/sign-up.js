@@ -75,10 +75,11 @@ function createUserAccount() {
                 phone: createPhone.value.trim(),
                 role: "parent"
             }).then(async () => {
-                // Successful upload, set role through custom claims
+                // Successful upload, set role through custom claims and create parent inventory
                 const customClaim = await callApi(`/attachRoleAsCustomClaim/${userCredential.user.uid}`, 'POST', null, false);
+                const inventoryId = await callApi(`/parentInventory`, 'POST', {ownerId: userCredential.user.uid});
                 localStorage.removeItem("creatingAccount");
-                if (customClaim) window.location.href = "../dashboard/dashboard.html";
+                if (customClaim && inventoryId) window.location.href = "../dashboard/dashboard.html";
             }).catch((error) => {
                 manageLoader(false);
                 console.log(error.code + ": " + error.message);

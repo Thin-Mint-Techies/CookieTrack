@@ -25,12 +25,12 @@ const tableSchemas = {
         ]
     },
     inventory: {
-        headers: ["Cookie Name", "Price Per Box"],
-        fields: ["variety", "price"]
+        headers: ["Cookie Name", "Boxes in Stock", "Price Per Box"],
+        fields: ["variety", "boxes", "boxPrice"]
     },
     inventoryNeed: {
         headers: ["Cookie Name", "Boxes Needed"],
-        fields: ["cookieName", "boxesNeeded"]
+        fields: ["variety", "boxesNeeded"]
     },
     troopers: {
         headers: [
@@ -207,12 +207,15 @@ function createYourInventoryTable(parent) {
 
 function createTroopInventoryTable(parent, action) {
     const title = "Troop Inventory";
-    const icon = "boxes-stacked"
-    const button = {
-        id: "add-troop-cookies",
-        title: "Add New Cookies",
-        icon: "cookie-bite",
-        action: () => action("add")
+    const icon = "boxes-stacked";
+    let button = null;
+    if (action) {
+        button = {
+            id: "add-troop-cookies",
+            title: "Add New Cookies",
+            icon: "cookie-bite",
+            action: () => action("add")
+        }
     }
     createTable(parent, title, icon, null, tableSchemas.inventory.headers, button);
 }
@@ -341,9 +344,9 @@ function createRewardBox(parent, trooperData, rewardData, action) {
             <h3 class="text-lg text-green mt-6 mb-2">Redeem</h3>
             <div class="overflow-x-auto mt-4">
                 <div class="flex flex-row gap-4 p-[0_5px_10px] w-max">
-                    ${rewardData ? 
-                        rewardData.map(reward => rewards(reward, trooperData.boxesSold, trooperData.id)).join('') 
-                        : `<p class="text-sm text-black mt-2 text-center">No rewards available.</p>`}
+                    ${rewardData ?
+            rewardData.map(reward => rewards(reward, trooperData.boxesSold, trooperData.id)).join('')
+            : `<p class="text-sm text-black mt-2 text-center">No rewards available.</p>`}
                 </div>
             </div>
         </div>
@@ -649,27 +652,29 @@ function setupRowFields(tr, hasDropdown, fields, data, buttons) {
         tr.appendChild(td);
     });
 
-    // Create the action buttons column
-    let actionTd = document.createElement("td");
+    if (buttons) {
+        // Create the action buttons column
+        let actionTd = document.createElement("td");
 
-    buttons.forEach(btn => {
-        let button = document.createElement("button");
-        button.className = "mr-4";
-        button.title = btn.title;
+        buttons.forEach(btn => {
+            let button = document.createElement("button");
+            button.className = "mr-4";
+            button.title = btn.title;
 
-        let icon = document.createElement("i");
-        icon.className = `fa-solid ${btn.iconClass} text-xl`;
+            let icon = document.createElement("i");
+            icon.className = `fa-solid ${btn.iconClass} text-xl`;
 
-        button.addEventListener('click', (e) => {
-            handleTableRow.currentRowEditing = e.target.closest('tr');
-            btn.action();
+            button.addEventListener('click', (e) => {
+                handleTableRow.currentRowEditing = e.target.closest('tr');
+                btn.action();
+            });
+
+            button.appendChild(icon);
+            actionTd.appendChild(button);
         });
 
-        button.appendChild(icon);
-        actionTd.appendChild(button);
-    });
-
-    tr.appendChild(actionTd);
+        tr.appendChild(actionTd);
+    }
 }
 
 function addOrderRow(orderId, data, isCurrentOrder, editAction, deleteAction, completeAction) {
@@ -699,10 +704,13 @@ function addInventoryRow(cookieId, data, tbodyId, editAction, deleteAction) {
     tr.className = "bg-white dark:bg-black even:bg-gray even:dark:bg-black-light text-sm text-black dark:text-white [&_td]:p-4";
 
     // Button configurations
-    let buttons = [
-        { title: "Edit", iconClass: "fa-pen-to-square text-blue hover:text-blue-light", action: editAction },
-        { title: "Delete", iconClass: "fa-trash-can text-red hover:text-red-light", action: deleteAction }
-    ];
+    let buttons = null;
+    if (editAction && deleteAction) {
+        let buttons = [
+            { title: "Edit", iconClass: "fa-pen-to-square text-blue hover:text-blue-light", action: editAction },
+            { title: "Delete", iconClass: "fa-trash-can text-red hover:text-red-light", action: deleteAction }
+        ];
+    }
 
     setupRowFields(tr, false, fields, data, buttons);
     tbody.appendChild(tr);

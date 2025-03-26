@@ -48,6 +48,13 @@ onAuthStateChanged(auth, async (user) => {
 
                 //Load user information and store it in session storage
                 const userData = await callApi(`/user/${user.uid}`);
+
+                //Check if userData has a role param. If so, update their role to new role
+                if (userData.role) {
+                    await callApi(`/attachRoleAsCustomClaim/${user.uid}`, 'POST', null, false);
+                    window.location.reload();
+                }
+                
                 const userRole = await callApi(`/getRole/${user.uid}`);
 
                 //Check if profile pic exists in local storage

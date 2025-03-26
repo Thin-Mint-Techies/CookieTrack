@@ -13,11 +13,11 @@ const createParentInventory = async (req, res) => {
 
 const createLeaderInventory = async (req, res) => {
   try {
-    const inventoryId = await inventoryService.createLeaderInventory(req.body);
-    console.log('Leader Inventory created successfully:', { id: inventoryId });
-    res.status(201).json({ message: 'Leader Inventory created successfully', inventoryId });
+    const inventoryId = await inventoryService.createTroopInventory(req.body);
+    console.log('Troop Inventory created successfully:', { id: inventoryId });
+    res.status(201).json({ message: 'Troop Inventory created successfully', inventoryId });
   } catch (error) {
-    console.error('Failed to create Leader Inventory:', error.message);
+    console.error('Failed to create Troop Inventory:', error.message);
     res.status(500).json({ message: error.message });
   }
 };
@@ -46,9 +46,8 @@ const updateParentInventory = async (req, res) => {
 };
 
 const updateLeaderInventory = async (req, res) => {
-  const { id } = req.params;
   try {
-    const result = await inventoryService.updateLeaderInventory(id, req.body);
+    const result = await inventoryService.updateTroopInventory(req.body);
     console.log('Leader Inventory updated successfully:', result);
     res.status(200).json({ message: 'Leader Inventory updated successfully', result });
   } catch (error) {
@@ -92,6 +91,17 @@ const getAllInventories = async (req, res) => {
   }
 };
 
+const getLeaderInventory = async (req, res) => {
+  try {
+    const inventories = await inventoryService.getLeaderInventory();
+    console.log('Fetched leader inventory successfully:', inventories);
+    res.status(200).json(inventories);
+  } catch (error) {
+    console.error('Failed to fetch leader inventory:', error.message);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 const getInventoryByOwnerId = async (req, res) => {
   const { id } = req.params;
   try {
@@ -125,6 +135,7 @@ module.exports = {
   updateTrooperInventory,
   updateTrooperCookie,
   getAllInventories,
+  getLeaderInventory,
   getInventoryByOwnerId,
   deleteInventory
 };

@@ -10,14 +10,13 @@ router.post('/parentInventory', inventoryController.createParentInventory);
 //requireLogin, checkRole(['leader']),
 router.post('/leaderInventory',  inventoryController.createLeaderInventory);
 
-//requireLogin,
 router.post('/trooperInventory',  inventoryController.createTrooperInventory);
 
 // requireLogin,
 router.put('/parentInventory/:id',inventoryController.updateParentInventory);
 
 // requireLogin, checkRole(['leader']), 
-router.put('/leaderInventory/:id',inventoryController.updateLeaderInventory);
+router.put('/leaderInventory',inventoryController.updateLeaderInventory);
 
 //requireLogin,
 router.put('/trooperInventory/:id',  inventoryController.updateTrooperInventory);
@@ -27,6 +26,8 @@ router.put('/trooperCookie/:trooperId', inventoryController.updateTrooperCookie)
 
 //requireLogin, checkRole(['leader']),
 router.get('/inventories',  inventoryController.getAllInventories);
+
+router.get('/leaderInventory',  inventoryController.getLeaderInventory);
 
 //requireLogin,
 router.get('/inventory/:id',  inventoryController.getInventoryByOwnerId);

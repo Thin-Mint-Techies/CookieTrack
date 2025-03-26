@@ -1,17 +1,15 @@
 const { Firestore } = require('../firebaseConfig');
-const { parentInventoryDataFormat, leaderInventoryDataFormat, trooperInventoryDataFormat } = require('../dataFormat');
+const { parentInventoryDataFormat, troopInventoryDataFormat, trooperInventoryDataFormat } = require('../dataFormat');
 
 // Store recent orders that has been picked up
-const createParentInventory = async ({ ownerId, trooperId, trooperName, trooperNumber, inventory }) => {
+const createParentInventory = async ({ ownerId }) => {
   try {
     const newInventoryRef = Firestore.collection('inventory').doc();
     const newInventoryData = {
       ...parentInventoryDataFormat,
       ownerId,
-      trooperId,
-      trooperName,
-      trooperNumber,
-      inventory,
+      owe: "$0.00",
+      inventory: [],
     };
     await newInventoryRef.set(newInventoryData);
     return newInventoryRef.id;
@@ -22,10 +20,9 @@ const createParentInventory = async ({ ownerId, trooperId, trooperName, trooperN
 
 const createLeaderInventory = async ({ ownerId, inventory, needToOrder }) => {
   try {
-    const newInventoryRef = Firestore.collection('inventory').doc();
+    const newInventoryRef = Firestore.collection('inventory').doc("troop-inventory");
     const newInventoryData = {
-      ...leaderInventoryDataFormat,
-      ownerId,
+      ...troopInventoryDataFormat,
       inventory,
       needToOrder,
     };
@@ -37,16 +34,17 @@ const createLeaderInventory = async ({ ownerId, inventory, needToOrder }) => {
 };
 
 // Store cookies assigned by a parent
-const createTrooperInventory = async ({ parentId, trooperId, trooperName, trooperNumber, inventory }) => {
+const createTrooperInventory = async ({ parentId, trooperId, trooperName, troopNumber }) => {
   try {
     const newInventoryRef = Firestore.collection('inventory').doc();
     const newInventoryData = {
       ...trooperInventoryDataFormat,
       parentId,
+      owe: "$0.00",
       trooperId,
       trooperName,
-      trooperNumber,
-      inventory,
+      troopNumber,
+      inventory: [],
     };
     await newInventoryRef.set(newInventoryData);
     return newInventoryRef.id;
@@ -79,10 +77,10 @@ const updateParentInventory = async (id, { trooperId, trooperName, trooperNumber
   }
 };
 
-const updateLeaderInventory = async (id, { inventory, needToOrder }) => {
+const updateLeaderInventory = async ({ inventory, needToOrder }) => {
   try {
     await Firestore.runTransaction(async (transaction) => {
-      const ref = Firestore.collection('inventory').doc(id);
+      const ref = Firestore.collection('inventory').doc("troop-inventory");
       const doc = await transaction.get(ref);
       if (!doc.exists) {
         throw new Error('Leader inventory not found');
@@ -191,6 +189,18 @@ const getAllInventories = async () => {
   }
 };
 
+const getLeaderInventory = async () => {
+  try {
+    const leaderInventory = await Firestore.collection('inventory').doc("troop-inventory");
+    if (leaderInventory.empty) {
+      throw new Error('No leader inventory found');
+    }
+    return leaderInventory.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (error) {
+    throw new Error(`Error fetching leader inventory: ${error.message}`);
+  }
+};
+
 const deleteInventory = async (id) => {
   try {
     await Firestore.runTransaction(async (transaction) => {
@@ -230,6 +240,7 @@ module.exports = {
   updateTrooperInventory,
   updateTrooperCookie,
   getAllInventories,
+  getLeaderInventory,
   getInventoryByOwnerId,
   deleteInventory,
 };
