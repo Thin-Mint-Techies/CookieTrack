@@ -74,44 +74,38 @@ const checkRole = (allowedRoles) => {
 */
 
 
-// use doc ownerId, for multiple doc
-// have not test
-// might need to refactor
 const checkUserOwnership = (collectionName, docIdParam = 'id') => {
   return async (req, res, next) => {
     const { uid } = req.user;
-    const docIds = req.params[docIdParam] || req.body[docIdParam];
+    const docIds = Array.isArray(req.params[docIdParam]) ? req.params[docIdParam] : [req.params[docIdParam]];
 
-    if (!docIds) {
-      return res.status(403).json({ success: false, message: 'Permission denied. Invalid document ID.' });
+    if (docIds.length > 30) {
+      return res.status(400).json({ success: false, message: 'Too many document IDs. Maximum is 30.' });
     }
 
-    // check for multiple doc
-    const docIdArray = Array.isArray(docIds) ? docIds : [docIds];
-
     try {
-      for (const docId of docIdArray) {
-        // this might need to be reduce, too much data fetching
-        const doc = await Firestore.collection(collectionName).doc(docId).get();
-        if (!doc.exists) {
-          return res.status(403).json({ success: false, message: 'Permission denied. Document not found.' });
-        }
+      const snapshot = await Firestore.collection(collectionName)
+        .where(admin.firestore.FieldPath.documentId(), 'in', docIds)
+        .where('ownerId', '==', uid)
+        .get();
 
-        const docData = doc.data();
-        const accessIds = docData.ownerId;
-
-        if (!accessIds.includes(uid)) {
-          return res.status(403).json({ success: false, message: 'Permission denied. You do not have access to these document.' });
-        }
+      if (snapshot.size !== docIds.length) {
+        const missingDocs = docIds.filter(
+          docId => !snapshot.docs.some(doc => doc.id === docId)
+        );
+        return res.status(403).json({
+          success: false,
+          message: `Permission denied. You do not own the following documents: ${missingDocs.join(', ')}.`,
+        });
       }
-      next(); // Proceed to the next middleware or controller
+
+      next();
     } catch (error) {
       console.error('Error checking document ownership:', error);
       return res.status(500).json({ success: false, message: 'Internal server error.' });
     }
   };
 };
-
 
 module.exports = {
   checkRole,
