@@ -47,7 +47,7 @@ const updateParentInventory = async (req, res) => {
 
 const updateLeaderInventory = async (req, res) => {
   try {
-    const result = await inventoryService.updateTroopInventory(req.body);
+    const result = await inventoryService.updateLeaderInventory(req.body);
     console.log('Leader Inventory updated successfully:', result);
     res.status(200).json({ message: 'Leader Inventory updated successfully', result });
   } catch (error) {

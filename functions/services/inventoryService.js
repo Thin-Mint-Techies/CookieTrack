@@ -191,11 +191,14 @@ const getAllInventories = async () => {
 
 const getLeaderInventory = async () => {
   try {
-    const leaderInventory = await Firestore.collection('inventory').doc("troop-inventory");
-    if (leaderInventory.empty) {
+    const leaderInventoryRef = Firestore.collection('inventory').doc("troop-inventory");
+    const leaderInventorySnapshot = await leaderInventoryRef.get();
+
+    if (!leaderInventorySnapshot.exists) {
       throw new Error('No leader inventory found');
     }
-    return leaderInventory.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+    return leaderInventorySnapshot.data();
   } catch (error) {
     throw new Error(`Error fetching leader inventory: ${error.message}`);
   }

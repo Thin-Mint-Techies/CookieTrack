@@ -1,6 +1,6 @@
 const { Firestore } = require('../firebaseConfig');
 
-const createCookie = async ({ variety, description, price }) => {
+const createCookie = async ({ variety, boxPrice }) => {
   try {
     // Check if a cookie with the same name already exists
     const existingCookieSnapshot = await Firestore.collection('cookies')
@@ -13,8 +13,7 @@ const createCookie = async ({ variety, description, price }) => {
     const newCookieRef = Firestore.collection('cookies').doc();
     await newCookieRef.set({
       variety,
-      description,
-      price,
+      boxPrice,
     });
     return newCookieRef.id;
   } catch (error) {
@@ -35,7 +34,7 @@ const getAllCookies = async () => {
   }
 };
 
-const updateCookie = async (id, { variety, description, price }) => {
+const updateCookie = async (id, { variety, boxPrice }) => {
   try {
     await Firestore.runTransaction(async (transaction) => {
       const ref = Firestore.collection('cookies').doc(id);
@@ -61,8 +60,7 @@ const updateCookie = async (id, { variety, description, price }) => {
       // Update the cookie document
       transaction.update(ref, {
         variety,
-        description,
-        price,
+        boxPrice,
       });
     });
 

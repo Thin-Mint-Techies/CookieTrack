@@ -6,7 +6,7 @@ import { createModals } from "../utils/confirmModal.js";
 import { manageLoader } from "../utils/loader.js";
 
 //#region CREATE TABLES/LOAD DATA -----------------------------------
-let userData, userRole;
+let userData, userRole, troopInventoryData;
 
 //First show skeleton loaders as inventory info is waiting to be pulled
 const mainContent = document.getElementsByClassName('main-content')[0];
@@ -20,7 +20,8 @@ document.addEventListener("authStateReady", async () => {
     //Create necessary tables based on user role
     if (userRole && userData.id) {
         //First get the inventory data
-        const troopInventoryData = await callApi('/leaderInventory');
+        troopInventoryData = await callApi('/leaderInventory');
+        console.log(troopInventoryData);
         const parentInventoryData = await callApi(`/inventory/${userData.id}`);
 
         if (userRole.role === "parent") {
@@ -88,8 +89,8 @@ function openCookieModal(mode = "add", cookieData) {
         cookieTitle.textContent = "Edit Cookie";
         cookieSubtitle.textContent = "Edit the selected cookie to make changes";
         cookieName.value = cookieData.variety;
-        cookiePrice.value = cookieData.price;
-        cookieStock.value = cookieData.boxesInStock;
+        cookiePrice.value = cookieData.boxPrice;
+        cookieStock.value = cookieData.boxes;
     }
 
     cookieForm.setAttribute('data-mode', mode);
@@ -138,15 +139,15 @@ cookieSubmit.addEventListener('click', (e) => {
 
     const cookieData = {
         variety: cName,
-        description: "",
-        price: (cPrice).toLocaleString('en-US', { style: 'currency', currency: 'USD' }),
+        boxes: cStock,
+        boxPrice: (cPrice).toLocaleString('en-US', { style: 'currency', currency: 'USD' }),
     }
 
     if (currentMode === "add") {
         createCookieApi(cookieData);
     } else if (currentMode === "edit") {
         const cookieId = handleTableRow.currentRowEditing.getAttribute('data-cid');
-        updateCookieApi(cookieData);
+        updateCookieApi(cookieData, cookieId);
     }
 });
 
@@ -154,9 +155,13 @@ async function createCookieApi(cookieData) {
     manageLoader(true);
 
     try {
-        const cookieId = await callApi('/cookie', 'POST', cookieData);
+        //Create cookie and then add it to troop inventory
+        const cookieId = await callApi('/cookie', 'POST', {variety: cookieData.variety, boxPrice: cookieData.boxPrice});
+        const newCookieData = cookieData;
+        newCookieData.varietyId = cookieId.id;
+        troopInventoryData.inventory.push(newCookieData);
+        await callApi('/leaderInventory', 'PUT', troopInventoryData);
         //Cookie created, add to table and show message
-        delete cookieData.description;
         handleTableRow.troopInventory(cookieId.id, cookieData, editCookie, createModals.deleteItem(deleteCookie));
         showToast("Cookie Added", "A new cookie has been created and added to the troop inventory.", STATUS_COLOR.GREEN, true, 5);
     } catch (error) {
@@ -172,9 +177,16 @@ async function updateCookieApi(cookieData, cookieId) {
     manageLoader(true);
 
     try {
-        await callApi(`/cookie/${cookieId}`, 'PUT', cookieData);
+        //Update cookie and troop inventory
+        await callApi(`/cookie/${cookieId}`, 'PUT', {variety: cookieData.variety, boxPrice: cookieData.boxPrice});
+        troopInventoryData.inventory = troopInventoryData.inventory.map(item => item.varietyId === cookieId ? {
+            ...item, 
+            variety: cookieData.variety,
+            boxes: cookieData.boxes,
+            boxPrice: cookieData.boxPrice,
+        } : item);
+        await callApi('/leaderInventory', 'PUT', troopInventoryData);
         //Cookie updated, update data in table and show message
-        delete cookieData.description;
         handleTableRow.updateInventoryRow(handleTableRow.currentRowEditing, cookieData);
         showToast("Cookie Updated", "The selected cookie has been updated with the new information.", STATUS_COLOR.GREEN, true, 5);
     } catch (error) {
@@ -204,8 +216,8 @@ function getRowData(row) {
 
     let cookieData = {
         variety: tds[index++]?.textContent.trim(),
-        price: tds[index++]?.textContent.trim().replace("$", ''),
-        boxesInStock: tds[index++]?.textContent.trim()
+        boxes: tds[index++]?.textContent.trim(),
+        boxPrice: tds[index++]?.textContent.trim().replace("$", ''),
     }
 
     return cookieData;

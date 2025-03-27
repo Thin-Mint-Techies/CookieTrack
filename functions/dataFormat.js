@@ -30,8 +30,7 @@ const rewardDataFormat = {
 
 const cookieDataFormat = {
     variety: '',
-    description: '',
-    price: '',
+    boxPrice: '',
 };
 
 //////////////////////////////////////////////////////////

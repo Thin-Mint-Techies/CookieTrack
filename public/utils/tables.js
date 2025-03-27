@@ -706,7 +706,7 @@ function addInventoryRow(cookieId, data, tbodyId, editAction, deleteAction) {
     // Button configurations
     let buttons = null;
     if (editAction && deleteAction) {
-        let buttons = [
+        buttons = [
             { title: "Edit", iconClass: "fa-pen-to-square text-blue hover:text-blue-light", action: editAction },
             { title: "Delete", iconClass: "fa-trash-can text-red hover:text-red-light", action: deleteAction }
         ];
