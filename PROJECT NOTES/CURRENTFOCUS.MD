@@ -81,3 +81,13 @@
         - If the order is cancel, the cookies go back to leader inventory
     - Owe is calculated from orders
     - 
+
+
+
+
+System testing: start with order
+Make sure order is working
+    Create order: parent inv not updating
+Parent return cookies
+Make sure that the numeric cannot be negative
+

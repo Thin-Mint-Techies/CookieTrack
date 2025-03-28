@@ -237,7 +237,6 @@ const parentPickup = async (orderId, parentEmail) => {
         status: 'Picked Up',
         datePickedUp: new Date().toISOString(),
       };
-
       transaction.update(orderRef, updatedOrderData);
 
       // Send email to parent for confirmation
@@ -328,7 +327,6 @@ const archiveOrders = async () => {
     console.error('Error moving completed orders:', error);
   }
 };
-
 
 
 const getUserOrders = async (userId) => {
