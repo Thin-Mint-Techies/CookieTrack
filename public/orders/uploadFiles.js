@@ -72,6 +72,7 @@ uploadFilesSubmit.addEventListener("click", () => {
                 dateUploaded: new Date().toLocaleDateString("en-US"),
                 url: downloadUrls[index]
             }
+            userData.documents = userData.documents || [];
             userData.documents.push(userFileData);
             sessionStorage.setItem("userData", JSON.stringify(userData));
         });
@@ -120,16 +121,16 @@ function renderFileProgress() {
     uploadFilesProgList.innerHTML = "";
     uploadedFiles.forEach((file, index) => {
         const fileElem = document.createElement("div");
-        fileElem.className = "flex flex-col bg-gray-50 p-4 rounded-lg";
+        fileElem.className = "flex flex-col p-4 rounded-lg";
         fileElem.innerHTML = `
             <div class="flex">
-                <p class="text-xs text-black flex-1">
+                <p class="text-xs text-black dark:text-white flex-1">
                     <i class="fa-solid fa-file-lines w-5 mr-2 inline-block text-lg"></i>
                     ${file.name} <span class="ml-2">(${formatFileSize(file.size)})</span>
                 </p>
-                <i data-index="${index}" class="remove-file fa-solid fa-xmark text-xl text-black hover:text-black-light shrink-0 w-3 cursor-pointer"></i>
+                <i data-index="${index}" class="remove-file fa-solid fa-xmark text-xl text-black hover:text-black-light dark:text-white hover:dark:text-off-white shrink-0 w-3 cursor-pointer"></i>
             </div>
-            <div class="bg-black rounded-full w-full h-2 my-2">
+            <div class="bg-black dark:bg-white rounded-full w-full h-2 my-2">
                 <div id="progress-${index}" class="w-0 h-full rounded-full bg-green flex items-center relative">
                     <span class="absolute text-xs right-0 bg-white w-2 h-2 rounded-full"></span>
                 </div>
@@ -206,12 +207,12 @@ export async function deleteUploadedFile() {
 
     try {
         const fileNameTd = handleTableRow.currentRowEditing.querySelector('td');
-        await callApi(`/document/${userData.id}`, 'DELETE', {fileName: fileNameTd.textContent.trim()});
+        await callApi(`/document/${userData.id}`, 'DELETE', { fileName: fileNameTd.textContent.trim() });
         //Document deleted, remove the file from userData in sessionStorage and from tables and show message
         userData.documents = userData.documents.filter(doc => doc.name !== fileNameTd.textContent.trim());
         sessionStorage.setItem("userData", JSON.stringify(userData));
         handleTableRow.currentRowEditing.remove();
-        showToast("Document Deleted", "The selected document has been deleted.", STATUS_COLOR.GREEN, true, 5);  
+        showToast("Document Deleted", "The selected document has been deleted.", STATUS_COLOR.GREEN, true, 5);
     } catch (error) {
         console.error('Error deleting document:', error);
         showToast("Error Deleting Document", 'There was an error with deleting this document. Please try again.', STATUS_COLOR.RED, true, 5);

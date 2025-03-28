@@ -848,6 +848,9 @@ video {
 .max-h-96 {
   max-height: 24rem;
 }
+.max-h-\[48rem\] {
+  max-height: 48rem;
+}
 .max-h-\[500px\] {
   max-height: 500px;
 }
@@ -1249,6 +1252,10 @@ video {
   --tw-bg-opacity: 1;
   background-color: rgb(72 173 160 / var(--tw-bg-opacity));
 }
+.bg-green-super-light {
+  --tw-bg-opacity: 1;
+  background-color: rgb(141 204 196 / var(--tw-bg-opacity));
+}
 .bg-loading-overlay {
   background-color: rgba(0,0,0,0.25);
 }
@@ -1270,10 +1277,6 @@ video {
 }
 .bg-white-overlay {
   background-color: rgba(255,255,255,0.6);
-}
-.bg-green-super-light {
-  --tw-bg-opacity: 1;
-  background-color: rgb(141 204 196 / var(--tw-bg-opacity));
 }
 .bg-gradient-to-b {
   background-image: linear-gradient(to bottom, var(--tw-gradient-stops));
@@ -2045,6 +2048,11 @@ h2>i {
   background-color: rgba(52,52,52,0.6);
 }
 
+.dark\:bg-white:is(.dark *) {
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
+}
+
 .dark\:text-white:is(.dark *) {
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity));
@@ -2402,6 +2410,16 @@ h2>i {
 }
 
 .\[\&\:nth-child\(4n-1\)\]\:dark\:bg-black-light:is(.dark *):nth-child(4n-1) {
+  --tw-bg-opacity: 1;
+  background-color: rgb(77 77 77 / var(--tw-bg-opacity));
+}
+
+.\[\&\:nth-child\(5n-1\)\]\:bg-gray:nth-child(5n-1) {
+  --tw-bg-opacity: 1;
+  background-color: rgb(209 213 219 / var(--tw-bg-opacity));
+}
+
+.\[\&\:nth-child\(5n-1\)\]\:dark\:bg-black-light:is(.dark *):nth-child(5n-1) {
   --tw-bg-opacity: 1;
   background-color: rgb(77 77 77 / var(--tw-bg-opacity));
 }

@@ -36,7 +36,7 @@ function createModal(action, info) {
                 <div class="flex-1">
                     <h3 id="confirm-modal-title" class="${info.text} text-xl font-bold">Confirm ${info.title}</h3>
                 </div>
-                <i id="confirm-modal-close" class="fa-solid fa-xmark text-xl text-black hover:text-black-light dark:text-white hover:dark:text-black-light shrink-0 ml-2 w-3 cursor-pointer"></i>
+                <i id="confirm-modal-close" class="fa-solid fa-xmark text-xl text-black hover:text-black-light dark:text-white hover:dark:text-off-white shrink-0 ml-2 w-3 cursor-pointer"></i>
             </div>
             <div class="flex flex-col gap-4 mt-6 text-center">
                 <i class="fa-solid ${info.icon} ${info.text} text-4xl"></i>

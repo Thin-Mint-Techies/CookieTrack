@@ -34,11 +34,12 @@ const createLeaderInventory = async ({ ownerId, inventory, needToOrder }) => {
 };
 
 // Store cookies assigned by a parent
-const createTrooperInventory = async ({ parentId, trooperId, trooperName, troopNumber }) => {
+const createTrooperInventory = async ({ ownerId, parentId, trooperId, trooperName, troopNumber }) => {
   try {
     const newInventoryRef = Firestore.collection('inventory').doc();
     const newInventoryData = {
       ...trooperInventoryDataFormat,
+      ownerId,
       parentId,
       owe: "$0.00",
       trooperId,
@@ -53,7 +54,7 @@ const createTrooperInventory = async ({ parentId, trooperId, trooperName, troopN
   }
 };
 
-const updateParentInventory = async (id, { trooperId, trooperName, trooperNumber, inventory }) => {
+const updateParentInventory = async (id, { trooperId, trooperName, troopNumber, inventory }) => {
   try {
     await Firestore.runTransaction(async (transaction) => {
       const ref = Firestore.collection('inventory').doc(id);
@@ -65,7 +66,7 @@ const updateParentInventory = async (id, { trooperId, trooperName, trooperNumber
       const updatedInventoryData = {
         trooperId,
         trooperName,
-        trooperNumber,
+        troopNumber,
         inventory,
       };
       transaction.update(ref, updatedInventoryData);
@@ -99,7 +100,7 @@ const updateLeaderInventory = async ({ inventory, needToOrder }) => {
   }
 };
 
-const updateTrooperInventory = async (id, { ownerId, trooperId, trooperName, trooperNumber, inventory }) => {
+const updateTrooperInventory = async (id, { ownerId, trooperId, trooperName, troopNumber, inventory }) => {
   try {
     await Firestore.runTransaction(async (transaction) => {
       const ref = Firestore.collection('inventory').doc(id);
@@ -112,7 +113,7 @@ const updateTrooperInventory = async (id, { ownerId, trooperId, trooperName, tro
         ownerId,
         trooperId,
         trooperName,
-        trooperNumber,
+        troopNumber,
         inventory,
       };
       transaction.update(ref, updatedInventoryData);

@@ -24,7 +24,7 @@ document.addEventListener("authStateReady", async () => {
             handleTableCreation.yourTrooper(mainContent, openTrooperModal);
 
             const yourTrooperData = await callApi(`/troopersOwnerId/${userData.id}`);
-            if (yourTrooperData) loadTrooperTableRows(yourTrooperData, false);
+            await loadTrooperTableRows(yourTrooperData, false);
         } else if (userRole.role === "leader") {
             //Create tables and setup search for all troopers
             handleTableCreation.allTrooper(mainContent);
@@ -33,8 +33,8 @@ document.addEventListener("authStateReady", async () => {
 
             const allTrooperData = await callApi(`/troopers/`);
             const yourTrooperData = await callApi(`/troopersOwnerId/${userData.id}`);
-            if (allTrooperData) loadTrooperTableRows(allTrooperData, true);
-            if (yourTrooperData) loadTrooperTableRows(yourTrooperData, false);
+            await loadTrooperTableRows(allTrooperData, true);
+            await loadTrooperTableRows(yourTrooperData, false);
         }
     } else {
         showToast("Error Loading Data", "There was an error loading user data. Please refresh the page to try again.", STATUS_COLOR.RED, false);
@@ -46,12 +46,17 @@ document.addEventListener("authStateReady", async () => {
 
 });
 
-function loadTrooperTableRows(troopers, isAllTroopers) {
-    troopers.forEach((trooper) => {
+async function loadTrooperTableRows(troopers, isAllTroopers) {
+    if (!troopers) return;
+
+    await Promise.all(troopers.map(async (trooper) => {
+        //Get the trooper's order, and reward data
+        const orderData = await callApi(`/ordersTrooper/${trooper.id}`);
+
         const trooperData = {
             troopNumber: trooper.troopNumber,
             trooperName: trooper.trooperName,
-            parentName:trooper.parentName,
+            parentName: trooper.parentName,
             troopLeader: trooper.troopLeader,
             currentBalance: trooper.currentBalance,
             boxesSold: trooper.boxesSold,
@@ -60,12 +65,20 @@ function loadTrooperTableRows(troopers, isAllTroopers) {
             shirtSize: trooper.shirtSize,
         }
 
+        const rewardData = trooper.currentReward;
+
+        const data = {
+            trooperData: trooperData,
+            orderData: orderData || [],
+            rewardData: rewardData,
+        }
+
         if (isAllTroopers) {
-            handleTableRow.allTrooper(trooper.id, trooperData, editTrooperData, createModals.deleteItem(deleteTrooper));
+            handleTableRow.allTrooper(trooper.id, data, editTrooperData, createModals.deleteItem(deleteTrooper));
         } else {
-            handleTableRow.yourTrooper(trooper.id, trooperData, editTrooperData, createModals.deleteItem(deleteTrooper));
-        }     
-    });
+            handleTableRow.yourTrooper(trooper.id, data, editTrooperData, createModals.deleteItem(deleteTrooper));
+        }
+    }));
 }
 //#endregion CREATE TABLES/LOAD DATA --------------------------------
 

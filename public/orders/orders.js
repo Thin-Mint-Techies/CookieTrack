@@ -65,6 +65,7 @@ function loadOrderTableRows(orders, isCurrentOrders) {
 }
 
 function loadFileTableRows(files) {
+    if (!files) return;
     files.forEach((file) => {
         const fileData = {
             fileName: file.name,

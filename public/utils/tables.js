@@ -47,6 +47,10 @@ const tableSchemas = {
     rewards: {
         headers: ["Reward Name", "Description", "Boxes Needed", "Image"],
         fields: ["name", "description", "boxesNeeded", "downloadUrl"]
+    },
+    selectedRewards: {
+        headers: ["Reward Name", "Description", "Data Selected"],
+        fields: ["name", "description", "selectedAt"]
     }
 };
 
@@ -54,6 +58,7 @@ const tableSchemas = {
 const handleTableCreation = {
     currentOrder: (parent, action) => createCurrentOrdersTable(parent, action),
     completedOrder: (parent) => createCompletedOrdersTable(parent),
+    trooperInventory: (parent, trooperData, action) => createTrooperInventoryTable(parent, trooperData, action),
     yourInventory: (parent) => createYourInventoryTable(parent),
     troopInventory: (parent, action) => createTroopInventoryTable(parent, action),
     needInventory: (parent) => createNeedInventoryTable(parent),
@@ -114,7 +119,7 @@ const tableFilters = {
     }
 }
 
-function createTable(parent, title, icon, filters, fields, button) {
+function createTable(parent, title, icon, filters, fields, button, removeActions = false) {
     let filtersClass = (filters !== null && filters.length > 1) ? "grid grid-cols-1 sm:grid-cols-[auto_auto] xl:grid-cols-[40%_auto_auto] gap-4" : "flex";
     let filtersContainer = "", buttonContainer = "";
 
@@ -144,12 +149,12 @@ function createTable(parent, title, icon, filters, fields, button) {
                 <i class="fa-solid fa-${icon}"></i> ${title}
             </h2>
             ${filtersContainer}
-            <div class="overflow-auto pb-4 max-h-96">
+            <div class="overflow-auto pb-4 max-h-[48rem]">
                 <table class="min-w-full border-separate border-spacing-0 border-4 border-green rounded-default">
                     <thead class="bg-green whitespace-nowrap sticky top-0">
                         <tr class="text-left text-lg text-white [&_th]:p-4 [&_th]:font-normal">
                             ${fields.map(field => `<th>${field}</th>`).join('')}
-                            <th>Actions</th>
+                            ${!removeActions ? '<th>Actions</th>' : ''}
                         </tr>
                     </thead>
                     <tbody id="${title.replaceAll(' ', '-').toLowerCase() + "-tbody"}" class="whitespace-nowrap"></tbody>
@@ -167,6 +172,27 @@ function createTable(parent, title, icon, filters, fields, button) {
             btn.addEventListener("click", button.action);
         }
     }
+}
+
+function createTrooperHiddenTable(parent, title, tbodyId, fields) {
+    const container = document.createElement('div');
+    container.className = "bg-white dark:bg-black py-6 px-4 max-w-7xl shadow-default my-6 rounded-default";
+    container.innerHTML = `
+        <h2 class="text-green text-4xl max-sm:text-2xl font-extrabold mb-8">
+            ${title}
+        </h2>
+        <div class="overflow-auto pb-4 max-h-96">
+            <table class="min-w-full border-separate border-spacing-0 border-4 border-green rounded-default">
+                <thead class="bg-green whitespace-nowrap sticky top-0">
+                    <tr class="text-left text-lg text-white [&_th]:p-4 [&_th]:font-normal">
+                        ${fields.map(field => `<th>${field}</th>`).join('')}
+                    </tr>
+                </thead>
+                <tbody id="${tbodyId + "-tbody"}" class="whitespace-nowrap"></tbody>
+            </table>
+        </div>
+    `;
+    parent.appendChild(container);
 }
 
 function createCurrentOrdersTable(parent, action) {
@@ -199,17 +225,34 @@ function createCompletedOrdersTable(parent) {
     createTable(parent, title, icon, filters, tableSchemas.completedOrders.headers, null);
 }
 
+function createTrooperInventoryTable(parent, trooperData, action) {
+    const title = `Inventory for ${trooperData.trooperName}`;
+    const icon = "box";
+    let button = {
+        id: `add-${trooperData.trooperName.replace(' ', '-').toLowerCase()}-cookies`,
+        title: "Add Cookies",
+        icon: "cookie-bite",
+        action: () => action("add", null, trooperData.id)
+    }
+    createTable(parent, title, icon, null, tableSchemas.inventory.headers, button);
+
+    const tbody = document.getElementById(title.replaceAll(' ', '-').toLowerCase() + "-tbody");
+    tbody.setAttribute("data-tid", trooperData.id);
+}
+
 function createYourInventoryTable(parent) {
     const title = "Your Inventory";
     const icon = "box"
-    createTable(parent, title, icon, null, tableSchemas.inventory.headers, null);
+    createTable(parent, title, icon, null, tableSchemas.inventory.headers, null, true);
 }
 
 function createTroopInventoryTable(parent, action) {
     const title = "Troop Inventory";
     const icon = "boxes-stacked";
     let button = null;
+    let removeAction = true;
     if (action) {
+        removeAction = false;
         button = {
             id: "add-troop-cookies",
             title: "Add New Cookies",
@@ -217,13 +260,13 @@ function createTroopInventoryTable(parent, action) {
             action: () => action("add")
         }
     }
-    createTable(parent, title, icon, null, tableSchemas.inventory.headers, button);
+    createTable(parent, title, icon, null, tableSchemas.inventory.headers, button, removeAction);
 }
 
 function createNeedInventoryTable(parent) {
     const title = "Need To Order";
     const icon = "truck-ramp-box"
-    createTable(parent, title, icon, null, tableSchemas.inventoryNeed.headers);
+    createTable(parent, title, icon, null, tableSchemas.inventoryNeed.headers, null);
 }
 
 function createYourTrooperTable(parent, action) {
@@ -283,14 +326,14 @@ function createRewardBox(parent, trooperData, rewardData, action) {
         }
 
         return `
-        <div class="bg-white rounded-default shadow-default w-72 overflow-hidden mx-auto flex flex-col">
+        <div class="bg-white dark:bg-black rounded-default shadow-default w-72 overflow-hidden mx-auto flex flex-col">
             <div class="h-56">
                 <img src=${reward.downloadUrl} class="w-full h-full object-cover" />
             </div>
             <div class="p-4 flex flex-col flex-grow justify-between">
                 <div>
                     <p class="text-xl text-green">${reward.name}</p>
-                    <p class="text-xs text-black mt-2">${reward.description ? reward.description : "&nbsp;"}</p>
+                    <p class="text-xs text-black dark:text-white mt-2">${reward.description ? reward.description : "&nbsp;"}</p>
                     <p class="text-3xl text-orange mt-2">${reward.boxesNeeded}+ Boxes</p>
                 </div>
                 <button id=${trooperId + "-" + reward.id} data-tid=${trooperId} data-rid=${reward.id}
@@ -303,7 +346,7 @@ function createRewardBox(parent, trooperData, rewardData, action) {
     const container = document.createElement('div');
     container.className = "need-skeleton hidden mt-12 mb-6 px-2";
     container.innerHTML = `
-        <div class="max-w-7xl mx-auto bg-white rounded-default shadow-default p-6">
+        <div class="max-w-7xl mx-auto bg-white dark:bg-black rounded-default shadow-default p-6">
             <h2 class="text-green text-4xl max-sm:text-2xl font-extrabold mb-8">
                 <i class="fa-solid fa-award"></i>Rewards for ${trooperData.trooperName}
             </h2>
@@ -311,14 +354,14 @@ function createRewardBox(parent, trooperData, rewardData, action) {
             <div class="grid md:grid-cols-2 gap-6">
                 <div>
                     <h3 class="text-lg text-green mb-2">Rewards Available</h3>
-                    <div class="bg-white p-6 rounded-default shadow-default">
+                    <div class="bg-white dark:bg-black p-6 rounded-default shadow-default">
                         <div class="flex flex-col justify-center items-center h-full pb-4">
                             <div
                                 class="flex flex-row justify-center items-center gap-5 max-[320px]:flex-col">
                                 <i class="fa-solid fa-gift text-3xl text-orange"></i>
                                 <h4 id=${trooperData.id + "-available"} class="text-7xl font-bold text-orange max-sm:text-5xl">${trooperData.available}</h4>
                             </div>
-                            <p class="text-sm text-black mt-2 text-center">Sell more boxes to earn more
+                            <p class="text-sm text-black dark:text-white mt-2 text-center">Sell more boxes to earn more
                                 rewards!
                             </p>
                         </div>
@@ -326,14 +369,14 @@ function createRewardBox(parent, trooperData, rewardData, action) {
                 </div>
                 <div>
                     <h3 class="text-lg text-green mb-2">Boxes Sold</h3>
-                    <div class="bg-white p-6 rounded-default shadow-default">
+                    <div class="bg-white dark:bg-black p-6 rounded-default shadow-default">
                         <div class="flex flex-col justify-center items-center h-full pb-4">
                             <div
                                 class="flex flex-row justify-center items-center gap-5 max-[320px]:flex-col">
                                 <i class="fa-solid fa-boxes-stacked text-3xl text-orange"></i>
                                 <h4 class="text-7xl font-bold text-orange max-sm:text-5xl">${trooperData.boxesSold}</h4>
                             </div>
-                            <p class="text-sm text-black mt-2 text-center">Keep selling your boxes for more
+                            <p class="text-sm text-black dark:text-white mt-2 text-center">Keep selling your boxes for more
                                 rewards!
                             </p>
                         </div>
@@ -594,7 +637,8 @@ const handleTableRow = {
     currentRowEditing: null,
     currentOrder: (orderId, data, editAction, deleteAction, completeAction) => addOrderRow(orderId, data, true, editAction, deleteAction, completeAction),
     completedOrder: (orderId, data, editAction, deleteAction) => addOrderRow(orderId, data, false, editAction, deleteAction, null),
-    yourInventory: (cookieId, data, editAction, deleteAction) => addInventoryRow(cookieId, data, "your-inventory", editAction, deleteAction),
+    trooperInventory: (cookieId, data, trooperName, editAction, deleteAction) => addInventoryRow(cookieId, data, `inventory-for-${trooperName}`, editAction, deleteAction),
+    yourInventory: (cookieId, data) => addInventoryRow(cookieId, data, "your-inventory"),
     troopInventory: (cookieId, data, editAction, deleteAction) => addInventoryRow(cookieId, data, "troop-inventory", editAction, deleteAction),
     needInventory: (cookieId, data, editAction, deleteAction) => addInventoryRow(cookieId, data, "need-to-order", editAction, deleteAction),
     yourTrooper: (trooperId, data, editAction, deleteAction) => addTrooperRow(trooperId, data, "your", editAction, deleteAction),
@@ -728,24 +772,57 @@ function addTrooperRow(trooperId, data, tbodyId, editAction, deleteAction) {
         { title: "Delete", iconClass: "fa-trash-can text-red hover:text-red-light", action: deleteAction }
     ];
 
-    setupRowFields(tr, true, tableSchemas.troopers.fields, data, buttons);
+    setupRowFields(tr, true, tableSchemas.troopers.fields, data.trooperData, buttons);
     tbody.appendChild(tr);
 
     //Now add a hidden row after the main row
     let hiddenTr = document.createElement("tr");
-    hiddenTr.className = "hidden-row hidden";
+    hiddenTr.className = "hidden-row hidden [&:nth-child(5n-1)]:bg-gray [&:nth-child(5n-1)]:dark:bg-black-light";
 
     let hiddenTd = document.createElement("td");
     hiddenTd.className = "pl-12 text-sm";
     hiddenTd.colSpan = tableSchemas.troopers.fields.length + 2;
 
-    let hiddenDiv = document.createElement("div");
-    hiddenDiv.className = "p-4 border-2 border-gray rounded-default";
-    hiddenDiv.textContent = "Info about trooper.";
-
-    hiddenTd.appendChild(hiddenDiv);
     hiddenTr.appendChild(hiddenTd);
     tbody.appendChild(hiddenTr);
+
+    //Create each of the elements for rewards, and orders
+    const lowercaseTrooper = data.trooperData.trooperName.replaceAll(' ', '-').toLowerCase();
+    createTrooperHiddenTable(hiddenTd, `Selected Rewards for ${data.trooperData.trooperName}`, `${tbodyId}-rewards-${lowercaseTrooper}`, tableSchemas.selectedRewards.headers);
+    createTrooperHiddenTable(hiddenTd, `Orders for ${data.trooperData.trooperName}`, `${tbodyId}-orders-${lowercaseTrooper}`, tableSchemas.orders.headers);
+
+    //Setup the rows for all the tables
+    const rewardsTbody = document.getElementById(`${tbodyId}-rewards-${lowercaseTrooper}-tbody`);
+    const ordersTbody = document.getElementById(`${tbodyId}-orders-${lowercaseTrooper}-tbody`);
+
+    if (data.rewardData.length > 0) {
+        data.rewardData.forEach((reward) => {
+            let tr = document.createElement("tr");
+            tr.className = "bg-white dark:bg-black [&:nth-child(4n-1)]:bg-gray [&:nth-child(4n-1)]:dark:bg-black-light text-sm text-black dark:text-white [&_td]:p-4";
+
+            const rewardData = {
+                name: reward.name,
+                description: reward.description,
+                selectedAt: new Date(reward.selectedAt).toLocaleDateString("en-US"),
+            }
+            setupRowFields(tr, false, tableSchemas.selectedRewards.fields, rewardData, null);
+            rewardsTbody.appendChild(tr);
+        });
+    }
+
+    if (data.orderData.length > 0) {
+        data.orderData.forEach((order) => {
+            let tr = document.createElement("tr");
+            tr.className = "bg-white dark:bg-black [&:nth-child(4n-1)]:bg-gray [&:nth-child(4n-1)]:dark:bg-black-light text-sm text-black dark:text-white [&_td]:p-4";
+            
+            const orderData = {
+                
+            }
+
+            setupRowFields(ordersTbody, false, tableSchemas.orders.fields, orderData, null);
+            ordersTbody.appendChild(tr);
+        });
+    }    
 }
 
 function addFileRow(fileUrl, data, downloadAction, deleteAction) {

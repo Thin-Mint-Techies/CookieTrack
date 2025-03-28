@@ -54,7 +54,6 @@ function loadRewardBoxes(troopers, rewardData) {
         //Set all the current rewards from trooper to redeemed
         trooper.currentReward.forEach((reward) => {
             reward.redeemed = "Redeemed";
-            console.log(reward);
         });
 
         //Merge the trooper current rewards and rewardData arrays

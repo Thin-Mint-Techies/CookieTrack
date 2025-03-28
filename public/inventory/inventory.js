@@ -1,12 +1,12 @@
 import { showToast, STATUS_COLOR } from "../utils/toasts.js";
 import { callApi } from "../utils/apiCall.js";
 import { handleSkeletons } from "../utils/skeletons.js";
-import { handleTableRow, handleTableCreation } from "../utils/utils.js";
+import { handleTableRow, handleTableCreation, setupDropdown, addOptionToDropdown } from "../utils/utils.js";
 import { createModals } from "../utils/confirmModal.js";
 import { manageLoader } from "../utils/loader.js";
 
 //#region CREATE TABLES/LOAD DATA -----------------------------------
-let userData, userRole, troopInventoryData;
+let userData, userRole, troopInventoryData, trooperInventoryData = [];
 
 //First show skeleton loaders as inventory info is waiting to be pulled
 const mainContent = document.getElementsByClassName('main-content')[0];
@@ -19,25 +19,31 @@ document.addEventListener("authStateReady", async () => {
 
     //Create necessary tables based on user role
     if (userRole && userData.id) {
-        //First get the inventory data
+        //First get the inventory data and troopers of the parent
         troopInventoryData = await callApi('/leaderInventory');
-        console.log(troopInventoryData);
         const parentInventoryData = await callApi(`/inventory/${userData.id}`);
+        const parentTrooperData = await callApi(`/troopersOwnerId/${userData.id}`);
 
         if (userRole.role === "parent") {
             handleTableCreation.troopInventory(mainContent, null);
             handleTableCreation.yourInventory(mainContent);
-            if (troopInventoryData) loadInventoryTableRows(troopInventoryData.inventory, "troop", false);
-            if (parentInventoryData) loadInventoryTableRows(parentInventoryData.inventory, "your");
+            loadInventoryTableRows(troopInventoryData.inventory, "troop", false);
+            loadInventoryTableRows(parentInventoryData.inventory, "your");
         } else if (userRole.role === "leader") {
-            handleTableCreation.troopInventory(mainContent, openCookieModal);
+            handleTableCreation.troopInventory(mainContent, openCookieModalAdmin);
             handleTableCreation.needInventory(mainContent);
             handleTableCreation.yourInventory(mainContent);
 
-            if (troopInventoryData) loadInventoryTableRows(troopInventoryData.inventory, "troop");
-            //if (needInventoryData) loadInventoryTableRows(needInventoryData, "need");
-            if (parentInventoryData) loadInventoryTableRows(parentInventoryData.inventory, "your");
+            loadInventoryTableRows(troopInventoryData.inventory, "troop");
+            loadInventoryTableRows(troopInventoryData.needToOrder, "need");
+            loadInventoryTableRows(parentInventoryData.inventory, "your");
         }
+
+        if (parentTrooperData) {
+            await loadTrooperInventoryTableRows(parentTrooperData);
+        }
+
+        setupAndLoadDropdowns();
     } else {
         showToast("Error Loading Data", "There was an error loading user data. Please refresh the page to try again.", STATUS_COLOR.RED, false);
         return;
@@ -48,6 +54,8 @@ document.addEventListener("authStateReady", async () => {
 });
 
 function loadInventoryTableRows(inventory, inventoryType, hasActions = true) {
+    if (!inventory) return;
+
     inventory.forEach((cookie) => {
         const cookieData = {
             variety: cookie.variety,
@@ -60,17 +68,42 @@ function loadInventoryTableRows(inventory, inventoryType, hasActions = true) {
                 handleTableRow.troopInventory(cookie.varietyId, cookieData, editCookie, createModals.deleteItem(deleteCookie));
             } else {
                 handleTableRow.troopInventory(cookie.varietyId, cookieData, null, null);
-            }     
+            }
         } else if (inventoryType === "need") {
+            delete cookieData.boxPrice;
             handleTableRow.needInventory(cookie.varietyId, cookieData, editCookie, createModals.deleteItem(deleteCookie));
         } else if (inventoryType === "your") {
-            handleTableRow.yourInventory(cookie.varietyId, cookieData, editCookie, createModals.deleteItem(deleteCookie));
+            handleTableRow.yourInventory(cookie.varietyId, cookieData);
         }
     });
 }
+
+async function loadTrooperInventoryTableRows(troopers) {
+    if (!troopers) return;
+
+    await Promise.all(troopers.map(async (trooper) => {
+        const inventory = await callApi(`/inventory/${trooper.id}`);
+        if (inventory) {
+            trooperInventoryData.push(inventory);
+            trooperInventoryData = trooperInventoryData.flat();
+            handleTableCreation.trooperInventory(mainContent, trooper, openCookieModalUser);
+
+            if (!inventory[0].inventory) return;
+            inventory[0].inventory.forEach((cookie) => {
+                const cookieData = {
+                    variety: cookie.variety,
+                    boxes: cookie.boxes,
+                    boxPrice: cookie.boxPrice,
+                }
+                const trooperName = trooper.trooperName.replace(' ', '-').toLowerCase();
+                handleTableRow.trooperInventory(cookie.varietyId, cookieData, trooperName, editCookie, createModals.deleteItem(deleteCookie));
+            });
+        }
+    }));
+}
 //#endregion CREATE TABLES/LOAD DATA --------------------------------
 
-//#region Add/Edit Inventory -------------------------------------------------
+//#region Add/Edit Inventory ----------------------------------------
 let cookieForm = document.getElementById('cookie-form');
 let cookieTitle = document.getElementById('cookie-title');
 let cookieSubtitle = document.getElementById('cookie-subtitle');
@@ -79,12 +112,32 @@ let cookieSubmit = document.getElementById('cookie-submit');
 let cookieClose = document.getElementById('cookie-close');
 
 //Input variables
+const cookieNameAdmin = document.getElementById("cookie-name-admin");
 const cookieName = document.getElementById("cookie-name");
+const cookieNameUser = document.getElementById("cookie-name-user");
+const cookieNameBtn = document.getElementById("cookie-name-btn");
+const cookiePriceAdmin = document.getElementById("cookie-price-admin");
 const cookiePrice = document.getElementById("cookie-price");
 const cookieStock = document.getElementById("cookie-stock");
 
-//Show the add cookie modal
-function openCookieModal(mode = "add", cookieData) {
+function setupAndLoadDropdowns() {
+    if (troopInventoryData && troopInventoryData.inventory?.length > 0) {
+        troopInventoryData.inventory.forEach((cookie) => {
+            addOptionToDropdown('cookie-name-dropdown', cookie.variety, cookie.varietyId);
+        });
+    } else {
+        addOptionToDropdown('cookie-name-dropdown', "No Cookies Found", null);
+    }
+
+    setupDropdown('cookie-name-btn', 'cookie-name-dropdown');
+}
+
+//Show the add cookie modal depending on user role
+function openCookieModalAdmin(mode = "add", cookieData) {
+    cookieNameAdmin.classList.remove('hidden');
+    cookieNameUser.classList.add('hidden');
+    cookiePriceAdmin.classList.remove('hidden');
+
     if (mode === "edit") {
         cookieTitle.textContent = "Edit Cookie";
         cookieSubtitle.textContent = "Edit the selected cookie to make changes";
@@ -93,6 +146,28 @@ function openCookieModal(mode = "add", cookieData) {
         cookieStock.value = cookieData.boxes;
     }
 
+    cookieForm.setAttribute('data-admin', "true");
+    cookieForm.setAttribute('data-mode', mode);
+    cookieForm.classList.remove('hidden');
+    cookieForm.classList.add('flex');
+}
+
+function openCookieModalUser(mode = "add", cookieData, trooperId = null) {
+    cookieNameAdmin.classList.add('hidden');
+    cookieNameUser.classList.remove('hidden');
+    cookiePriceAdmin.classList.add('hidden');
+
+    if (mode === "edit") {
+        cookieTitle.textContent = "Edit Cookie";
+        cookieSubtitle.textContent = "Edit the selected cookie to make changes";
+        cookieStock.value = cookieData.boxes;
+        cookieNameBtn.textContent = cookieData.variety;
+        cookieNameBtn.value = cookieData.varietyId;
+        cookieNameBtn.disabled = true;
+    }
+
+    if (trooperId) cookieForm.setAttribute('data-tid', trooperId);
+    cookieForm.setAttribute('data-admin', "false");
     cookieForm.setAttribute('data-mode', mode);
     cookieForm.classList.remove('hidden');
     cookieForm.classList.add('flex');
@@ -106,28 +181,40 @@ function closeCookieModal() {
     cookieTitle.textContent = "Add Cookie";
     cookieSubtitle.textContent = "Add a new cookie to the inventory";
     cookieForm.setAttribute('data-mode', "add");
+    cookieForm.removeAttribute('data-tid');
     cookieForm.classList.remove('flex');
     cookieForm.classList.add('hidden');
     cookieName.value = "";
     cookiePrice.value = "";
     cookieStock.value = "";
+    cookieNameBtn.textContent = "Select Cookie";
+    cookieNameBtn.value = "";
+    cookieNameBtn.disabled = false;
 }
 
 //Verify input and submit new cookie
 cookieSubmit.addEventListener('click', (e) => {
     e.preventDefault();
-    const cName = cookieName.value.trim();
+    const isAdmin = cookieForm.getAttribute('data-admin');
+    const cName = isAdmin === "true" ? cookieName.value.trim() : cookieNameBtn.textContent.trim();
     const cPrice = parseFloat(cookiePrice.value) || 0;
     const cStock = parseInt(cookieStock.value, 10) || 0;
 
-    if (cName === "") {
-        showToast("Invalid Cookie Name", "Please make sure that you have correctly entered the cookie's name.", STATUS_COLOR.RED, true, 5);
-        return;
-    }
+    if (isAdmin === "true") {
+        if (cName === "") {
+            showToast("Invalid Cookie Name", "Please make sure that you have correctly entered the cookie's name.", STATUS_COLOR.RED, true, 5);
+            return;
+        }
 
-    if (cPrice === 0) {
-        showToast("Invalid Cookie Price", "Please make sure that you have entered the correct price for this cookie.", STATUS_COLOR.RED, true, 5);
-        return;
+        if (cPrice === 0) {
+            showToast("Invalid Cookie Price", "Please make sure that you have entered the correct price for this cookie.", STATUS_COLOR.RED, true, 5);
+            return;
+        }
+    } else {
+        if (cName === "Select Cookie") {
+            showToast("Invalid Cookie Name", "Please make sure that you have selected a cookie.", STATUS_COLOR.RED, true, 5);
+            return;
+        }
     }
 
     if (cStock === 0) {
@@ -140,14 +227,28 @@ cookieSubmit.addEventListener('click', (e) => {
     const cookieData = {
         variety: cName,
         boxes: cStock,
-        boxPrice: (cPrice).toLocaleString('en-US', { style: 'currency', currency: 'USD' }),
     }
 
-    if (currentMode === "add") {
-        createCookieApi(cookieData);
-    } else if (currentMode === "edit") {
-        const cookieId = handleTableRow.currentRowEditing.getAttribute('data-cid');
-        updateCookieApi(cookieData, cookieId);
+    //If it is an admin, add the cookie to the troop inventory
+    //If it is a user, add the cookie to the trooper inventory
+    if (isAdmin === "true") {
+        cookieData.boxPrice = (cPrice).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+        if (currentMode === "add") {
+            createCookieApi(cookieData);
+        } else if (currentMode === "edit") {
+            const cookieId = handleTableRow.currentRowEditing.getAttribute('data-cid');
+            updateCookieApi(cookieData, cookieId);
+        }
+    } else {
+        const trooperId = cookieForm.getAttribute('data-tid');
+        cookieData.varietyId = cookieNameBtn.value;
+        cookieData.boxPrice = troopInventoryData.inventory.find(item => item.varietyId === cookieData.varietyId).boxPrice;
+        if (currentMode === "add") {
+            addCookieToTrooperInventoryApi(trooperId, cookieData);
+        } else if (currentMode === "edit") {
+            const cookieId = handleTableRow.currentRowEditing.getAttribute('data-cid');
+            updateTrooperInventoryApi(trooperId, cookieData, cookieId);
+        }
     }
 });
 
@@ -156,7 +257,7 @@ async function createCookieApi(cookieData) {
 
     try {
         //Create cookie and then add it to troop inventory
-        const cookieId = await callApi('/cookie', 'POST', {variety: cookieData.variety, boxPrice: cookieData.boxPrice});
+        const cookieId = await callApi('/cookie', 'POST', { variety: cookieData.variety, boxPrice: cookieData.boxPrice });
         const newCookieData = cookieData;
         newCookieData.varietyId = cookieId.id;
         troopInventoryData.inventory.push(newCookieData);
@@ -178,9 +279,9 @@ async function updateCookieApi(cookieData, cookieId) {
 
     try {
         //Update cookie and troop inventory
-        await callApi(`/cookie/${cookieId}`, 'PUT', {variety: cookieData.variety, boxPrice: cookieData.boxPrice});
+        await callApi(`/cookie/${cookieId}`, 'PUT', { variety: cookieData.variety, boxPrice: cookieData.boxPrice });
         troopInventoryData.inventory = troopInventoryData.inventory.map(item => item.varietyId === cookieId ? {
-            ...item, 
+            ...item,
             variety: cookieData.variety,
             boxes: cookieData.boxes,
             boxPrice: cookieData.boxPrice,
@@ -197,16 +298,88 @@ async function updateCookieApi(cookieData, cookieId) {
     manageLoader(false);
     cookieClose.click();
 }
+
+async function addCookieToTrooperInventoryApi(trooperId, cookieData) {
+    manageLoader(true);
+
+    try {
+        //Add cookie to trooper inventory
+        const trooperInventory = trooperInventoryData.find(item => item.trooperId === trooperId);
+        if (trooperInventory) {
+            trooperInventory.inventory.push(cookieData);
+            await callApi(`/trooperInventory/${trooperInventory.id}`, 'PUT', trooperInventory);
+            const trooperName = trooperInventory.trooperName.replace(' ', '-').toLowerCase();
+            handleTableRow.trooperInventory(cookieData.varietyId, cookieData, trooperName, editCookie, createModals.deleteItem(deleteCookie));
+            showToast("Cookie Added", "The selected cookie has been added to the trooper's inventory.", STATUS_COLOR.GREEN, true, 5);
+        } else {
+            showToast("Error Adding Cookie", "There was an error adding the cookie to the trooper's inventory. Please try again.", STATUS_COLOR.RED, true, 5);
+        }
+    } catch (error) {
+        console.error('Error adding cookie to trooper inventory:', error);
+        showToast("Error Adding Cookie", 'There was an error with adding this cookie to the trooper inventory. Please try again.', STATUS_COLOR.RED, true, 5);
+    }
+
+    manageLoader(false);
+    cookieClose.click();
+}
+
+async function updateTrooperInventoryApi(trooperId, cookieData, cookieId) {
+    manageLoader(true);
+
+    try {
+        //Update cookie in trooper inventory
+        const trooperInventory = trooperInventoryData.find(item => item.trooperId === trooperId);
+        if (trooperInventory) {
+            trooperInventory.inventory = trooperInventory.inventory.map(item => item.varietyId === cookieId ? {
+                ...item,
+                boxes: cookieData.boxes,
+            } : item);
+            await callApi(`/trooperInventory/${trooperInventory.id}`, 'PUT', trooperInventory);
+            //Cookie updated, update data in table and show message
+            handleTableRow.updateInventoryRow(handleTableRow.currentRowEditing, cookieData);
+            showToast("Cookie Updated", "The selected cookie has been updated with the new information.", STATUS_COLOR.GREEN, true, 5);
+        } else {
+            showToast("Error Updating Cookie", 'There was an error with updating this cookie. Please try again.', STATUS_COLOR.RED, true, 5);
+        }
+    } catch (error) {
+        console.error('Error updating cookie:', error);
+        showToast("Error Updating Cookie", 'There was an error with updating this cookie. Please try again.', STATUS_COLOR.RED, true, 5);
+    }
+
+    manageLoader(false);
+    cookieClose.click();
+}
 //#endregion --------------------------------------------------------
 
 //#region TABLE ACTIONS ---------------------------------------------
 function editCookie() {
-    openCookieModal("edit", getRowData(handleTableRow.currentRowEditing));
+    const isAdmin = handleTableRow.currentRowEditing.parentElement.id === "troop-inventory-tbody";
+    if (isAdmin) {
+        openCookieModalAdmin("edit", getRowData(handleTableRow.currentRowEditing));
+    } else {
+        const trooperId = handleTableRow.currentRowEditing.parentElement.getAttribute('data-tid');
+        openCookieModalUser("edit", getRowData(handleTableRow.currentRowEditing), trooperId);
+    }
 }
 
-function deleteCookie() {
-    handleTableRow.currentRowEditing.remove();
-    showToast("Cookie Deleted", "The selected cookie has been deleted.", STATUS_COLOR.GREEN, true, 5);
+async function deleteCookie() {
+    manageLoader(true);
+
+    try {
+        //Delete the cookie from the troop inventory and from the cookies
+        const cookieId = handleTableRow.currentRowEditing.getAttribute('data-cid');
+        await callApi(`/cookie/${cookieId}`, 'DELETE');
+        troopInventoryData.inventory = troopInventoryData.inventory.filter(item => item.varietyId !== "id");
+        await callApi('/leaderInventory', 'PUT', troopInventoryData);
+        //Cookie deleted, remove from tables and show message
+        handleTableRow.currentRowEditing.remove();
+        showToast("Cookie Deleted", "The selected cookie has been removed from the inventory.", STATUS_COLOR.GREEN, true, 5);
+    } catch (error) {
+        console.error('Error deleting trooper:', error);
+        showToast("Error Deleting Trooper", 'There was an error with deleting this trooper. Please try again.', STATUS_COLOR.RED, true, 5);
+    }
+
+    manageLoader(false);
 }
 
 function getRowData(row) {
@@ -215,6 +388,7 @@ function getRowData(row) {
     let index = 0;
 
     let cookieData = {
+        varietyId: row.getAttribute('data-cid'),
         variety: tds[index++]?.textContent.trim(),
         boxes: tds[index++]?.textContent.trim(),
         boxPrice: tds[index++]?.textContent.trim().replace("$", ''),

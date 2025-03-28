@@ -45,10 +45,10 @@
                                 </p>
                             </div>
                             <i id="cookie-close"
-                                class="fa-solid fa-xmark text-xl text-black hover:text-black-light dark:text-white hover:dark:text-black-light shrink-0 ml-2 w-3 cursor-pointer"></i>
+                                class="fa-solid fa-xmark text-xl text-black hover:text-black-light dark:text-white hover:dark:text-off-white shrink-0 ml-2 w-3 cursor-pointer"></i>
                         </div>
                         <div class="space-y-6 mt-6">
-                            <div>
+                            <div id="cookie-name-admin" class="hidden">
                                 <label class="text-black dark:text-white text-base mb-2 block">Cookie Name</label>
                                 <div class="relative flex items-center">
                                     <input id="cookie-name" type="text" required
@@ -58,7 +58,20 @@
                                         class="fa-solid fa-cookie-bite w-[18px] h-[18px] absolute right-4 dark:text-white"></i>
                                 </div>
                             </div>
-                            <div>
+                            <div id="cookie-name-user">
+                                <label class="text-black dark:text-white text-base mb-2 block">Cookie</label>
+                                <div class="relative flex items-center">
+                                    <button id="cookie-name-btn" type="button"
+                                        class="bg-white dark:bg-black border border-gray w-full text-base text-black dark:text-white text-left px-4 py-2.5 rounded-default accent-green">
+                                        Select Cookie
+                                    </button>
+                                    <i class="fa-solid fa-chevron-down absolute right-4 dark:text-white"></i>
+                                    <ul id="cookie-name-dropdown"
+                                        class='absolute hidden top-full shadow-default bg-white dark:bg-black py-2 z-[1000] min-w-full w-max rounded-default max-h-40 overflow-auto'>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div id="cookie-price-admin" class="hidden">
                                 <label class="text-black dark:text-white text-base mb-2 block">Box Price</label>
                                 <div class="relative flex items-center">
                                     <input id="cookie-price" type="number" required
