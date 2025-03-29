@@ -12,6 +12,7 @@ const userRoute = require('./routes/userRoute');
 const rewardRoute = require('./routes/rewardRoute');
 const orderRoute = require('./routes/orderRoute');
 const inventoryRoute = require('./routes/inventoryRoute');
+const saleDataRoute = require('./routes/saleDataRoute');
 const firebaseConfig = require('./firebaseConfig');
 const { sendEmail } = require('./utils/emailSender');
 const { moveCompletedOrders, updateMonthlySales } = require('./utils/scheduler');
@@ -67,6 +68,7 @@ app.use('/', documentRoute);
 app.use('/', rewardRoute);
 app.use('/', orderRoute);
 app.use('/', inventoryRoute);
+app.use('/', saleDataRoute);
 //app.use('/api/auth', authRoutes);
 
 // DEPLOYMENT ONLY

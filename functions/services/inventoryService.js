@@ -1,12 +1,10 @@
 const { Firestore } = require('../firebaseConfig');
-const { parentInventoryDataFormat, troopInventoryDataFormat, trooperInventoryDataFormat } = require('../dataFormat');
 
 // Store recent orders that has been picked up
 const createParentInventory = async ({ ownerId }) => {
   try {
     const newInventoryRef = Firestore.collection('inventory').doc();
     const newInventoryData = {
-      ...parentInventoryDataFormat,
       ownerId,
       owe: "$0.00",
       inventory: [],
@@ -18,11 +16,10 @@ const createParentInventory = async ({ ownerId }) => {
   }
 };
 
-const createLeaderInventory = async ({ ownerId, inventory, needToOrder }) => {
+const createLeaderInventory = async ({ inventory, needToOrder }) => {
   try {
     const newInventoryRef = Firestore.collection('inventory').doc("troop-inventory");
     const newInventoryData = {
-      ...troopInventoryDataFormat,
       inventory,
       needToOrder,
     };
@@ -38,7 +35,6 @@ const createTrooperInventory = async ({ ownerId, parentId, trooperId, trooperNam
   try {
     const newInventoryRef = Firestore.collection('inventory').doc();
     const newInventoryData = {
-      ...trooperInventoryDataFormat,
       ownerId,
       parentId,
       owe: "$0.00",
@@ -54,7 +50,7 @@ const createTrooperInventory = async ({ ownerId, parentId, trooperId, trooperNam
   }
 };
 
-const updateParentInventory = async (id, { trooperId, trooperName, troopNumber, inventory }) => {
+const updateParentInventory = async (id, { inventory }) => {
   try {
     await Firestore.runTransaction(async (transaction) => {
       const ref = Firestore.collection('inventory').doc(id);
@@ -64,9 +60,6 @@ const updateParentInventory = async (id, { trooperId, trooperName, troopNumber, 
       }
 
       const updatedInventoryData = {
-        trooperId,
-        trooperName,
-        troopNumber,
         inventory,
       };
       transaction.update(ref, updatedInventoryData);
@@ -100,7 +93,7 @@ const updateLeaderInventory = async ({ inventory, needToOrder }) => {
   }
 };
 
-const updateTrooperInventory = async (id, { ownerId, trooperId, trooperName, troopNumber, inventory }) => {
+const updateTrooperInventory = async (id, { inventory }) => {
   try {
     await Firestore.runTransaction(async (transaction) => {
       const ref = Firestore.collection('inventory').doc(id);
@@ -109,13 +102,27 @@ const updateTrooperInventory = async (id, { ownerId, trooperId, trooperName, tro
         throw new Error('Trooper inventory not found');
       }
 
+      //Get the current inventory data
+      const currentData = doc.data();
+
+      //Calculate total cost of inventory
+      const totalCost = inventory.reduce((total, cookie) => {
+        const cookieCost = parseFloat(cookie.boxPrice.replace(/[^0-9.-]+/g, "")) * cookie.boxes;
+        return total + cookieCost;
+      }, 0);
+
+      // Get current owe amount and add new total
+      const currentOwe = parseFloat(currentData.owe.replace(/[^0-9.-]+/g, "")) || 0;
+      const newOweAmount = currentOwe + totalCost;
+
       const updatedInventoryData = {
-        ownerId,
-        trooperId,
-        trooperName,
-        troopNumber,
         inventory,
+        owe: newOweAmount.toLocaleString('en-US', {
+          style: 'currency',
+          currency: 'USD'
+        }),
       };
+
       transaction.update(ref, updatedInventoryData);
     });
 

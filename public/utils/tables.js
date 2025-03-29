@@ -1,28 +1,16 @@
 //Table headers & row data fields
 const tableSchemas = {
     orders: {
-        headers: [
-            "Date Created", "Trooper Name", "Parent Name", "Box Total", "# Adventurefuls", "# Toast-Yays!", "# Lemonades",
-            "# Trefoils", "# Thin Mints", "# Peanut Butter Patties", "# Caramel deLites", "# Peanut Butter Sandwich",
-            "# GF Caramel Chocolate Chip", "Pickup Location", "Contact Preference", "Financial Agreement"
-        ],
-        fields: [
-            "dateCreated", "trooperName", "parentName", "boxTotal", "adventurefuls", "toastyays", "lemonades",
-            "trefoils", "thinMints", "pbPatties", "caramelDelites", "pbSandwich", "gfChocChip", "pickup",
-            "contact", "financialAgreement"
-        ]
+        staticHeaders: ["Date Created", "Status", "Trooper Name", "Parent Name", "Buyer Email", "Box Total", "Total Cost", "Amount Owed"],
+        staticFields: ["dateCreated", "status", "trooperName", "ownerName", "buyerEmail", "boxTotal", "totalCost", "owe"],
+        footerHeaders: ["Pickup Location", "Contact Preference", "Cash Paid", "Card Paid", "Financial Agreement"],
+        footerFields: ["pickupLocation", "contact", "cashPaid", "cardPaid", "financialAgreement"]
     },
     completedOrders: {
-        headers: [
-            "Date Created", "Date Completed", "Trooper Name", "Parent Name", "Box Total", "# Adventurefuls", "# Toast-Yays!", "# Lemonades",
-            "# Trefoils", "# Thin Mints", "# Peanut Butter Patties", "# Caramel deLites", "# Peanut Butter Sandwich",
-            "# GF Caramel Chocolate Chip", "Pickup Location", "Contact Preference", "Financial Agreement"
-        ],
-        fields: [
-            "dateCreated", "dateCompleted", "trooperName", "parentName", "boxTotal", "adventurefuls", "toastyays", "lemonades",
-            "trefoils", "thinMints", "pbPatties", "caramelDelites", "pbSandwich", "gfChocChip", "pickup",
-            "contact", "financialAgreement"
-        ]
+        staticHeaders: ["Date Created", "Status", "Date Completed", "Trooper Name", "Parent Name", "Buyer Email", "Box Total", "Total Cost", "Amount Owed"],
+        staticFields: ["dateCreated", "status", "dateCompleted", "trooperName", "ownerName", "buyerEmail", "boxTotal", "totalCost", "owe"],
+        footerHeaders: ["Pickup Location", "Contact Preference", "Cash Paid", "Card Paid", "Financial Agreement"],
+        footerFields: ["pickupLocation", "contact", "cashPaid", "cardPaid", "financialAgreement"]
     },
     inventory: {
         headers: ["Cookie Name", "Boxes in Stock", "Price Per Box"],
@@ -34,10 +22,10 @@ const tableSchemas = {
     },
     troopers: {
         headers: [
-            "", "Troop Number", "Trooper Name", "Parent Name", "Troop Leader", "Current Balance", "Boxes Sold", "Age", "Grade", "Shirt/Jacket Size"
+            "", "Troop Number", "Trooper Name", "Parent Name", "Troop Leader", "Amount Owed", "Boxes Sold", "Age", "Grade", "Shirt/Jacket Size"
         ],
         fields: [
-            "troopNumber", "trooperName", "parentName", "troopLeader", "currentBalance", "boxesSold", "age", "grade", "shirtSize"
+            "troopNumber", "trooperName", "parentName", "troopLeader", "owe", "boxesSold", "age", "grade", "shirtSize"
         ]
     },
     files: {
@@ -117,6 +105,19 @@ const tableFilters = {
             </div>
         `;
     }
+}
+
+function buildDynamicOrderFields(cookies) {
+    const headers = [];
+    const fields = [];
+
+    cookies.forEach(cookie => {
+        headers.push(`# ${cookie.variety}`);
+        // Convert variety name to camelCase for field name
+        fields.push(cookie.variety.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase()));
+    });
+
+    return { headers, fields };
 }
 
 function createTable(parent, title, icon, filters, fields, button, removeActions = false) {
@@ -210,7 +211,19 @@ function createCurrentOrdersTable(parent, action) {
         icon: "cart-plus",
         action: () => action("add")
     }
-    createTable(parent, title, icon, filters, tableSchemas.orders.headers, button);
+
+    // Get cookie fields from sessionStorage
+    const troopInventoryData = JSON.parse(sessionStorage.getItem('troopInventoryData'));
+    const { headers: cookieHeaders, fields: cookieFields } = buildDynamicOrderFields(troopInventoryData?.inventory || []);
+
+    // Combine all headers and fields
+    const allHeaders = [
+        ...tableSchemas.orders.staticHeaders,
+        ...cookieHeaders,
+        ...tableSchemas.orders.footerHeaders
+    ];
+
+    createTable(parent, title, icon, filters, allHeaders, button);
 }
 
 function createCompletedOrdersTable(parent) {
@@ -222,7 +235,19 @@ function createCompletedOrdersTable(parent) {
         tableFilters.clear(filterIds),
         tableFilters.dates(filterIds, filterIds)
     ];
-    createTable(parent, title, icon, filters, tableSchemas.completedOrders.headers, null);
+
+    // Get cookie fields from sessionStorage
+    const troopInventoryData = JSON.parse(sessionStorage.getItem('troopInventoryData'));
+    const { headers: cookieHeaders, fields: cookieFields } = buildDynamicOrderFields(troopInventoryData?.inventory || []);
+
+    // Combine all headers and fields
+    const allHeaders = [
+        ...tableSchemas.completedOrders.staticHeaders,
+        ...cookieHeaders,
+        ...tableSchemas.completedOrders.footerHeaders
+    ];
+
+    createTable(parent, title, icon, filters, allHeaders, null);
 }
 
 function createTrooperInventoryTable(parent, trooperData, action) {
@@ -230,7 +255,7 @@ function createTrooperInventoryTable(parent, trooperData, action) {
     const icon = "box";
     let button = {
         id: `add-${trooperData.trooperName.replace(' ', '-').toLowerCase()}-cookies`,
-        title: "Add Cookies",
+        title: "Assign Cookies",
         icon: "cookie-bite",
         action: () => action("add", null, trooperData.id)
     }
@@ -635,8 +660,8 @@ function searchAllTrooperRows(searchName) {
 //#region TABLE ROWS ------------------------------------------------
 const handleTableRow = {
     currentRowEditing: null,
-    currentOrder: (orderId, data, editAction, deleteAction, completeAction) => addOrderRow(orderId, data, true, editAction, deleteAction, completeAction),
-    completedOrder: (orderId, data, editAction, deleteAction) => addOrderRow(orderId, data, false, editAction, deleteAction, null),
+    currentOrder: (orderId, data, editAction, deleteAction, pickupAction) => addOrderRow(orderId, data, true, editAction, deleteAction, pickupAction),
+    completedOrder: (orderId, data, deleteAction) => addOrderRow(orderId, data, false, null, deleteAction, null),
     trooperInventory: (cookieId, data, trooperName, editAction, deleteAction) => addInventoryRow(cookieId, data, `inventory-for-${trooperName}`, editAction, deleteAction),
     yourInventory: (cookieId, data) => addInventoryRow(cookieId, data, "your-inventory"),
     troopInventory: (cookieId, data, editAction, deleteAction) => addInventoryRow(cookieId, data, "troop-inventory", editAction, deleteAction),
@@ -649,6 +674,7 @@ const handleTableRow = {
     updateInventoryRow: (row, data) => editRowData(row, tableSchemas.inventory.fields, data),
     updateTrooperRow: (row, data) => editRowData(row, tableSchemas.troopers.fields, data),
     updateRewardRow: (row, data) => editRowData(row, tableSchemas.rewards.fields, data),
+    updateOrderActions: (row, actions) => updateRowActions(row, actions),
 }
 
 function setupRowFields(tr, hasDropdown, fields, data, buttons) {
@@ -680,17 +706,35 @@ function setupRowFields(tr, hasDropdown, fields, data, buttons) {
     // Populate the row with data fields
     fields.forEach(field => {
         let td = document.createElement("td");
+        td.className = "border-l border-gray-light";
 
-        // If field needs to show an image, create an img instead of doing text content
         if (field === "downloadUrl") {
+            // If field needs to show an image, create an img instead of doing text content
             let img = document.createElement("img");
             img.className = "w-16 md:w-24 max-w-full max-h-full rounded-default shadow-default";
             img.src = data[field];
             img.alt = "Reward Image";
             td.appendChild(img);
         } else {
-            // If field exists in orderContent, get it from orderContent, otherwise get it from the main data object
-            td.textContent = data.orderContent?.[field] ?? data[field] ?? ""; // Handle missing or undefined fields
+            let content = "";
+
+            // Check if this is a cookie field in orderContent.cookies
+            if (data.orderContent?.cookies) {
+                const cookie = data.orderContent.cookies.find(c =>
+                    c.variety.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase()) === field
+                );
+                if (cookie) {
+                    content = cookie.boxes;
+                } else {
+                    // Not a cookie field, check orderContent then regular data
+                    content = data.orderContent?.[field] ?? data[field] ?? "";
+                }
+            } else {
+                // No orderContent.cookies, just check regular data
+                content = data[field] ?? "";
+            }
+
+            td.textContent = content;
         }
 
         tr.appendChild(td);
@@ -699,6 +743,7 @@ function setupRowFields(tr, hasDropdown, fields, data, buttons) {
     if (buttons) {
         // Create the action buttons column
         let actionTd = document.createElement("td");
+        actionTd.className = "border-l border-gray-light";
 
         buttons.forEach(btn => {
             let button = document.createElement("button");
@@ -724,19 +769,37 @@ function setupRowFields(tr, hasDropdown, fields, data, buttons) {
 function addOrderRow(orderId, data, isCurrentOrder, editAction, deleteAction, completeAction) {
     const tableName = isCurrentOrder ? "current" : "completed";
     const tbody = document.getElementById(`${tableName}-orders-tbody`);
-    const fields = isCurrentOrder ? tableSchemas.orders.fields : tableSchemas.completedOrders.fields;
+
+    // Get cookie fields from troopInventoryData
+    const troopInventoryData = JSON.parse(sessionStorage.getItem('troopInventoryData'));
+    const { fields: cookieFields } = buildDynamicOrderFields(troopInventoryData?.inventory || []);
+
+    // Combine all fields in the correct order
+    const allFields = [
+        ...tableSchemas[isCurrentOrder ? 'orders' : 'completedOrders'].staticFields,
+        ...cookieFields,
+        ...tableSchemas[isCurrentOrder ? 'orders' : 'completedOrders'].footerFields
+    ];
+
     let tr = document.createElement("tr");
     tr.setAttribute('data-oid', orderId);
     tr.className = "bg-white dark:bg-black even:bg-gray even:dark:bg-black-light text-sm text-black dark:text-white [&_td]:p-4";
 
     // Button configurations
+    // If this is a current order and orderIsCorrect = true, add the complete button otherwise add the pickup button
+    let completeActionBtn = false;
+    if (isCurrentOrder && data.status === "Picked up") {
+        completeActionBtn = { title: "Complete", iconClass: "fa-clipboard-check text-green hover:text-green-light", action: completeAction };
+    } else if (isCurrentOrder && data.status === "Ready for pickup") {
+        completeActionBtn = { title: "Pickup", iconClass: "fa-truck text-green hover:text-green-light", action: completeAction };
+    }
     let buttons = [
-        isCurrentOrder && { title: "Complete", iconClass: "fa-clipboard-check text-green hover:text-green-light", action: completeAction },
-        { title: "Edit", iconClass: "fa-pen-to-square text-blue hover:text-blue-light", action: editAction },
-        { title: "Delete", iconClass: "fa-trash-can text-red hover:text-red-light", action: deleteAction }
-    ].filter(Boolean); // Removes `false` values if `isCurrentOrder` is true
+        completeActionBtn,
+        editAction !== null && { title: "Edit", iconClass: "fa-pen-to-square text-blue hover:text-blue-light", action: editAction },
+        deleteAction !== null && { title: "Delete", iconClass: "fa-trash-can text-red hover:text-red-light", action: deleteAction }
+    ].filter(Boolean);
 
-    setupRowFields(tr, false, fields, data, buttons);
+    setupRowFields(tr, false, allFields, data, buttons);
     tbody.appendChild(tr);
 }
 
@@ -788,14 +851,26 @@ function addTrooperRow(trooperId, data, tbodyId, editAction, deleteAction) {
 
     //Create each of the elements for rewards, and orders
     const lowercaseTrooper = data.trooperData.trooperName.replaceAll(' ', '-').toLowerCase();
+
+    // Get cookie fields from sessionStorage
+    const troopInventoryData = JSON.parse(sessionStorage.getItem('troopInventoryData'));
+    const { headers: cookieHeaders } = buildDynamicOrderFields(troopInventoryData?.inventory || []);
+
+    // Combine all headers for orders table
+    const allOrderHeaders = [
+        ...tableSchemas.orders.staticHeaders,
+        ...cookieHeaders,
+        ...tableSchemas.orders.footerHeaders
+    ];
+
     createTrooperHiddenTable(hiddenTd, `Selected Rewards for ${data.trooperData.trooperName}`, `${tbodyId}-rewards-${lowercaseTrooper}`, tableSchemas.selectedRewards.headers);
-    createTrooperHiddenTable(hiddenTd, `Orders for ${data.trooperData.trooperName}`, `${tbodyId}-orders-${lowercaseTrooper}`, tableSchemas.orders.headers);
+    createTrooperHiddenTable(hiddenTd, `Orders for ${data.trooperData.trooperName}`, `${tbodyId}-orders-${lowercaseTrooper}`, allOrderHeaders);
 
     //Setup the rows for all the tables
     const rewardsTbody = document.getElementById(`${tbodyId}-rewards-${lowercaseTrooper}-tbody`);
     const ordersTbody = document.getElementById(`${tbodyId}-orders-${lowercaseTrooper}-tbody`);
 
-    if (data.rewardData.length > 0) {
+    if (data.rewardData && data.rewardData.length > 0) {
         data.rewardData.forEach((reward) => {
             let tr = document.createElement("tr");
             tr.className = "bg-white dark:bg-black [&:nth-child(4n-1)]:bg-gray [&:nth-child(4n-1)]:dark:bg-black-light text-sm text-black dark:text-white [&_td]:p-4";
@@ -810,19 +885,26 @@ function addTrooperRow(trooperId, data, tbodyId, editAction, deleteAction) {
         });
     }
 
-    if (data.orderData.length > 0) {
+    if (data.orderData && data.orderData.length > 0) {
         data.orderData.forEach((order) => {
             let tr = document.createElement("tr");
             tr.className = "bg-white dark:bg-black [&:nth-child(4n-1)]:bg-gray [&:nth-child(4n-1)]:dark:bg-black-light text-sm text-black dark:text-white [&_td]:p-4";
-            
+
+            // Get all fields in correct order
+            const allOrderFields = [
+                ...tableSchemas.orders.staticFields,
+                ...cookieHeaders.map(header => header.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase())),
+                ...tableSchemas.orders.footerFields
+            ];
+
             const orderData = {
-                
+
             }
 
-            setupRowFields(ordersTbody, false, tableSchemas.orders.fields, orderData, null);
+            setupRowFields(tr, false, allOrderFields, orderData, null);
             ordersTbody.appendChild(tr);
         });
-    }    
+    }
 }
 
 function addFileRow(fileUrl, data, downloadAction, deleteAction) {
@@ -873,6 +955,31 @@ function editRowData(row, fields, data) {
         const value = data.orderContent?.[field] ?? data[field] ?? null;
         if (value !== null) tds[tdIndex].textContent = value;
         tdIndex++;
+    });
+}
+
+function updateRowActions(row, actions) {
+    const tds = row.getElementsByTagName("td");
+
+    //We only want to change the last td which is the action column
+    const actionTd = tds[tds.length - 1];
+    actionTd.innerHTML = ""; // Clear existing actions
+
+    actions.forEach(btn => {
+        let button = document.createElement("button");
+        button.className = "mr-4";
+        button.title = btn.title;
+
+        let icon = document.createElement("i");
+        icon.className = `fa-solid ${btn.iconClass} text-xl`;
+
+        button.addEventListener('click', (e) => {
+            handleTableRow.currentRowEditing = e.target.closest('tr');
+            btn.action();
+        });
+
+        button.appendChild(icon);
+        actionTd.appendChild(button);
     });
 }
 //#endregion TABLE ROWS ---------------------------------------------

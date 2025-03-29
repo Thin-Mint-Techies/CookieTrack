@@ -14,8 +14,6 @@ router.put('/order/:id', orderController.updateOrder);
 //requireLogin, checkRole(['leader']),
 router.delete('/order/:id',  orderController.deleteOrder);
 
-//requireLogin,
-router.get('/ordersUser/:id',  orderController.getUserOrders);
 //requireLogin, 
 router.get('/ordersTrooper/:id',orderController.getOrdersByTrooperId);
 //requireLogin,
@@ -24,7 +22,7 @@ router.put('/orderComplete/:id',  orderController.markOrderComplete);
 //router.get('/archiveOrder', orderController.archivedOrders);
 
 // requireLogin, 
-router.get('/ordersParent/:id',orderController.getOrdersByParentId);
+router.get('/ordersOwner/:id',orderController.getOrdersByOwnerId);
 //requireLogin, 
 router.put('/orderComplete/:id', orderController.markOrderComplete);
 //requireLogin,

@@ -7,7 +7,7 @@ import { openFileUploadModal, formatFileSize, downloadFile, deleteUploadedFile }
 import { manageLoader } from "../utils/loader.js";
 
 //#region CREATE TABLES/LOAD DATA -----------------------------------
-let userData, userRole, userTroopers;
+let userData, userRole, userTroopers, troopInventoryData, userOrderData, allOrderData;
 
 //First show skeleton loaders as order info is waiting to be pulled
 const mainContent = document.getElementsByClassName('main-content')[0];
@@ -20,7 +20,14 @@ document.addEventListener("authStateReady", async () => {
 
     //Create necessary tables based on user role
     if (userRole && userData) {
-        //Create table and setup filters
+        //First get the troop inventory data and store it
+        troopInventoryData = await callApi('/leaderInventory');
+        if (troopInventoryData) {
+            sessionStorage.setItem('troopInventoryData', JSON.stringify(troopInventoryData));
+            createCookieInputs();
+        }
+
+        //Now create tables after inventory data is available
         handleTableCreation.yourDocuments(mainContent, openFileUploadModal);
         handleTableCreation.currentOrder(mainContent, openOrderModal);
         handleTableCreation.completedOrder(mainContent);
@@ -33,11 +40,11 @@ document.addEventListener("authStateReady", async () => {
         //Get the troopers associated with the user
         userTroopers = await callApi(`/troopersOwnerId/${userData.id}`);
         if (userRole.role === "parent") {
-            //const userOrders = await callApi(`/ordersUsers/${userData.id}`);
-            //loadOrderTableRows(userOrders, true);
+            userOrderData = await callApi(`/ordersOwner/${userData.id}`);
+            loadOrderTableRows(userOrderData);
         } else if (userRole.role === "leader") {
-            //const allOrders = await callApi('/order');
-            //loadOrderTableRows(allOrders, true);
+            allOrderData = await callApi('/order');
+            loadOrderTableRows(allOrderData);
         }
 
         setupAndLoadDropdowns();
@@ -50,16 +57,16 @@ document.addEventListener("authStateReady", async () => {
     handleSkeletons.removeSkeletons(mainContent);
 });
 
-function loadOrderTableRows(orders, isCurrentOrders) {
+function loadOrderTableRows(orders) {
+    if (!orders) return;
     orders.forEach((order) => {
-        const orderData = {
-
-        }
-
-        if (isCurrentOrders) {
-            handleTableRow.currentOrder(orderData, editCurrentOrder, createModals.deleteItem(deleteCurrentOrder), createModals.completeOrder(completeCurrentOrder));
+        //Check if order is a current order or if it is completed
+        if (order.status && order.status === "Completed") {
+            handleTableRow.completedOrder(order.id, order, editCompletedOrder, createModals.deleteItem(deleteCompletedOrder));
+        } else if (order.status && order.status === "Picked up") {
+            handleTableRow.currentOrder(order.id, order, null, createModals.deleteItem(deleteCurrentOrder), createModals.completeOrder(completeCurrentOrder));
         } else {
-            handleTableRow.completedOrder(orderData, editCompletedOrder, createModals.deleteItem(deleteCompletedOrder));
+            handleTableRow.currentOrder(order.id, order, editCurrentOrder, createModals.deleteItem(deleteCurrentOrder), createModals.pickupOrder(markOrderAsPickedUp));
         }
     });
 }
@@ -89,25 +96,47 @@ let orderClose = document.getElementById('order-close');
 //Input variables
 const orderTrooper = document.getElementById("order-trooper-btn");
 const orderBEmail = document.getElementById("order-bemail");
-const orderAdventurefuls = document.getElementById("order-adventurefuls");
-const orderToastyays = document.getElementById("order-toastyays");
-const orderLemonades = document.getElementById("order-lemonades");
-const orderTrefoils = document.getElementById("order-trefoils");
-const orderThinMints = document.getElementById("order-thinmints");
-const orderPBPatties = document.getElementById("order-pbpatties");
-const orderCaramelDelites = document.getElementById("order-carameldelites");
-const orderPBSandwich = document.getElementById("order-pbsandwich");
-const orderGFChocChip = document.getElementById("order-gfchocchip");
 const orderPickup = document.getElementById("order-pickup-btn");
 const orderContact = document.getElementById("order-contact-btn");
-const orderPayment = document.getElementById("order-payment-btn");
+const orderCash = document.getElementById("order-cash");
+const orderCard = document.getElementById("order-card");
 const orderAgreement = document.getElementById("order-agreement");
+
+let cookieInputRefs = {};
+
+function createCookieInputs() {
+    if (!troopInventoryData?.inventory) return;
+
+    // Find the pickup location div to insert before
+    const pickupLocationDiv = orderPickup.closest('div').parentElement;
+
+    // Create and insert all cookie inputs in order
+    troopInventoryData.inventory.forEach(cookie => {
+        const fieldId = `order-${cookie.variety.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase())}`;
+
+        const div = document.createElement('div');
+        div.innerHTML = `
+            <label class="text-black dark:text-white text-base mb-2 block"># ${cookie.variety}</label>
+            <div class="relative flex items-center">
+                <input id="${fieldId}" type="number" min="0"
+                    class="bg-white dark:bg-black border border-gray w-full text-base text-black dark:text-white px-4 py-2.5 rounded-default accent-green"
+                    placeholder="# of ${cookie.variety}" />
+                <i class="fa-solid fa-hashtag absolute right-4 dark:text-white"></i>
+            </div>
+        `;
+
+        // Insert before pickup location
+        pickupLocationDiv.parentNode.insertBefore(div, pickupLocationDiv);
+
+        // Store reference to input
+        cookieInputRefs[cookie.variety] = document.getElementById(fieldId);
+    });
+}
 
 //Setup dropdowns
 function setupAndLoadDropdowns() {
     setupDropdown('order-pickup-btn', 'order-pickup-dropdown');
     setupDropdown('order-contact-btn', 'order-contact-dropdown');
-    setupDropdown('order-payment-btn', 'order-payment-dropdown');
 
     //Load troopers into dropdown
     if (userTroopers) {
@@ -117,7 +146,7 @@ function setupAndLoadDropdowns() {
     } else {
         addOptionToDropdown('order-trooper-dropdown', "No Troopers in Account", null);
     }
-    
+
     setupDropdown('order-trooper-btn', 'order-trooper-dropdown');
 }
 
@@ -125,22 +154,22 @@ function openOrderModal(mode = "add", orderData) {
     if (mode === "edit") {
         orderTitle.textContent = "Edit Order";
         orderSubtitle.textContent = "Edit the selected order to make changes";
-        orderTrooper.value = orderData.trooperId;
+        orderTrooper.value = userTroopers.find(trooper => trooper.trooperName === orderData.trooperName)?.id || null;
         orderTrooper.textContent = orderData.trooperName;
         orderBEmail.value = orderData.buyerEmail;
-        orderAdventurefuls.value = orderData.orderContent.adventurefuls;
-        orderToastyays.value = orderData.orderContent.toastyays;
-        orderLemonades.value = orderData.orderContent.lemonades;
-        orderTrefoils.value = orderData.orderContent.trefoils;
-        orderThinMints.value = orderData.orderContent.thinMints;
-        orderPBPatties.value = orderData.orderContent.pbPatties;
-        orderCaramelDelites.value = orderData.orderContent.caramelDelites;
-        orderPBSandwich.value = orderData.orderContent.pbSandwich;
-        orderGFChocChip.value = orderData.orderContent.gfChocChip;
-        orderPickup.textContent = orderData.pickup;
+
+        // Set values for cookie inputs
+        Object.keys(cookieInputRefs).forEach(variety => {
+            if (cookieInputRefs[variety]) {
+                cookieInputRefs[variety].value = orderData.orderContent[variety.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase())] || '';
+            }
+        });
+
+        orderPickup.textContent = orderData.pickupLocation;
         orderContact.textContent = regExpCalls.testPhone(orderData.contact) ? "Phone" : "Email";
-        orderPayment.textContent = orderData.paymentType;
-        orderAgreement.checked = orderData.finacialAgreement === "Agreed" ? true : false;
+        orderCash.value = orderData.cashPaid;
+        orderCard.value = orderData.cardPaid;
+        orderAgreement.checked = orderData.financialAgreement === "Agreed" ? true : false;
     }
 
     orderForm.setAttribute('data-mode', mode);
@@ -161,18 +190,15 @@ function closeOrderModal() {
     orderTrooper.value = "";
     orderTrooper.textContent = "Select Trooper";
     orderBEmail.value = "";
-    orderAdventurefuls.value = "";
-    orderToastyays.value = "";
-    orderLemonades.value = "";
-    orderTrefoils.value = "";
-    orderThinMints.value = "";
-    orderPBPatties.value = "";
-    orderCaramelDelites.value = "";
-    orderPBSandwich.value = "";
-    orderGFChocChip.value = "";
+    Object.keys(cookieInputRefs).forEach(variety => {
+        if (cookieInputRefs[variety]) {
+            cookieInputRefs[variety].value = "";
+        }
+    });
     orderPickup.textContent = "Select Location";
     orderContact.textContent = "Select Preference";
-    orderPayment.textContent = "Select Payment Type";
+    orderCash.value = "";
+    orderCard.value = "";
     orderAgreement.checked = false;
 }
 
@@ -187,20 +213,11 @@ orderSubmit.addEventListener('click', (e) => {
     const pEmail = userData.email;
     const pPhone = userData.phone;
 
-    const adventurefuls = parseInt(orderAdventurefuls.value, 10) || 0;
-    const toastyays = parseInt(orderToastyays.value, 10) || 0;
-    const lemonades = parseInt(orderLemonades.value, 10) || 0;
-    const trefoils = parseInt(orderTrefoils.value, 10) || 0;
-    const thinMints = parseInt(orderThinMints.value, 10) || 0;
-    const pbPatties = parseInt(orderPBPatties.value, 10) || 0;
-    const caramelDelites = parseInt(orderCaramelDelites.value, 10) || 0;
-    const pbsandwich = parseInt(orderPBSandwich.value, 10) || 0;
-    const gfChocChip = parseInt(orderGFChocChip.value, 10) || 0;
-
     const pickup = orderPickup.textContent.trim();
     const contact = orderContact.textContent.trim();
-    const payment = orderPayment.textContent.trim();
-    const finacialAgreement = orderAgreement.checked;
+    const cash = parseFloat(orderCash.value, 10) || 0;
+    const card = parseFloat(orderCard.value, 10) || 0;
+    const financialAgreement = orderAgreement.checked;
 
     if (tName.includes("Select")) {
         showToast("Missing Trooper", "Please make sure you have selected a trooper.", STATUS_COLOR.RED, true, 5);
@@ -212,55 +229,62 @@ orderSubmit.addEventListener('click', (e) => {
         return;
     }
 
-    const orderItems = [adventurefuls, toastyays, lemonades, trefoils, thinMints, pbPatties, caramelDelites, pbsandwich, gfChocChip];
+    const orderBoxes = {};
+    let totalBoxes = 0;
 
-    if (orderItems.every(item => item === 0)) {
+    // Get values from all cookie inputs
+    Object.keys(cookieInputRefs).forEach(variety => {
+        const value = parseInt(cookieInputRefs[variety].value, 10) || 0;
+        const fieldName = variety.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase());
+        orderBoxes[fieldName] = value;
+        totalBoxes += value;
+    });
+
+    if (totalBoxes === 0) {
         showToast("Missing Information", "Please make sure you have entered at least one box sale in the order.", STATUS_COLOR.RED, true, 5);
         return;
     }
 
-    if (pickup.includes("Select") || contact.includes("Select") || payment.includes("Select")) {
-        showToast("Missing Information", "Please make sure you have selected a pickup location, contact preference, and payment type.", STATUS_COLOR.RED, true, 5);
+    if (pickup.includes("Select") || contact.includes("Select")) {
+        showToast("Missing Information", "Please make sure you have selected a pickup location and contact preference.", STATUS_COLOR.RED, true, 5);
         return;
     }
 
-    if (!finacialAgreement) {
+    if (!financialAgreement) {
         showToast("Accept Agreement", "You must accept the financial agreement before submitting this order.", STATUS_COLOR.RED, true, 5);
         return;
     }
 
     const currentMode = orderForm.getAttribute('data-mode');
 
-    const orderBoxes = {
-        adventurefuls: adventurefuls,
-        toastyays: toastyays,
-        lemonades: lemonades,
-        trefoils: trefoils,
-        thinMints: thinMints,
-        pbPatties: pbPatties,
-        caramelDelites: caramelDelites,
-        pbSandwich: pbsandwich,
-        gfChocChip: gfChocChip
-    };
+    // Build array of cookie orders
+    const cookies = [];
+    let totalCost = 0;
+
+    Object.keys(cookieInputRefs).forEach(variety => {
+        const value = parseInt(cookieInputRefs[variety].value, 10) || 0;
+        if (value > 0) {
+            // Find the cookie in troop inventory to get its ID and price
+            const inventoryCookie = troopInventoryData.inventory.find(c => c.variety === variety);
+            if (inventoryCookie) {
+                const cookieOrder = {
+                    varietyId: inventoryCookie.varietyId,
+                    variety: variety,
+                    boxes: value,
+                    boxPrice: inventoryCookie.boxPrice
+                };
+                cookies.push(cookieOrder);
+                // Add to total cost
+                totalCost += value * parseFloat(inventoryCookie.boxPrice.replace(/[^0-9.-]+/g, ""));
+            }
+        }
+    });
 
     const orderContent = {
-        cookies: [{
-
-        },],
-        totalCost: 0,
-        owe: 0,
-        boxTotal: Object.values(orderBoxes).reduce((sum, num) => sum + num, 0)
+        cookies: cookies,
+        totalCost: totalCost.toLocaleString('en-US', { style: 'currency', currency: 'USD' }),
+        boxTotal: cookies.reduce((sum, cookie) => sum + cookie.boxes, 0)
     }
-
-    const pickupDetails = [
-        {
-            receivedBy: 'Received By',
-            address: pickup,
-        },
-        {
-            receivedFrom: 'Received From',
-        }
-    ];
 
     const orderData = {
         dateCreated: currentMode === "add" ? new Date().toLocaleDateString("en-US") : null,
@@ -268,20 +292,38 @@ orderSubmit.addEventListener('click', (e) => {
         trooperName: tName,
         ownerId: pUid,
         ownerEmail: pEmail,
+        ownerName: pName,
         buyerEmail: bEmail,
-        parentName: pName,
-        orderContent: orderContent,
-        pickupDetails: pickupDetails,
         contact: contact === "Phone" ? pPhone : pEmail,
-        paymentType: payment,
-        finacialAgreement: finacialAgreement === true ? "Agreed" : "Declined"
+        financialAgreement: financialAgreement === true ? "Agreed" : "Declined",
+        pickupLocation: pickup,
+        orderContent: orderContent,
+        cashPaid: cash,
+        cardPaid: card,
     }
 
     if (currentMode === "add") {
+        orderData.saleDataId = userTroopers.find(trooper => trooper.id === tId).saleDataId;
+        orderData.orderContent.owe = "$0.00";
         createOrderApi(orderData);
     } else if (currentMode === "edit") {
         const orderId = handleTableRow.currentRowEditing.getAttribute("data-oid");
-        updateOrderApi(orderData, orderId);
+
+        //If the user is an admin, check if they are editing their own order or someone else's
+        let needsUserInfo = false;
+        if (userRole.role === "leader" && !userOrderData.find(order => order.id === orderId)) {
+            //They are editing someone else's so get their user info and load it if need phone #
+            orderData.ownerId = allOrderData.find(order => order.trooperId === tId).ownerId;
+            orderData.ownerName = allOrderData.find(order => order.trooperId === tId).ownerName;
+            orderData.ownerEmail = allOrderData.find(order => order.trooperId === tId).ownerEmail;
+            if (contact === "Phone") {
+                needsUserInfo = true;
+            } else {
+                orderData.contact = orderData.ownerEmail;
+            }
+        }
+
+        updateOrderApi(orderData, orderId, needsUserInfo);
     }
 });
 
@@ -289,9 +331,10 @@ async function createOrderApi(orderData) {
     manageLoader(true);
 
     try {
-        const orderId = await callApi('/order', 'POST', orderData);
+        const orderInfo = await callApi('/order', 'POST', orderData);
         //Order created, add to table and show message
-        handleTableRow.currentOrder(orderId.id, orderData, editCurrentOrder, createModals.deleteItem(deleteCurrentOrder), createModals.completeOrder(completeCurrentOrder));
+        orderData.status = orderInfo.status;
+        handleTableRow.currentOrder(orderInfo.id, orderData, editCurrentOrder, createModals.deleteItem(deleteCurrentOrder), createModals.pickupOrder(markOrderAsPickedUp));
         showToast("Order Added", "A new order has been created for your account.", STATUS_COLOR.GREEN, true, 5);
     } catch (error) {
         console.error('Error creating order:', error);
@@ -302,10 +345,15 @@ async function createOrderApi(orderData) {
     orderClose.click();
 }
 
-async function updateOrderApi(orderData, orderId) {
+async function updateOrderApi(orderData, orderId, needsUserInfo) {
     manageLoader(true);
 
     try {
+        //Only need to get user info if leader is updating someone else's order and they need the phone #
+        if (needsUserInfo) {
+            const userInfo = await callApi(`/user/${orderData.ownerId}`);
+            orderData.contact = userInfo.phone;
+        }
         await callApi(`/order/${orderId}`, 'PUT', orderData);
         //Order updated, update data in table and show message
         handleTableRow.updateOrderRow(handleTableRow.currentRowEditing, orderData);
@@ -321,28 +369,84 @@ async function updateOrderApi(orderData, orderId) {
 //#endregion --------------------------------------------------------
 
 //#region TABLE ACTIONS ---------------------------------------------
-function completeCurrentOrder() {
-    handleTableRow.completedOrder(getRowData(handleTableRow.currentRowEditing, true, true), editCompletedOrder, createModals.deleteItem(deleteCompletedOrder));
-    handleTableRow.currentRowEditing.remove();
-    showToast("Order Completed", "The selected order has been completed and moved to the Completed Orders table.", STATUS_COLOR.GREEN, true, 5);
+async function markOrderAsPickedUp() {
+    manageLoader(true);
+
+    try {
+        const orderId = handleTableRow.currentRowEditing.getAttribute("data-oid");
+        await callApi(`/orderPickup/${orderId}`, 'PUT', { ownerEmail: userData.email });
+        //Order marked as picked up, update table and show message
+        handleTableRow.currentRowEditing.children[1].textContent = "Picked Up";
+        let actions = [
+            { title: "Complete", iconClass: "fa-clipboard-check text-green hover:text-green-light", action: createModals.completeOrder(completeCurrentOrder) },
+            { title: "Delete", iconClass: "fa-trash-can text-red hover:text-red-light", action: createModals.deleteItem(deleteCurrentOrder) }
+        ]
+        handleTableRow.updateOrderActions(handleTableRow.currentRowEditing, actions);
+        showToast("Order Picked Up", "The selected order has been marked as picked up.", STATUS_COLOR.GREEN, true, 5);
+    } catch (error) {
+        console.error('Error marking order as picked up:', error);
+        showToast("Error Marking Pickup", 'There was an error with setting this order as picked up. Please try again.', STATUS_COLOR.RED, true, 5);
+    }
+
+    manageLoader(false);
+}
+
+async function completeCurrentOrder() {
+    manageLoader(true);
+
+    try {
+        const orderId = handleTableRow.currentRowEditing.getAttribute("data-oid");
+        await callApi(`/orderComplete/${orderId}`, 'PUT');
+        //Order marked as completed, update tables and show message
+        handleTableRow.completedOrder(orderId, getRowData(handleTableRow.currentRowEditing, true, true), userRole.role === "leader" ? createModals.deleteItem(deleteCompletedOrder): null);
+        handleTableRow.currentRowEditing.remove();
+        showToast("Order Completed", "The selected order has been completed and moved to the Completed Orders table.", STATUS_COLOR.GREEN, true, 5);
+    } catch (error) {
+        console.error('Error marking order as complete:', error);
+        showToast("Error Marking Complete", 'There was an error with setting this order as completed. Please try again.', STATUS_COLOR.RED, true, 5);
+    }
+
+    manageLoader(false);
 }
 
 function editCurrentOrder() {
     openOrderModal("edit", getRowData(handleTableRow.currentRowEditing, false));
 }
 
-function deleteCurrentOrder() {
-    handleTableRow.currentRowEditing.remove();
-    showToast("Order Deleted", "The selected order has been deleted.", STATUS_COLOR.GREEN, true, 5);
+async function deleteCurrentOrder() {
+    manageLoader(true);
+
+    try {
+        //Delete the order from the database and remove from the table
+        const orderId = handleTableRow.currentRowEditing.getAttribute('data-oid');
+        await callApi(`/order/${orderId}`, 'DELETE');
+        //Order deleted, remove from tables and show message
+        handleTableRow.currentRowEditing.remove();
+        showToast("Order Deleted", "The selected order has been removed.", STATUS_COLOR.GREEN, true, 5);
+    } catch (error) {
+        console.error('Error deleting order:', error);
+        showToast("Error Deleting Order", 'There was an error with deleting this order. Please try again.', STATUS_COLOR.RED, true, 5);
+    }
+
+    manageLoader(false);
 }
 
-function editCompletedOrder() {
-    openOrderModal("edit", getRowData(handleTableRow.currentRowEditing, true));
-}
+async function deleteCompletedOrder() {
+    manageLoader(true);
 
-function deleteCompletedOrder() {
-    handleTableRow.currentRowEditing.remove();
-    showToast("Order Deleted", "The selected order has been deleted.", STATUS_COLOR.GREEN, true, 5);
+    try {
+        //Delete the order from the database and remove from the table
+        const orderId = handleTableRow.currentRowEditing.getAttribute('data-oid');
+        await callApi(`/order/${orderId}`, 'DELETE');
+        //Order deleted, remove from tables and show message
+        handleTableRow.currentRowEditing.remove();
+        showToast("Order Deleted", "The selected order has been removed.", STATUS_COLOR.GREEN, true, 5);
+    } catch (error) {
+        console.error('Error deleting order:', error);
+        showToast("Error Deleting Order", 'There was an error with deleting this order. Please try again.', STATUS_COLOR.RED, true, 5);
+    }
+
+    manageLoader(false);
 }
 
 function getRowData(row, isCompletedOrders = false, needsDate = false) {
@@ -352,27 +456,33 @@ function getRowData(row, isCompletedOrders = false, needsDate = false) {
 
     let orderData = {
         dateCreated: tds[index++]?.textContent.trim(),
+        status: tds[index++]?.textContent.trim(),
         ...(isCompletedOrders ? {
             dateCompleted: needsDate ? new Date().toLocaleDateString('en-US') : tds[index++]?.textContent.trim()
         } : null),
         trooperName: tds[index++]?.textContent.trim(),
         parentName: tds[index++]?.textContent.trim(),
+        buyerEmail: tds[index++]?.textContent.trim(),
         boxTotal: Number(tds[index++]?.textContent.trim()) || 0,
-        orderContent: {
-            adventurefuls: Number(tds[index++]?.textContent.trim()) || 0,
-            toastyays: Number(tds[index++]?.textContent.trim()) || 0,
-            lemonades: Number(tds[index++]?.textContent.trim()) || 0,
-            trefoils: Number(tds[index++]?.textContent.trim()) || 0,
-            thinMints: Number(tds[index++]?.textContent.trim()) || 0,
-            pbPatties: Number(tds[index++]?.textContent.trim()) || 0,
-            caramelDelites: Number(tds[index++]?.textContent.trim()) || 0,
-            pbSandwich: Number(tds[index++]?.textContent.trim()) || 0,
-            gfChocChip: Number(tds[index++]?.textContent.trim()) || 0
-        },
-        pickup: tds[index++]?.textContent.trim(),
-        contact: tds[index++]?.textContent.trim(),
-        finacialAgreement: tds[index++]?.textContent.trim()
+        totalCost: tds[index++]?.textContent.trim(),
     };
+
+    // Get cookie data dynamically from troopInventoryData
+    const troopInventoryData = JSON.parse(sessionStorage.getItem('troopInventoryData'));
+    if (troopInventoryData?.inventory) {
+        orderData.orderContent = {};
+        troopInventoryData.inventory.forEach(cookie => {
+            const fieldName = cookie.variety.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase());
+            orderData.orderContent[fieldName] = Number(tds[index++]?.textContent.trim()) || 0;
+        });
+    }
+
+    // Get the remaining fields after cookie data
+    orderData.pickupLocation = tds[index++]?.textContent.trim();
+    orderData.contact = tds[index++]?.textContent.trim();
+    orderData.cashPaid = tds[index++]?.textContent.trim();
+    orderData.cardPaid = tds[index++]?.textContent.trim();
+    orderData.financialAgreement = tds[index++]?.textContent.trim();
 
     return orderData;
 }

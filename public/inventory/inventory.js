@@ -6,7 +6,7 @@ import { createModals } from "../utils/confirmModal.js";
 import { manageLoader } from "../utils/loader.js";
 
 //#region CREATE TABLES/LOAD DATA -----------------------------------
-let userData, userRole, troopInventoryData, trooperInventoryData = [];
+let userData, userRole, troopInventoryData, parentInventoryData, trooperInventoryData = [];
 
 //First show skeleton loaders as inventory info is waiting to be pulled
 const mainContent = document.getElementsByClassName('main-content')[0];
@@ -21,14 +21,14 @@ document.addEventListener("authStateReady", async () => {
     if (userRole && userData.id) {
         //First get the inventory data and troopers of the parent
         troopInventoryData = await callApi('/leaderInventory');
-        const parentInventoryData = await callApi(`/inventory/${userData.id}`);
+        parentInventoryData = await callApi(`/inventory/${userData.id}`);
         const parentTrooperData = await callApi(`/troopersOwnerId/${userData.id}`);
 
         if (userRole.role === "parent") {
             handleTableCreation.troopInventory(mainContent, null);
             handleTableCreation.yourInventory(mainContent);
             loadInventoryTableRows(troopInventoryData.inventory, "troop", false);
-            loadInventoryTableRows(parentInventoryData.inventory, "your");
+            loadInventoryTableRows(parentInventoryData[0].inventory, "your");
         } else if (userRole.role === "leader") {
             handleTableCreation.troopInventory(mainContent, openCookieModalAdmin);
             handleTableCreation.needInventory(mainContent);
@@ -36,7 +36,7 @@ document.addEventListener("authStateReady", async () => {
 
             loadInventoryTableRows(troopInventoryData.inventory, "troop");
             loadInventoryTableRows(troopInventoryData.needToOrder, "need");
-            loadInventoryTableRows(parentInventoryData.inventory, "your");
+            loadInventoryTableRows(parentInventoryData[0].inventory, "your");
         }
 
         if (parentTrooperData) {
@@ -121,12 +121,12 @@ const cookiePrice = document.getElementById("cookie-price");
 const cookieStock = document.getElementById("cookie-stock");
 
 function setupAndLoadDropdowns() {
-    if (troopInventoryData && troopInventoryData.inventory?.length > 0) {
-        troopInventoryData.inventory.forEach((cookie) => {
+    if (parentInventoryData && parentInventoryData[0].inventory?.length > 0) {
+        parentInventoryData[0].inventory.forEach((cookie) => {
             addOptionToDropdown('cookie-name-dropdown', cookie.variety, cookie.varietyId);
         });
     } else {
-        addOptionToDropdown('cookie-name-dropdown', "No Cookies Found", null);
+        addOptionToDropdown('cookie-name-dropdown', "No cookies in your inventory", null);
     }
 
     setupDropdown('cookie-name-btn', 'cookie-name-dropdown');
@@ -153,6 +153,12 @@ function openCookieModalAdmin(mode = "add", cookieData) {
 }
 
 function openCookieModalUser(mode = "add", cookieData, trooperId = null) {
+    //If the parent hasn't made an order, don't allow assigning cookies
+    if (parentInventoryData && parentInventoryData[0].inventory?.length === 0) {
+        showToast("No Cookies to Assign", "You haven't made an order so you do not have any cookies to assign this trooper.", STATUS_COLOR.RED, true, 8);
+        return;
+    }
+
     cookieNameAdmin.classList.add('hidden');
     cookieNameUser.classList.remove('hidden');
     cookiePriceAdmin.classList.add('hidden');
@@ -211,7 +217,7 @@ cookieSubmit.addEventListener('click', (e) => {
             return;
         }
     } else {
-        if (cName === "Select Cookie") {
+        if (cName === "Select Cookie" || cName === "No cookies in your inventory") {
             showToast("Invalid Cookie Name", "Please make sure that you have selected a cookie.", STATUS_COLOR.RED, true, 5);
             return;
         }
@@ -230,7 +236,7 @@ cookieSubmit.addEventListener('click', (e) => {
     }
 
     //If it is an admin, add the cookie to the troop inventory
-    //If it is a user, add the cookie to the trooper inventory
+    //If it is a user, assign the cookie to the trooper inventory
     if (isAdmin === "true") {
         cookieData.boxPrice = (cPrice).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
         if (currentMode === "add") {
@@ -242,7 +248,7 @@ cookieSubmit.addEventListener('click', (e) => {
     } else {
         const trooperId = cookieForm.getAttribute('data-tid');
         cookieData.varietyId = cookieNameBtn.value;
-        cookieData.boxPrice = troopInventoryData.inventory.find(item => item.varietyId === cookieData.varietyId).boxPrice;
+        cookieData.boxPrice = parentInventoryData[0].inventory.find(item => item.varietyId === cookieData.varietyId).boxPrice;
         if (currentMode === "add") {
             addCookieToTrooperInventoryApi(trooperId, cookieData);
         } else if (currentMode === "edit") {
@@ -303,20 +309,49 @@ async function addCookieToTrooperInventoryApi(trooperId, cookieData) {
     manageLoader(true);
 
     try {
-        //Add cookie to trooper inventory
-        const trooperInventory = trooperInventoryData.find(item => item.trooperId === trooperId);
+        // First check parent's available inventory
+        const parentCookie = parentInventoryData[0].inventory.find(item => item.varietyId === cookieData.varietyId);
+
+        if (!parentCookie) {
+            showToast("Error Assigning Cookie", "Cookie not found in parent inventory.", STATUS_COLOR.RED, true, 5);
+            manageLoader(false);
+            return;
+        }
+
+        // Calculate total boxes already assigned to troopers
+        const assignedBoxes = trooperInventoryData.reduce((total, trooper) => {
+            const trooperCookie = trooper.inventory.find(cookie =>
+                cookie.varietyId === cookieData.varietyId
+            );
+            return total + (trooperCookie?.boxes || 0);
+        }, 0);
+
+        // Calculate available boxes
+        const availableBoxes = parentCookie.boxes - assignedBoxes;
+
+        if (availableBoxes < cookieData.boxes) {
+            showToast("Insufficient Inventory", `You only have ${availableBoxes} boxes of ${parentCookie.variety} available to assign. Please check your inventory.`, STATUS_COLOR.RED, true, 8);
+            manageLoader(false);
+            return;
+        }
+
+        // If we have enough inventory, proceed with assignment
+        const trooperInventory = trooperInventoryData.find(item =>item.trooperId === trooperId);
+
         if (trooperInventory) {
             trooperInventory.inventory.push(cookieData);
             await callApi(`/trooperInventory/${trooperInventory.id}`, 'PUT', trooperInventory);
+
             const trooperName = trooperInventory.trooperName.replace(' ', '-').toLowerCase();
             handleTableRow.trooperInventory(cookieData.varietyId, cookieData, trooperName, editCookie, createModals.deleteItem(deleteCookie));
-            showToast("Cookie Added", "The selected cookie has been added to the trooper's inventory.", STATUS_COLOR.GREEN, true, 5);
+
+            showToast("Cookie Assigned", "The selected cookie has been assigned to the trooper's inventory.", STATUS_COLOR.GREEN, true, 5);
         } else {
-            showToast("Error Adding Cookie", "There was an error adding the cookie to the trooper's inventory. Please try again.", STATUS_COLOR.RED, true, 5);
+            showToast("Error Assigning Cookie", "There was an error assigning the cookie to the trooper's inventory. Please try again.", STATUS_COLOR.RED, true, 5);
         }
     } catch (error) {
-        console.error('Error adding cookie to trooper inventory:', error);
-        showToast("Error Adding Cookie", 'There was an error with adding this cookie to the trooper inventory. Please try again.', STATUS_COLOR.RED, true, 5);
+        console.error('Error assigning cookie to trooper inventory:', error);
+        showToast("Error Assigning Cookie", 'There was an error with assigning this cookie to the trooper inventory. Please try again.', STATUS_COLOR.RED, true, 5);
     }
 
     manageLoader(false);

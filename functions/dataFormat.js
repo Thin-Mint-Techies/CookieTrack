@@ -1,11 +1,10 @@
 /**
 Stand alone data
-    User // references: troopers, squads, documents, orders, inventory, booths, parents, ACL
+    User // references: troopers, documents, orders, inventory, booths, parents, ACL
     Cookie: just list of cookie
     Reward: just list of reward
 Need ownerId field: 
     trooper 
-    squad
     documents
     orders
     inventory
@@ -39,32 +38,17 @@ const cookieDataFormat = {
 //////////////////////////////////////////////////////////
 // need ownerId
 
-// also contain trooperInventory
 const trooperDataFormat = {
+    ownerId: '', //id of parent
+    parentName: '',
     troopNumber: '',
     trooperName: '',
-    parentId: '',
-    parentName: '',
     troopLeader:'',
     age: '',
     grade: '',
     shirtSize: '',
-    squad: '',
     currentReward: [],
-    // start of Inventory
-    currentBalance: 0.0,
-    //boxesSold: 0, 
-    inventory: [
-        {varietyId: '',variety: '',boxes: 0,boxPrice: 0.0,}, 
-        {owe: 0.0,}
-    ],
-};
-
-// might not need
-const troopDataFormat = {
-    troopName: '',
-    ownerId: '',
-    saleData: [],
+    saleDataId: '' //created when trooper is created
 };
 
 // archive the order when dateCompleted is not null
@@ -72,57 +56,35 @@ const completedOrderDataFormat = {
     // copies of orderDataFormat
 };
 
-
-// 
 const orderDataFormat = {
-    leaderId: '',
-    leaderEmail: '',
     dateCreated: '',
-    //ownerId: '', // whoever create the order
-    //ownerEmail: '',
-
+    status: '', //Not ready for pickup, Ready for pickup, Picked up, Completed -- CASE SENSITIVE
+    dateCompleted: '', //Date.now(), will be complete after owe is paid
     trooperId: '',
     trooperName: '',
-    parentName:'', // parent of trooper
-    parentEmail:'',
-    buyerName:'',
+    ownerId: '', //parent
+    ownerEmail: '', //parent
+    ownerName: '', //parent
     buyerEmail: '',
-
     contact: '',
     financialAgreement: false,
-    paymentType: 'cash', // only support cash for now, leader input owe manually
-    //SU: '',
-
-    //fill: false,
-    pickupable: false, //Leader hit a button to make it pickupable
-    orderIsCorrect: false,
-    dateCompleted: '', //Date.now(), will be complete after owe is paid
-
-
-    pickupDetails: [{
-        receivedBy: '',
-        address: '',
-        troopNumber: '',
-        datePickup: '', //Date.now(),  
-    }, {
-        receivedFrom: '',
-        troopNumber: '',
-    }],
+    datePickedUp: '', //When status changes to Picked up
+    pickupLocation: '',
     orderContent: [{
         cookies: [{
             varietyId: '',
             variety: '',
             boxes: 0,
             boxPrice: 0.0,
-            cookieTotalCost: 0.0,
-            //cases: 0,
+            cookieTotalCost: 0.0, //in backend
         },],
-        totalCost: 0,
-        owe: 0, 
-        boxTotal: 0,
-        //totalPackages: 0,
+        totalCost: 0, //in backend
+        owe: 0, //in backend 
+        boxTotal: 0, //in backend
     }],
-    
+    cashPaid: 0, //amount parent has paid in cash -- can be zero
+    cardPaid: 0, //amount parent has paid in card -- can be zero
+    saleDataId: '' //id from the trooper's saleDataId
 };
 
 const parentInventoryDataFormat = {
@@ -135,6 +97,10 @@ const parentInventoryDataFormat = {
 
 const trooperInventoryDataFormat = {
     ownerId: '',
+    parentId: '',
+    trooperId: '',
+    trooperName: '',
+    troopNumber: '',
     owe: 0.0,
     inventory: [
         { varietyId: '',variety: '',boxes: 0,boxPrice: 0.0,},
@@ -162,13 +128,12 @@ const saleDataformatforTrooper = {
     ownerId: '',
     trooperId: '',
     trooperName: '',
-    orderId: [], // archived order or order?
+    orderId: [], // completed orders
     cookieData: [
         {varietyId: '', variety: '', boxPrice: '', boxTotal: 0, cookieTotalCost: 0.0,},
     ],
     totalMoneyMade: 0.0, 
     totalBoxesSold: 0,
-    currentBalance: 0.0,
 };
 
 // not use for now, could be use to allow access to saleData
@@ -193,7 +158,6 @@ module.exports = {
     rewardDataFormat,
     cookieDataFormat,
     trooperDataFormat,
-    troopDataFormat,
     completedOrderDataFormat,
     orderDataFormat,
     saleDataformatforTrooper,

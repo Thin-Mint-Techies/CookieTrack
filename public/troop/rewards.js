@@ -32,7 +32,7 @@ document.addEventListener("authStateReady", async () => {
         }
 
         //Create all the reward boxes for all the users's troopers
-        loadRewardBoxes(userTroopers, rewardData);
+        await loadRewardBoxes(userTroopers, rewardData);
     } else {
         showToast("Error Loading Data", "There was an error loading user data. Please refresh the page to try again.", STATUS_COLOR.RED, false);
         return;
@@ -49,8 +49,15 @@ function loadRewardTableRows(rewards) {
     });
 }
 
-function loadRewardBoxes(troopers, rewardData) {
-    troopers.forEach((trooper) => {
+async function loadRewardBoxes(troopers, rewardData) {
+    if (!troopers && userRole.role === "parent") {
+        showToast("No Troopers", "There are no troopers in your account to show rewards for.", STATUS_COLOR.RED, false);
+        return;
+    }
+
+    await Promise.all(troopers.map(async (trooper) => {
+        const saleData = await callApi(`/saleData/${trooper.saleDataId}`);
+
         //Set all the current rewards from trooper to redeemed
         trooper.currentReward.forEach((reward) => {
             reward.redeemed = "Redeemed";
@@ -77,16 +84,17 @@ function loadRewardBoxes(troopers, rewardData) {
             rewards = Array.from(uniqueRewards.values());
         }
 
-        //Sort rewards ion ascending order based on boxesNeeded
+        //Sort rewards in ascending order based on boxesNeeded
         rewards.sort((a, b) => a.boxesNeeded - b.boxesNeeded);
 
         // Calculate the number of available rewards (unredeemed and eligible based on boxesSold)
         trooper.available = rewards.filter(reward =>
-            reward.redeemed !== "Redeemed" && trooper.boxesSold >= reward.boxesNeeded
+            reward.redeemed !== "Redeemed" && saleData.totalBoxesSold >= reward.boxesNeeded
         ).length;
+        trooper.boxesSold = saleData.totalBoxesSold;
 
         handleTableCreation.rewardBox(mainContent, trooper, rewards, redeemReward);
-    });
+    }));
 }
 //#endregion CREATE TABLES/LOAD DATA --------------------------------
 

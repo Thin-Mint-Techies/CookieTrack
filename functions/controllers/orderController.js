@@ -2,9 +2,9 @@ const orderService = require('../services/orderService');
 
 const createOrder = async (req, res) => {
   try {
-    const orderId = await orderService.createOrder(req.body);
-    console.log('Order created successfully:', { id: orderId });
-    res.status(201).json({ message: 'Order created successfully', orderId });
+    const {id, status} = await orderService.createOrder(req.body);
+    console.log('Order created successfully:', { id: id, status: status });
+    res.status(201).json({ message: 'Order created successfully', id: id, status: status });
   } catch (error) {
     console.error('Failed to create order:', error.message);
     res.status(500).json({ message: error.message });
@@ -46,22 +46,10 @@ const deleteOrder = async (req, res) => {
   }
 };
 
-const getUserOrders = async (req, res) => {
-  const { id } = req.params;
-  try {
-    const orders = await orderService.getUserOrders(id);
-    console.log('getUserOrders successfully', orders);
-    res.status(200).json(orders);
-  } catch (error) {
-    console.log('Failed to getUserOrders', error.message);
-    res.status(500).json({ message: error.message });
-  }
-};
-
 const markOrderComplete = async (req, res) => {
   const { id } = req.params;
   try {
-    const result = await orderService.markOrderComplete(id, req.body);
+    const result = await orderService.markOrderComplete(id);
     console.log('Order marked complete successfully:', result);
     res.status(200).json({ message: 'Order marked complete successfully', result });
   } catch (error) {
@@ -93,23 +81,23 @@ const getOrdersByTrooperId = async (req, res) => {
   }
 };
 
-const getOrdersByParentId = async (req, res) => {
+const getOrdersByOwnerId = async (req, res) => {
   const { id } = req.params;
   try {
-    const orders = await orderService.getOrdersByParentId(id);
-    console.log('getOrdersByParentId successfully', orders);
+    const orders = await orderService.getOrdersByOwnerId(id);
+    console.log('getOrdersByOwnertId successfully', orders);
     res.status(200).json(orders);
   } catch (error) {
-    console.log('Failed to getOrdersByParentId', error.message);
+    console.log('Failed to getOrdersByOwnerId', error.message);
     res.status(500).json({ message: error.message });
   }
 };
 
 const parentPickup = async (req, res) => {
   const { id } = req.params;
-  const { parentEmail } = req.body;
+  const { ownerEmail } = req.body;
   try {
-    const result = await orderService.parentPickup(id, parentEmail);
+    const result = await orderService.parentPickup(id, ownerEmail);
     console.log('Order marked as picked up successfully:', result);
     res.status(200).json({ message: 'Order marked as picked up successfully', result });
   } catch (error) {
@@ -123,10 +111,9 @@ module.exports = {
   getAllOrders,
   updateOrder,
   deleteOrder,
-  getUserOrders,
   markOrderComplete,
   archiveOrders,
   getOrdersByTrooperId,
-  getOrdersByParentId,
+  getOrdersByOwnerId,
   parentPickup
 };

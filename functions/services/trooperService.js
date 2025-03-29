@@ -1,24 +1,26 @@
 const { Firestore } = require('../firebaseConfig');
 const admin = require('firebase-admin');
-const {trooperDataFormat} = require('../dataFormat');
+const { createSaleData } = require('./saleDataService');
 
-const createTrooper = async ({ parentName,troopNumber, trooperName, ownerId, troopLeader, age, grade, shirtSize, boxesSold, currentBalance  }) => {
+const createTrooper = async ({ ownerId, parentName, troopNumber, trooperName, troopLeader, age, grade, shirtSize }) => {
   try {
     const newTroopRef = Firestore.collection('troopers').doc();
+
+    //Create initial sale data for the trooper
+    const trooperId = newTroopRef.id;
+    const saleDataId = await createSaleData({ ownerId, trooperId, trooperName });
+
     const troopData = {
+      ownerId,
+      parentName,
       troopNumber,
       trooperName,
-      ownerId, //uid of parent
-      parentName,
       troopLeader,
       age,
       grade,
       shirtSize,
-      currentBalance,
-      boxesSold,
-      // from here down is not sure
-      squad: '',
       currentReward: [],
+      saleDataId: saleDataId
     };
 
     await newTroopRef.set(troopData);
@@ -57,65 +59,30 @@ const getTrooperById = async (id) => {
   }
 };
 
-/*
-const updateTrooper = async (troopId, troopNumber, trooperName, ownerId, troopLeader, age, grade, shirtSize, boxesSold, currentBalance, squad, currentReward) => {
-  try {
-    const ref = Firestore.collection('troopers').doc(troopId);
-    await ref.update({
-      troopNumber,
-      trooperName,
-      ownerId, //uid of parent
-      troopLeader,
-      age,
-      grade,
-      shirtSize,
-      currentBalance,
-      boxesSold,
-      squad,
-      currentReward,
-    });
-    return { message: 'Update trooper successfully' };
-  } catch (error) {
-    throw new Error(`Error updating trooper: ${error.message}`);
-  }
-};
-*/
-const updateTrooper = async (troopId, updateData) => {
+const updateTrooper = async (id, { troopNumber, trooperName, troopLeader, age, grade, shirtSize }) => {
   try {
     await Firestore.runTransaction(async (transaction) => {
-      const ref = Firestore.collection('troopers').doc(troopId);
+      const trooperRef = Firestore.collection('troopers').doc(id);
 
       // Fetch the current trooper data within the transaction
-      const doc = await transaction.get(ref);
-      if (!doc.exists) {
+      const trooperDoc = await transaction.get(trooperRef);
+      if (!trooperDoc.exists) {
         throw new Error('Trooper not found');
       }
+      const trooperData = trooperDoc.data();
 
-      // Define the allowed fields to be updated
-      const allowedFields = [
-        'troopNumber',
-        'trooperName',
-        'ownerId',
-        'troopLeader',
-        'age',
-        'grade',
-        'shirtSize',
-        'currentBalance',
-        'boxesSold',
-        'squad',
-        'currentReward'
-      ];
+      const updatedTrooperData = {
+        troopNumber,
+        trooperName,
+        troopLeader,
+        age,
+        grade,
+        shirtSize,
+        ...trooperData,
+      };
 
-      // Filter the updateData to include only allowed fields
-      const filteredUpdateData = {};
-      for (const key in updateData) {
-        if (allowedFields.includes(key)) {
-          filteredUpdateData[key] = updateData[key];
-        }
-      }
-
-      // Update the trooper with the filtered data within the transaction
-      transaction.update(ref, filteredUpdateData);
+      // Update the trooper with the new data
+      transaction.update(trooperRef, updatedTrooperData);
     });
 
     return { message: 'Trooper updated successfully' };

@@ -1,18 +1,28 @@
 export const createModals = {
+    pickupOrder: (pickupAction) => createModal(pickupAction, modalInfo.pickupOrder),
     completeOrder: (confirmAction) => createModal(confirmAction, modalInfo.completeOrder),
     deleteItem: (deleteAction) => createModal(deleteAction, modalInfo.deleteItem)
 }
 
 const modalInfo = {
+    pickupOrder: {
+        title: "Pickup Order",
+        message: "Are you sure you want to mark this order as picked up?",
+        icon: "fa-clipboard-check",
+        text: "text-green",
+        background: "bg-green",
+        hover: "bg-green-light",
+        action: "Mark as Picked Up"
+    },
     completeOrder: {
-        title: "Oder Completion",
+        title: "Order Completion",
         message: "Are you sure you want to complete this order?",
         icon: "fa-clipboard-check",
         text: "text-green",
         background: "bg-green",
         hover: "bg-green-light",
         action: "Complete"
-    },
+    }, 
     deleteItem: {
         title: "Deletion",
         message: "Are you sure you want to delete?",

@@ -6,7 +6,7 @@ import { handleSkeletons } from "../utils/skeletons.js";
 import { manageLoader } from "../utils/loader.js";
 
 //#region CREATE TABLES/LOAD DATA -----------------------------------
-let userData, userRole;
+let userData, userRole, troopInventoryData;
 
 //First show skeleton loaders as trooper info is waiting to be pulled
 const mainContent = document.getElementsByClassName('main-content')[0];
@@ -19,6 +19,12 @@ document.addEventListener("authStateReady", async () => {
 
     //Create necessary tables based on user role
     if (userRole && userData.id) {
+        //First get the troop inventory data and store it
+        troopInventoryData = await callApi('/leaderInventory');
+        if (troopInventoryData) {
+            sessionStorage.setItem('troopInventoryData', JSON.stringify(troopInventoryData));
+        }
+
         if (userRole.role === "parent") {
             //Create table
             handleTableCreation.yourTrooper(mainContent, openTrooperModal);
@@ -50,16 +56,18 @@ async function loadTrooperTableRows(troopers, isAllTroopers) {
     if (!troopers) return;
 
     await Promise.all(troopers.map(async (trooper) => {
-        //Get the trooper's order, and reward data
+        //Get the trooper's order, sales, inventory, and reward data
         const orderData = await callApi(`/ordersTrooper/${trooper.id}`);
+        const saleData = await callApi(`/saleData/${trooper.saleDataId}`);
+        const inventoryData = await callApi(`/inventory/${trooper.id}`);
 
         const trooperData = {
             troopNumber: trooper.troopNumber,
             trooperName: trooper.trooperName,
             parentName: trooper.parentName,
             troopLeader: trooper.troopLeader,
-            currentBalance: trooper.currentBalance,
-            boxesSold: trooper.boxesSold,
+            owe: inventoryData[0].owe,
+            boxesSold: saleData.totalBoxesSold,
             age: trooper.age,
             grade: trooper.grade,
             shirtSize: trooper.shirtSize,
@@ -180,8 +188,8 @@ trooperSubmit.addEventListener('click', (e) => {
         age: age,
         grade: grade,
         shirtSize: size,
-        currentBalance: (0.0).toLocaleString('en-US', { style: 'currency', currency: 'USD' }),
-        boxesSold: 0,
+        owe: "$0.00", //Only used to show in row for trooper creation
+        boxesSold: 0, //Only used to show in row for trooper creation
     }
 
     if (currentMode === "add") {
@@ -207,8 +215,13 @@ async function createTrooperApi(trooperData) {
         }
         await callApi('/trooperInventory', 'POST', inventoryData);
         //Trooper created, add to tables and show message
-        handleTableRow.yourTrooper(trooperId.id, trooperData, editTrooperData, createModals.deleteItem(deleteTrooper));
-        if (userRole === "leader") handleTableRow.allTrooper(trooperData, editTrooperData, createModals.deleteItem(deleteTrooper));
+        const data = {
+            trooperData: trooperData,
+            orderData: [],
+            rewardData: [],
+        }
+        handleTableRow.yourTrooper(trooperId.id, data, editTrooperData, createModals.deleteItem(deleteTrooper));
+        if (userRole === "leader") handleTableRow.allTrooper(trooperId.id, data, editTrooperData, createModals.deleteItem(deleteTrooper));
         showToast("Trooper Added", "A new trooper has been created for your account.", STATUS_COLOR.GREEN, true, 5);
     } catch (error) {
         console.error('Error creating trooper:', error);
@@ -269,7 +282,7 @@ function getRowData(row) {
         trooperName: tds[index++]?.textContent.trim(),
         parentName: tds[index++]?.textContent.trim(),
         troopLeader: tds[index++]?.textContent.trim(),
-        currentBalance: tds[index++]?.textContent.trim(),
+        owe: tds[index++]?.textContent.trim(),
         boxesSold: tds[index++]?.textContent.trim(),
         age: tds[index++]?.textContent.trim(),
         grade: tds[index++]?.textContent.trim(),
