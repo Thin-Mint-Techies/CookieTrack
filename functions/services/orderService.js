@@ -346,12 +346,12 @@ const markOrderComplete = async (orderId) => {
       const trooperInventory = trooperDoc.data();
 
       // Get parent inventory
-      const parentRef = Firestore.collection('inventory').doc(orderData.ownerId);
-      const parentSnapshot = await transaction.get(parentRef);
-      if (!parentSnapshot.exists) {
+      const parentInventorySnapshot = await transaction.get(Firestore.collection('inventory').where('ownerId', '==', orderData.ownerId));
+      if (parentInventorySnapshot.empty) {
         throw new Error('Parent inventory not found');
       }
-      const parentInventory = parentSnapshot.data();
+      const parentDoc = parentInventorySnapshot.docs[0];
+      const parentInventory = parentDoc.data();
 
       // Calculate amount to reduce from owe
       const totalCost = parseFloat(orderData.orderContent.totalCost.replace(/[^0-9.-]+/g, ""));
@@ -383,7 +383,7 @@ const markOrderComplete = async (orderId) => {
         })
       });
 
-      transaction.update(parentRef, {
+      transaction.update(parentDoc.ref, {
         owe: (parentCurrentOwe - totalCost).toLocaleString('en-US', {
           style: 'currency',
           currency: 'USD'

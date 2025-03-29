@@ -48,7 +48,7 @@ const updateSaleData = async (saleDataId, { orderId, orderContent }) => {
       const updatedSaleData = {
         ...saleData,
         orderId: [...saleData.orderId, orderId],
-        totalMoneyMade: (parseFloat(saleData.totelMoneyMade.replace(/[^0-9.-]+/g, "")) + parseFloat(orderContent.totalCost.replace(/[^0-9.-]+/g, ""))).toLocaleString('en-US', {
+        totalMoneyMade: (parseFloat(saleData.totalMoneyMade.replace(/[^0-9.-]+/g, "")) + parseFloat(orderContent.totalCost.replace(/[^0-9.-]+/g, ""))).toLocaleString('en-US', {
           style: 'currency',
           currency: 'USD'
         }),
