@@ -310,7 +310,6 @@ const parentPickup = async (orderId, ownerEmail) => {
           })
         }
       };
-
       transaction.update(orderRef, updatedOrderData);
 
       // Send email to parent for confirmation
@@ -454,6 +453,19 @@ const archiveOrders = async () => {
     }
   } catch (error) {
     console.error('Error moving completed orders:', error);
+  }
+};
+
+
+const getUserOrders = async (userId) => {
+  try {
+    const snapshot = await Firestore.collection('orders').where('ownerId', '==', userId).get();
+    if (!snapshot.empty) {
+      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    }
+    throw new Error('No orders found');
+  } catch (error) {
+    throw new Error(`Error fetching user orders: ${error.message}`);
   }
 };
 
