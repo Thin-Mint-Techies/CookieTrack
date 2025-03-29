@@ -29,7 +29,7 @@ const rewardDataFormat = {
 
 const cookieDataFormat = {
     variety: '',
-    boxPrice: '',
+    boxPrice: 0.0,
 };
 
 //////////////////////////////////////////////////////////
@@ -44,7 +44,7 @@ const trooperDataFormat = {
     troopNumber: '',
     trooperName: '',
     troopLeader:'',
-    age: '',
+    age: 0,
     grade: '',
     shirtSize: '',
     currentReward: [],
@@ -78,12 +78,12 @@ const orderDataFormat = {
             boxPrice: 0.0,
             cookieTotalCost: 0.0, //in backend
         },],
-        totalCost: 0, //in backend
-        owe: 0, //in backend 
+        totalCost: 0.0, //in backend
+        owe: 0.0, //in backend 
         boxTotal: 0, //in backend
     }],
-    cashPaid: 0, //amount parent has paid in cash -- can be zero
-    cardPaid: 0, //amount parent has paid in card -- can be zero
+    cashPaid: 0.0, //amount parent has paid in cash -- can be zero
+    cardPaid: 0.0, //amount parent has paid in card -- can be zero
     saleDataId: '' //id from the trooper's saleDataId
 };
 

@@ -9,6 +9,18 @@ const logExecutionTime = (req, res, next) => {
     next();
 };
 
+// Helper function to check for positive floats
+const isPositiveFloat = (value) => {
+    return typeof value === 'number' && value > 0 && Number.isFinite(value);
+};
+
+// Helper function to check for positive integers
+const isPositiveInt = (value) => {
+    return Number.isInteger(value) && value > 0;
+};
+
 module.exports = {
     logExecutionTime,
+    isPositiveFloat,
+    isPositiveInt
 };

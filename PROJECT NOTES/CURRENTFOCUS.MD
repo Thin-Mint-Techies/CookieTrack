@@ -84,10 +84,16 @@
 
 
 
-
-System testing: start with order
-Make sure order is working
-    Create order: parent inv not updating
-Parent return cookies
-Make sure that the numeric cannot be negative
-
+Test: 
+    - Update order is a prio: 
+        - pay more than need, pay $500 for $200 orders
+        - Update orders and Markordercomplete: refactor
+    - Check for negative or overflow:
+        - Inventory
+        - Orders 
+        - SaleData
+    - Parent inventory: not updating, after removing the stock after order complete
+    - Trooper inventory: show negative ammount of total made, should be zero. Remove inventory after sale
+    - Order should update owe to zero after order is complete
+    - Parent return cookies
+    - Parent pickup: review

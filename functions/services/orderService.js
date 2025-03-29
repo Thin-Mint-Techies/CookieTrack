@@ -3,6 +3,7 @@ const { sendEmail } = require('../utils/emailSender');
 const { completedOrderDataFormat } = require('../dataFormat');
 //const { updateSaleData } = require('./test');
 const { updateSaleData } = require('./saleDataService');
+const  {isPositiveFloat, isPositiveInt} = require('../utils/caculation')
 
 const createOrder = async ({ dateCreated, trooperId, trooperName, ownerId, ownerEmail, ownerName, buyerEmail, contact, pickupLocation, orderContent, cashPaid, cardPaid, saleDataId }) => {
   try {
@@ -49,17 +50,22 @@ const createOrder = async ({ dateCreated, trooperId, trooperName, ownerId, owner
 
       // Calculate totalCost and boxTotal
       orderContent.cookies.forEach(cookie => {
-        cookie.cookieTotalCost = (cookie.boxes * parseFloat(cookie.boxPrice.replace(/[^0-9.-]+/g, ""))).toLocaleString('en-US', {
+        const parseBoxPrice = parseFloat(cookie.boxPrice.replace(/[^0-9.-]+/g, ""));
+        const parsedCookieTotalCost = parseFloat(cookie.cookieTotalCost.replace(/[^0-9.-]+/g, ""));
+
+        cookie.cookieTotalCost = (cookie.boxes * parseBoxPrice).toLocaleString('en-US', {
           style: 'currency',
           currency: 'USD'
         });
-        totalCost += parseFloat(cookie.cookieTotalCost.replace(/[^0-9.-]+/g, ""));
+        totalCost += parsedCookieTotalCost;
         boxTotal += cookie.boxes;
       });
+
       newOrderData.orderContent.totalCost = totalCost.toLocaleString('en-US', {
         style: 'currency',
         currency: 'USD'
       });
+
       newOrderData.orderContent.boxTotal = boxTotal;
 
       // Process the order
@@ -108,7 +114,6 @@ const createOrder = async ({ dateCreated, trooperId, trooperName, ownerId, owner
   }
 };
 
-// Might need some rework
 const updateOrder = async (id, { trooperId, trooperName, ownerEmail, ownerName, buyerEmail, contact, pickupLocation, orderContent, cashPaid, cardPaid, saleDataId }) => {
   try {
     await Firestore.runTransaction(async (transaction) => {
@@ -326,6 +331,7 @@ const parentPickup = async (orderId, ownerEmail) => {
   }
 };
 
+// done only after the owe amount in order hit 0 or below
 const markOrderComplete = async (orderId) => {
   try {
     await Firestore.runTransaction(async (transaction) => {
