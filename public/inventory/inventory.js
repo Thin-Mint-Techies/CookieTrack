@@ -56,6 +56,12 @@ document.addEventListener("authStateReady", async () => {
 function loadInventoryTableRows(inventory, inventoryType, hasActions = true) {
     if (!inventory) return;
 
+    //Load the parent's owe amount
+    if (inventoryType === "your") {
+        const oweElem = document.getElementById("your-inventory-owe");
+        oweElem.textContent = `Owe: ${parentInventoryData[0].owe}`;
+    }
+
     inventory.forEach((cookie) => {
         const cookieData = {
             variety: cookie.variety,
@@ -87,6 +93,11 @@ async function loadTrooperInventoryTableRows(troopers) {
             trooperInventoryData.push(inventory);
             trooperInventoryData = trooperInventoryData.flat();
             handleTableCreation.trooperInventory(mainContent, trooper, openCookieModalUser);
+
+            //Load the trooper's owe amount
+            const oweIdTrooperName = trooper.trooperName.replaceAll(' ', '-').toLowerCase();
+            const oweElem = document.getElementById(`inventory-for-${oweIdTrooperName}-owe`);
+            oweElem.textContent = `Owe: ${inventory[0].owe}`;
 
             if (!inventory[0].inventory) return;
             inventory[0].inventory.forEach((cookie) => {
@@ -155,7 +166,7 @@ function openCookieModalAdmin(mode = "add", cookieData) {
 function openCookieModalUser(mode = "add", cookieData, trooperId = null) {
     //If the parent hasn't made an order, don't allow assigning cookies
     if (parentInventoryData && parentInventoryData[0].inventory?.length === 0) {
-        showToast("No Cookies to Assign", "You haven't made an order so you do not have any cookies to assign this trooper.", STATUS_COLOR.RED, true, 8);
+        showToast("No Cookies to Assign", "You do not have cookies in your inventory to assign to this trooper.", STATUS_COLOR.RED, true, 8);
         return;
     }
 
@@ -336,7 +347,7 @@ async function addCookieToTrooperInventoryApi(trooperId, cookieData) {
         }
 
         // If we have enough inventory, proceed with assignment
-        const trooperInventory = trooperInventoryData.find(item =>item.trooperId === trooperId);
+        const trooperInventory = trooperInventoryData.find(item => item.trooperId === trooperId);
 
         if (trooperInventory) {
             trooperInventory.inventory.push(cookieData);

@@ -8,7 +8,7 @@ const modalInfo = {
     pickupOrder: {
         title: "Pickup Order",
         message: "Are you sure you want to mark this order as picked up?",
-        icon: "fa-clipboard-check",
+        icon: "fa-truck",
         text: "text-green",
         background: "bg-green",
         hover: "bg-green-light",

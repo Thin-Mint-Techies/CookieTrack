@@ -53,6 +53,65 @@ function setupPhoneInput(inputElem) {
 }
 //#endregion --------------------------------------------------------
 
+//#region CURRENCY INPUT ----------------------------------------
+function setupCurrencyInput(inputElem) {
+    inputElem.addEventListener('keydown', disallowNonNumericInput);
+    inputElem.addEventListener('input', formatToCurrency);
+    inputElem.addEventListener('blur', handleBlur);
+    inputElem.addEventListener('focus', handleFocus);
+
+    function disallowNonNumericInput(e) {
+        // Allow: backspace, delete, tab, escape, enter, decimal point
+        if ([46, 8, 9, 27, 13, 110, 190].indexOf(e.keyCode) !== -1 ||
+            // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+            (e.keyCode >= 35 && e.keyCode <= 39) || // Allow: home, end, left, right
+            ((e.keyCode >= 96 && e.keyCode <= 105)) || // Allow: numpad 0-9
+            (e.keyCode >= 48 && e.keyCode <= 57)) { // Allow: 0-9
+            // Let it happen
+            return;
+        }
+        // Prevent everything else
+        e.preventDefault();
+    }
+
+    function formatToCurrency(e) {
+        let value = e.target.value.replace(/[^\d.]/g, ''); // Remove non-digits/decimal
+        let parts = value.split('.');
+        
+        // Handle decimal places
+        if (parts.length > 2) {
+            parts = [parts[0], parts.slice(1).join('')];
+        }
+        if (parts[1]) {
+            parts[1] = parts[1].slice(0, 2); // Max 2 decimal places
+        }
+        
+        // Add commas for thousands
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        
+        // Combine parts and add dollar sign
+        value = '$' + parts.join('.');
+        e.target.value = value;
+    }
+
+    function handleBlur(e) {
+        let value = e.target.value.replace(/[^\d.]/g, '');
+        if (value) {
+            // Ensure proper decimal format on blur
+            e.target.value = parseFloat(value).toLocaleString('en-US', {
+                style: 'currency',
+                currency: 'USD'
+            });
+        }
+    }
+
+    function handleFocus(e) {
+        // On focus, move cursor to end and select all
+        e.target.setSelectionRange(0, e.target.value.length);
+    }
+}
+//#endregion --------------------------------------------------------
+
 //#region DROPDOWNS -------------------------------------------------
 function setupDropdown(buttonId, dropdownId) {
     let button = document.getElementById(buttonId);
@@ -196,6 +255,7 @@ function compressImageFile(file, maxWidth = 160, maxHeight = 160, quality = 0.8)
 export {
     regExpCalls,
     setupPhoneInput,
+    setupCurrencyInput,
     setupDropdown,
     addOptionToDropdown,
     imageStorageHandler,

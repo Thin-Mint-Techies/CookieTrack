@@ -11,6 +11,8 @@ router.post('/order',  orderController.createOrder);
 router.get('/order',  orderController.getAllOrders);
 //requireLogin, 
 router.put('/order/:id', orderController.updateOrder);
+//requireLogin
+router.put('/orderPayment/:id', orderController.updateOrderPaidAmount);
 //requireLogin, checkRole(['leader']),
 router.delete('/order/:id',  orderController.deleteOrder);
 

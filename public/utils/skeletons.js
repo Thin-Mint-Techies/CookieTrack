@@ -6,7 +6,7 @@ const handleSkeletons = {
     monthlySkeleton: (parent) => createMonthlyCookieSkeleton(parent),
     statsSkeleton: (parent, amount) => createStatsSkeleton(parent, amount),
     tableSkeleton: (parent, amount) => createTableSkeleton(parent, amount),
-    rewardSkeleton: (parent, amount) => createRewardSkeleton(parent, amount), 
+    rewardSkeleton: (parent, amount) => createRewardSkeleton(parent, amount),
 }
 
 function hideNeedSkeletonElems(parent) {
@@ -61,7 +61,7 @@ function createGreetingSkeleton(parent) {
 
 function createMonthlyCookieSkeleton(parent) {
     const skeleton = document.createElement('div');
-    skeleton.className = "skeleton bg-green relative max-w-7xl shadow-default mx-auto rounded-default overflow-hidden mt-8 mb-8";
+    skeleton.className = "skeleton bg-green relative max-w-[120rem] shadow-default mx-auto rounded-default overflow-hidden mt-8 mb-8";
     skeleton.innerHTML = `
     <div class="grid sm:grid-cols-2 max-sm:gap-6">
         <div class="p-6 flex flex-col justify-center items-center w-full">
@@ -96,7 +96,7 @@ function createStatsSkeleton(parent, amount) {
 
     for (let i = 0; i < amount; i++) {
         const skeleton = document.createElement('div');
-        skeleton.className = 'skeleton bg-white dark:bg-black px-4 py-12 rounded-default shadow-default max-w-7xl m-auto mb-8';
+        skeleton.className = 'skeleton bg-white dark:bg-black px-4 py-12 rounded-default shadow-default max-w-[120rem] m-auto mb-8';
         skeleton.innerHTML = `
         <div class="max-sm:max-w-sm mx-auto">
             <div class="animate-pulse bg-gray w-96 h-10 mb-8 max-sm:max-w-52 max-sm:w-auto max-sm:h-8 rounded-default"></div>
@@ -116,7 +116,7 @@ function createTableSkeleton(parent, amount) {
 
     for (let i = 0; i < amount; i++) {
         const skeleton = document.createElement('div');
-        skeleton.className = 'skeleton bg-white dark:bg-black py-6 px-4 max-w-7xl relative shadow-default mx-auto mt-8 mb-8 rounded-default';
+        skeleton.className = 'skeleton bg-white dark:bg-black py-6 px-4 max-w-[120rem] relative shadow-default mx-auto mt-8 mb-8 rounded-default';
         skeleton.innerHTML = `
         <div class="animate-pulse bg-gray mb-8 rounded-default w-80 h-12 max-sm:max-w-52 max-sm:w-auto max-sm:h-8"></div>
         <div class="overflow-x-auto pb-4">
@@ -164,7 +164,7 @@ function createRewardSkeleton(parent, amount) {
         const skeleton = document.createElement('div');
         skeleton.className = "skeleton mt-12 mb-6 px-2";
         skeleton.innerHTML = `
-        <div class="max-w-7xl mx-auto bg-white dark:bg-black rounded-default shadow-default p-6">
+        <div class="max-w-[120rem] mx-auto bg-white dark:bg-black rounded-default shadow-default p-6">
             <div class="animate-pulse bg-gray mb-8 rounded-default w-80 h-12 max-sm:max-w-52 max-sm:w-auto max-sm:h-8"></div>
             <div class="grid md:grid-cols-2 gap-6">
                 ${statBox}${statBox}

@@ -3,7 +3,7 @@ const { sendEmail } = require('../utils/emailSender');
 const { completedOrderDataFormat } = require('../dataFormat');
 //const { updateSaleData } = require('./test');
 const { updateSaleData } = require('./saleDataService');
-const  {isPositiveFloat, isPositiveInt} = require('../utils/caculation')
+const { isPositiveFloat, isPositiveInt } = require('../utils/caculation')
 
 const createOrder = async ({ dateCreated, trooperId, trooperName, ownerId, ownerEmail, ownerName, buyerEmail, contact, pickupLocation, orderContent, cashPaid, cardPaid, saleDataId }) => {
   try {
@@ -50,22 +50,17 @@ const createOrder = async ({ dateCreated, trooperId, trooperName, ownerId, owner
 
       // Calculate totalCost and boxTotal
       orderContent.cookies.forEach(cookie => {
-        const parseBoxPrice = parseFloat(cookie.boxPrice.replace(/[^0-9.-]+/g, ""));
-        const parsedCookieTotalCost = parseFloat(cookie.cookieTotalCost.replace(/[^0-9.-]+/g, ""));
-
-        cookie.cookieTotalCost = (cookie.boxes * parseBoxPrice).toLocaleString('en-US', {
+        cookie.cookieTotalCost = (cookie.boxes * parseFloat(cookie.boxPrice.replace(/[^0-9.-]+/g, ""))).toLocaleString('en-US', {
           style: 'currency',
           currency: 'USD'
         });
-        totalCost += parsedCookieTotalCost;
+        totalCost += parseFloat(cookie.cookieTotalCost.replace(/[^0-9.-]+/g, ""));
         boxTotal += cookie.boxes;
       });
-
       newOrderData.orderContent.totalCost = totalCost.toLocaleString('en-US', {
         style: 'currency',
         currency: 'USD'
       });
-
       newOrderData.orderContent.boxTotal = boxTotal;
 
       // Process the order
@@ -228,6 +223,88 @@ const updateOrder = async (id, { trooperId, trooperName, ownerEmail, ownerName, 
   }
 };
 
+const updateOrderPaidAmount = async (id, { trooperId, ownerId, cashPaid, cardPaid }) => {
+  try {
+    await Firestore.runTransaction(async (transaction) => {
+      // Get original order data
+      const orderRef = Firestore.collection('orders').doc(id);
+      const orderDoc = await transaction.get(orderRef);
+      if (!orderDoc.exists) {
+        throw new Error('Order not found');
+      }
+      const originalOrderData = orderDoc.data();
+
+      // Calculate payment differences
+      const originalPaidAmount = parseFloat(originalOrderData.cashPaid?.replace(/[^0-9.-]+/g, "") || "0") + parseFloat(originalOrderData.cardPaid?.replace(/[^0-9.-]+/g, "") || "0");
+      const newPaidAmount = parseFloat(cashPaid?.replace(/[^0-9.-]+/g, "") || "0") + parseFloat(cardPaid?.replace(/[^0-9.-]+/g, "") || "0");
+      const paymentDifference = newPaidAmount - originalPaidAmount;
+
+      // Calculate new owe amount for order
+      const orderTotalCost = parseFloat(originalOrderData.orderContent.totalCost.replace(/[^0-9.-]+/g, "") || "0");
+      const newOrderOweAmount = orderTotalCost - newPaidAmount;
+
+      // Get trooper inventory
+      const trooperInventorySnapshot = await transaction.get(Firestore.collection('inventory').where('trooperId', '==', trooperId));
+      if (trooperInventorySnapshot.empty) {
+        throw new Error('Trooper inventory not found');
+      }
+      const trooperDoc = trooperInventorySnapshot.docs[0];
+      const trooperInventory = trooperDoc.data();
+
+      // Get parent inventory
+      const parentInventorySnapshot = await transaction.get(Firestore.collection('inventory').where('ownerId', '==', ownerId));
+      if (parentInventorySnapshot.empty) {
+        throw new Error('Parent inventory not found');
+      }
+      const parentDoc = parentInventorySnapshot.docs[0];
+      const parentInventory = parentDoc.data();
+
+      // Update owe amounts for both trooper and parent
+      const trooperCurrentOwe = parseFloat(trooperInventory.owe?.replace(/[^0-9.-]+/g, "") || "0");
+      const parentCurrentOwe = parseFloat(parentInventory.owe?.replace(/[^0-9.-]+/g, "") || "0");
+
+      // Reduce owe amount by payment difference (if payment increased, owe decreases)
+      const newTrooperOwe = trooperCurrentOwe - paymentDifference;
+      const newParentOwe = parentCurrentOwe - paymentDifference;
+
+      // Update all documents in transaction
+      transaction.update(trooperDoc.ref, {
+        owe: newTrooperOwe.toLocaleString('en-US', {
+          style: 'currency',
+          currency: 'USD'
+        })
+      });
+
+      transaction.update(parentDoc.ref, {
+        owe: newParentOwe.toLocaleString('en-US', {
+          style: 'currency',
+          currency: 'USD'
+        })
+      });
+
+      // Update order with new payment amounts and owe amount
+      const updatedOrderData = {
+        ...originalOrderData,
+        cashPaid,
+        cardPaid,
+        orderContent: {
+          ...originalOrderData.orderContent,
+          owe: newOrderOweAmount.toLocaleString('en-US', {
+            style: 'currency',
+            currency: 'USD'
+          })
+        }
+      };
+
+      transaction.update(orderRef, updatedOrderData);
+    });
+
+    return { message: 'Order payment updated successfully' };
+  } catch (error) {
+    throw new Error(`Failed to update order payment: ${error.message}`);
+  }
+};
+
 const deleteOrder = async (id) => {
   try {
     await Firestore.runTransaction(async (transaction) => {
@@ -266,16 +343,39 @@ const parentPickup = async (orderId, ownerEmail) => {
       const parentDoc = parentInventorySnapshot.docs[0];
       const parentInventory = parentDoc.data();
 
-      // Update parent inventory with order cookies
+      // Get trooper inventory
+      const trooperInventorySnapshot = await transaction.get(Firestore.collection('inventory').where('trooperId', '==', orderData.trooperId));
+      if (trooperInventorySnapshot.empty) {
+        throw new Error('Trooper inventory not found');
+      }
+      const trooperDoc = trooperInventorySnapshot.docs[0];
+      const trooperInventory = trooperDoc.data();
+
+      // Update parent and trooper inventory with order cookies
       orderData.orderContent.cookies.forEach(orderCookie => {
-        const existingCookie = parentInventory.inventory.find(
+        // Update parent inventory
+        const existingParentCookie = parentInventory.inventory.find(
           cookie => cookie.varietyId === orderCookie.varietyId
         );
-
-        if (existingCookie) {
-          existingCookie.boxes += orderCookie.boxes;
+        if (existingParentCookie) {
+          existingParentCookie.boxes += orderCookie.boxes;
         } else {
           parentInventory.inventory.push({
+            varietyId: orderCookie.varietyId,
+            variety: orderCookie.variety,
+            boxes: orderCookie.boxes,
+            boxPrice: orderCookie.boxPrice
+          });
+        }
+
+        // Update trooper inventory
+        const existingTrooperCookie = trooperInventory.inventory.find(
+          cookie => cookie.varietyId === orderCookie.varietyId
+        );
+        if (existingTrooperCookie) {
+          existingTrooperCookie.boxes += orderCookie.boxes;
+        } else {
+          trooperInventory.inventory.push({
             varietyId: orderCookie.varietyId,
             variety: orderCookie.variety,
             boxes: orderCookie.boxes,
@@ -286,17 +386,32 @@ const parentPickup = async (orderId, ownerEmail) => {
 
       // Calculate amount owed
       const totalCost = parseFloat(orderData.orderContent.totalCost.replace(/[^0-9.-]+/g, ""));
-      const paidAmount = (orderData.cashPaid || 0) + (orderData.cardPaid || 0);
+      const cashPaid = parseFloat(orderData.cashPaid?.replace(/[^0-9.-]+/g, "") || "0");
+      const cardPaid = parseFloat(orderData.cardPaid?.replace(/[^0-9.-]+/g, "") || "0");
+      const paidAmount = cashPaid + cardPaid;
       const amountOwed = totalCost - paidAmount;
 
-      // Get current owe amount as number
-      const currentOwe = parseFloat(parentInventory.owe?.replace(/[^0-9.-]+/g, "") || "0");
-      const newOweAmount = currentOwe + amountOwed;
+      // Get current owe amounts as numbers
+      const parentCurrentOwe = parseFloat(parentInventory.owe?.replace(/[^0-9.-]+/g, "") || "0");
+      const trooperCurrentOwe = parseFloat(trooperInventory.owe?.replace(/[^0-9.-]+/g, "") || "0");
 
-      // Update parent inventory document with new inventory and amount owed
+      // Calculate new owe amounts
+      const newParentOwe = parentCurrentOwe + amountOwed;
+      const newTrooperOwe = trooperCurrentOwe + amountOwed;
+
+      // Update parent inventory document
       transaction.update(parentDoc.ref, {
         inventory: parentInventory.inventory,
-        owe: newOweAmount.toLocaleString('en-US', {
+        owe: newParentOwe.toLocaleString('en-US', {
+          style: 'currency',
+          currency: 'USD'
+        })
+      });
+
+      // Update trooper inventory document
+      transaction.update(trooperDoc.ref, {
+        inventory: trooperInventory.inventory,
+        owe: newTrooperOwe.toLocaleString('en-US', {
           style: 'currency',
           currency: 'USD'
         })
@@ -359,9 +474,6 @@ const markOrderComplete = async (orderId) => {
       const parentDoc = parentInventorySnapshot.docs[0];
       const parentInventory = parentDoc.data();
 
-      // Calculate amount to reduce from owe
-      const totalCost = parseFloat(orderData.orderContent.totalCost.replace(/[^0-9.-]+/g, ""));
-
       // Update trooper inventory
       const updatedTrooperInventory = trooperInventory.inventory.map(cookie => {
         const orderCookie = orderData.orderContent.cookies.find(
@@ -376,21 +488,48 @@ const markOrderComplete = async (orderId) => {
         return cookie;
       }).filter(cookie => cookie.boxes > 0); // Remove cookies with 0 boxes
 
-      // Update trooper and parent owe amounts
-      const trooperCurrentOwe = parseFloat(trooperInventory.owe.replace(/[^0-9.-]+/g, "")) || 0;
-      const parentCurrentOwe = parseFloat(parentInventory.owe.replace(/[^0-9.-]+/g, "")) || 0;
+      // Update parent inventory
+      const updatedParentInventory = parentInventory.inventory.map(cookie => {
+        const orderCookie = orderData.orderContent.cookies.find(
+          oc => oc.varietyId === cookie.varietyId
+        );
+        if (orderCookie) {
+          return {
+            ...cookie,
+            boxes: cookie.boxes - orderCookie.boxes
+          };
+        }
+        return cookie;
+      }).filter(cookie => cookie.boxes > 0); // Remove cookies with 0 boxes
 
-      // Update documents
+      // Calculate the final amounts to be paid
+      const totalCost = parseFloat(orderData.orderContent.totalCost.replace(/[^0-9.-]+/g, ""));
+      const cashPaid = parseFloat(orderData.cashPaid?.replace(/[^0-9.-]+/g, "") || "0");
+      const cardPaid = parseFloat(orderData.cardPaid?.replace(/[^0-9.-]+/g, "") || "0");
+      const totalPaid = cashPaid + cardPaid;
+
+      // Calculate the current owe amounts
+      const trooperCurrentOwe = parseFloat(trooperInventory.owe?.replace(/[^0-9.-]+/g, "") || "0");
+      const parentCurrentOwe = parseFloat(parentInventory.owe?.replace(/[^0-9.-]+/g, "") || "0");
+
+      // Calculate new owe amounts by removing only the remaining unpaid amount
+      const remainingUnpaid = totalCost - totalPaid;
+      const newTrooperOwe = Math.abs(trooperCurrentOwe - remainingUnpaid);
+      const newParentOwe = Math.abs(parentCurrentOwe - remainingUnpaid);
+
+      // Update trooper inventory
       transaction.update(trooperDoc.ref, {
         inventory: updatedTrooperInventory,
-        owe: (trooperCurrentOwe - totalCost).toLocaleString('en-US', {
+        owe: newTrooperOwe.toLocaleString('en-US', {
           style: 'currency',
           currency: 'USD'
         })
       });
 
+      // Update parent inventory
       transaction.update(parentDoc.ref, {
-        owe: (parentCurrentOwe - totalCost).toLocaleString('en-US', {
+        inventory: updatedParentInventory,
+        owe: newParentOwe.toLocaleString('en-US', {
           style: 'currency',
           currency: 'USD'
         })
@@ -523,6 +662,7 @@ module.exports = {
   createOrder,
   getAllOrders,
   updateOrder,
+  updateOrderPaidAmount,
   deleteOrder,
   markOrderComplete,
   archiveOrders,

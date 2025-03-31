@@ -34,6 +34,18 @@ const updateOrder = async (req, res) => {
   }
 };
 
+const updateOrderPaidAmount = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await orderService.updateOrderPaidAmount(id, req.body);
+    console.log('Update order payment successfully', result);
+    res.status(200).json(result);
+  } catch (error) {
+    console.error('Failed to update order payment', error.message);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 const deleteOrder = async (req, res) => {
   const { id } = req.params;
   try {
@@ -110,6 +122,7 @@ module.exports = {
   createOrder,
   getAllOrders,
   updateOrder,
+  updateOrderPaidAmount,
   deleteOrder,
   markOrderComplete,
   archiveOrders,

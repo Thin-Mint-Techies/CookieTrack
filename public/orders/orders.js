@@ -1,6 +1,6 @@
 import { showToast, STATUS_COLOR } from "../utils/toasts.js";
 import { callApi } from "../utils/apiCall.js";
-import { regExpCalls, setupDropdown, addOptionToDropdown, handleTableRow, searchTableRows, handleTableCreation } from "../utils/utils.js";
+import { regExpCalls, setupCurrencyInput, setupDropdown, addOptionToDropdown, handleTableRow, searchTableRows, handleTableCreation } from "../utils/utils.js";
 import { createModals } from "../utils/confirmModal.js";
 import { handleSkeletons } from "../utils/skeletons.js";
 import { openFileUploadModal, formatFileSize, downloadFile, deleteUploadedFile } from "./uploadFiles.js";
@@ -47,7 +47,7 @@ document.addEventListener("authStateReady", async () => {
             loadOrderTableRows(allOrderData);
         }
 
-        setupAndLoadDropdowns();
+        setupDropdownsAndInputs();
     } else {
         showToast("Error Loading Data", "There was an error loading user data. Please refresh the page to try again.", STATUS_COLOR.RED, false);
         return;
@@ -62,9 +62,9 @@ function loadOrderTableRows(orders) {
     orders.forEach((order) => {
         //Check if order is a current order or if it is completed
         if (order.status && order.status === "Completed") {
-            handleTableRow.completedOrder(order.id, order, editCompletedOrder, createModals.deleteItem(deleteCompletedOrder));
+            handleTableRow.completedOrder(order.id, order, userRole.role === "leader" ? createModals.deleteItem(deleteCompletedOrder) : null);
         } else if (order.status && order.status === "Picked up") {
-            handleTableRow.currentOrder(order.id, order, null, createModals.deleteItem(deleteCurrentOrder), createModals.completeOrder(completeCurrentOrder));
+            handleTableRow.currentOrder(order.id, order, null, createModals.deleteItem(deleteCurrentOrder), editOrderPaidAmounts);
         } else {
             handleTableRow.currentOrder(order.id, order, editCurrentOrder, createModals.deleteItem(deleteCurrentOrder), createModals.pickupOrder(markOrderAsPickedUp));
         }
@@ -133,8 +133,8 @@ function createCookieInputs() {
     });
 }
 
-//Setup dropdowns
-function setupAndLoadDropdowns() {
+//Setup dropdowns and inputs
+function setupDropdownsAndInputs() {
     setupDropdown('order-pickup-btn', 'order-pickup-dropdown');
     setupDropdown('order-contact-btn', 'order-contact-dropdown');
 
@@ -148,6 +148,10 @@ function setupAndLoadDropdowns() {
     }
 
     setupDropdown('order-trooper-btn', 'order-trooper-dropdown');
+
+    //Setup currency inptus
+    setupCurrencyInput(orderCash);
+    setupCurrencyInput(orderCard);
 }
 
 function openOrderModal(mode = "add", orderData) {
@@ -162,6 +166,30 @@ function openOrderModal(mode = "add", orderData) {
         Object.keys(cookieInputRefs).forEach(variety => {
             if (cookieInputRefs[variety]) {
                 cookieInputRefs[variety].value = orderData.orderContent[variety.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase())] || '';
+            }
+        });
+
+        orderPickup.textContent = orderData.pickupLocation;
+        orderContact.textContent = regExpCalls.testPhone(orderData.contact) ? "Phone" : "Email";
+        orderCash.value = orderData.cashPaid;
+        orderCard.value = orderData.cardPaid;
+        orderAgreement.checked = orderData.financialAgreement === "Agreed" ? true : false;
+    } else if (mode === "edit-amounts") {
+        //Used for only being able to edit the cash/card amounts
+        orderTitle.textContent = "Edit Order Paid Amounts";
+        orderSubtitle.textContent = "Edit the selected order to update paid amounts";
+        orderTrooper.value = userTroopers.find(trooper => trooper.trooperName === orderData.trooperName)?.id || null;
+        orderTrooper.textContent = orderData.trooperName;
+        orderTrooper.parentElement.parentElement.classList.add('hidden');
+        orderBEmail.value = orderData.buyerEmail;
+        orderBEmail.parentElement.parentElement.classList.add('hidden');
+        orderPickup.parentElement.parentElement.classList.add('hidden');
+        orderContact.parentElement.parentElement.classList.add('hidden');
+        orderAgreement.parentElement.parentElement.classList.add('hidden');
+        Object.keys(cookieInputRefs).forEach(variety => {
+            if (cookieInputRefs[variety]) {
+                cookieInputRefs[variety].value = orderData.orderContent[variety.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase())] || '';
+                cookieInputRefs[variety].parentElement.parentElement.classList.add('hidden');
             }
         });
 
@@ -193,6 +221,7 @@ function closeOrderModal() {
     Object.keys(cookieInputRefs).forEach(variety => {
         if (cookieInputRefs[variety]) {
             cookieInputRefs[variety].value = "";
+            cookieInputRefs[variety].parentElement.parentElement.classList.remove('hidden');
         }
     });
     orderPickup.textContent = "Select Location";
@@ -200,6 +229,13 @@ function closeOrderModal() {
     orderCash.value = "";
     orderCard.value = "";
     orderAgreement.checked = false;
+
+    //Used for only being able to edit the cash/card amounts
+    orderTrooper.parentElement.parentElement.classList.remove('hidden');
+    orderBEmail.parentElement.parentElement.classList.remove('hidden');
+    orderPickup.parentElement.parentElement.classList.remove('hidden');
+    orderContact.parentElement.parentElement.classList.remove('hidden');
+    orderAgreement.parentElement.parentElement.classList.remove('hidden');
 }
 
 //Verify input and submit new order
@@ -215,8 +251,8 @@ orderSubmit.addEventListener('click', (e) => {
 
     const pickup = orderPickup.textContent.trim();
     const contact = orderContact.textContent.trim();
-    const cash = parseFloat(orderCash.value, 10) || 0;
-    const card = parseFloat(orderCard.value, 10) || 0;
+    const cash = parseFloat(orderCash.value.replace(/[^0-9.-]+/g, "")) || 0;
+    const card = parseFloat(orderCard.value.replace(/[^0-9.-]+/g, "")) || 0;
     const financialAgreement = orderAgreement.checked;
 
     if (tName.includes("Select")) {
@@ -280,6 +316,13 @@ orderSubmit.addEventListener('click', (e) => {
         }
     });
 
+    // Perform a check to not allow overpaying for an order
+    const totalPaid = cash + card;
+    if (totalPaid > totalCost) {
+        showToast("Invalid Payment Amount", "The total amount paid cannot exceed the order total cost.", STATUS_COLOR.RED, true, 5);
+        return;
+    }
+
     const orderContent = {
         cookies: cookies,
         totalCost: totalCost.toLocaleString('en-US', { style: 'currency', currency: 'USD' }),
@@ -298,8 +341,8 @@ orderSubmit.addEventListener('click', (e) => {
         financialAgreement: financialAgreement === true ? "Agreed" : "Declined",
         pickupLocation: pickup,
         orderContent: orderContent,
-        cashPaid: cash,
-        cardPaid: card,
+        cashPaid: cash.toLocaleString('en-US', { style: 'currency', currency: 'USD' }),
+        cardPaid: card.toLocaleString('en-US', { style: 'currency', currency: 'USD' }),
     }
 
     if (currentMode === "add") {
@@ -324,6 +367,37 @@ orderSubmit.addEventListener('click', (e) => {
         }
 
         updateOrderApi(orderData, orderId, needsUserInfo);
+    } else if (currentMode === "edit-amounts") {
+        //Check to see if total cash/card paid amounts are same as total cost
+        //If it is, mark the order as complete automatically
+        const orderId = handleTableRow.currentRowEditing.getAttribute("data-oid");
+
+        //If the user is an admin, check if they are editing their own order or someone else's
+        let needsUserInfo = false;
+        if (userRole.role === "leader" && !userOrderData.find(order => order.id === orderId)) {
+            //They are editing someone else's so get their user info and load it if need phone #
+            orderData.ownerId = allOrderData.find(order => order.trooperId === tId).ownerId;
+            orderData.ownerName = allOrderData.find(order => order.trooperId === tId).ownerName;
+            orderData.ownerEmail = allOrderData.find(order => order.trooperId === tId).ownerEmail;
+            if (contact === "Phone") {
+                needsUserInfo = true;
+            } else {
+                orderData.contact = orderData.ownerEmail;
+            }
+        }
+
+        // Get total cost from current row data
+        const currentOrderData = getRowData(handleTableRow.currentRowEditing, false);
+        const totalOrderCost = parseFloat(currentOrderData.totalCost.replace(/[^0-9.-]+/g, ""));
+        const totalPaid = cash + card;
+        orderData.owe = (totalOrderCost - totalPaid).toLocaleString("en-US", { style: "currency", currency: "USD" });
+
+        // Check if payment equals total cost
+        if (Math.abs(totalOrderCost - totalPaid) < 0.01) { // Using small epsilon for float comparison
+            updateOrderThenComplete(orderData, orderId, needsUserInfo);
+        } else {
+            updateOrderApi(orderData, orderId, needsUserInfo, true);
+        }
     }
 });
 
@@ -345,7 +419,7 @@ async function createOrderApi(orderData) {
     orderClose.click();
 }
 
-async function updateOrderApi(orderData, orderId, needsUserInfo) {
+async function updateOrderApi(orderData, orderId, needsUserInfo, isPaymentUpdate = false) {
     manageLoader(true);
 
     try {
@@ -354,7 +428,8 @@ async function updateOrderApi(orderData, orderId, needsUserInfo) {
             const userInfo = await callApi(`/user/${orderData.ownerId}`);
             orderData.contact = userInfo.phone;
         }
-        await callApi(`/order/${orderId}`, 'PUT', orderData);
+        const subroute = isPaymentUpdate ? `/orderPayment/${orderId}` : `/order/${orderId}`;
+        await callApi(subroute, 'PUT', orderData);
         //Order updated, update data in table and show message
         handleTableRow.updateOrderRow(handleTableRow.currentRowEditing, orderData);
         showToast("Order Updated", "The selected order has been updated with the new information.", STATUS_COLOR.GREEN, true, 5);
@@ -376,9 +451,16 @@ async function markOrderAsPickedUp() {
         const orderId = handleTableRow.currentRowEditing.getAttribute("data-oid");
         await callApi(`/orderPickup/${orderId}`, 'PUT', { ownerEmail: userData.email });
         //Order marked as picked up, update table and show message
+        // Get total cost from current row data
+        const currentOrderData = getRowData(handleTableRow.currentRowEditing, false);
+        const totalOrderCost = parseFloat(currentOrderData.totalCost.replace(/[^0-9.-]+/g, ""));
+        const cashPaid = parseFloat(currentOrderData.cashPaid.replace(/[^0-9.-]+/g, ""));
+        const cardPaid = parseFloat(currentOrderData.cardPaid.replace(/[^0-9.-]+/g, ""));
+        const totalPaid = cashPaid + cardPaid;
         handleTableRow.currentRowEditing.children[1].textContent = "Picked Up";
+        handleTableRow.currentRowEditing.children[7].textContent = (totalOrderCost - totalPaid).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
         let actions = [
-            { title: "Complete", iconClass: "fa-clipboard-check text-green hover:text-green-light", action: createModals.completeOrder(completeCurrentOrder) },
+            { title: "Edit Paid Amounts", iconClass: "fa-file-invoice-dollar text-blue hover:text-blue-light", action: editOrderPaidAmounts },
             { title: "Delete", iconClass: "fa-trash-can text-red hover:text-red-light", action: createModals.deleteItem(deleteCurrentOrder) }
         ]
         handleTableRow.updateOrderActions(handleTableRow.currentRowEditing, actions);
@@ -398,7 +480,9 @@ async function completeCurrentOrder() {
         const orderId = handleTableRow.currentRowEditing.getAttribute("data-oid");
         await callApi(`/orderComplete/${orderId}`, 'PUT');
         //Order marked as completed, update tables and show message
-        handleTableRow.completedOrder(orderId, getRowData(handleTableRow.currentRowEditing, true, true), userRole.role === "leader" ? createModals.deleteItem(deleteCompletedOrder): null);
+        const orderData = getRowData(handleTableRow.currentRowEditing, true, true, true);
+        orderData.status = "Completed";
+        handleTableRow.completedOrder(orderId, orderData, userRole.role === "leader" ? createModals.deleteItem(deleteCompletedOrder) : null);
         handleTableRow.currentRowEditing.remove();
         showToast("Order Completed", "The selected order has been completed and moved to the Completed Orders table.", STATUS_COLOR.GREEN, true, 5);
     } catch (error) {
@@ -409,8 +493,27 @@ async function completeCurrentOrder() {
     manageLoader(false);
 }
 
+async function updateOrderThenComplete(orderData, orderId, needsUserInfo) {
+    try {
+        //Update order first
+        await updateOrderApi(orderData, orderId, needsUserInfo, true);
+
+        //Then mark it as complete
+        await completeCurrentOrder();
+    } catch (error) {
+        console.error('Error updating order:', error);
+        showToast("Error Updating Order", 'There was an error with updating this order. Please try again.', STATUS_COLOR.RED, true, 5);
+    }
+
+    orderClose.click();
+}
+
 function editCurrentOrder() {
     openOrderModal("edit", getRowData(handleTableRow.currentRowEditing, false));
+}
+
+function editOrderPaidAmounts() {
+    openOrderModal("edit-amounts", getRowData(handleTableRow.currentRowEditing, false));
 }
 
 async function deleteCurrentOrder() {
@@ -449,7 +552,7 @@ async function deleteCompletedOrder() {
     manageLoader(false);
 }
 
-function getRowData(row, isCompletedOrders = false, needsDate = false) {
+function getRowData(row, isCompletedOrders = false, needsDate = false, needsCookieArray = false) {
     // Exclude the last <td> (actions)
     let tds = Array.from(row.children).slice(0, -1);
     let index = 0;
@@ -461,20 +564,38 @@ function getRowData(row, isCompletedOrders = false, needsDate = false) {
             dateCompleted: needsDate ? new Date().toLocaleDateString('en-US') : tds[index++]?.textContent.trim()
         } : null),
         trooperName: tds[index++]?.textContent.trim(),
-        parentName: tds[index++]?.textContent.trim(),
+        ownerName: tds[index++]?.textContent.trim(),
         buyerEmail: tds[index++]?.textContent.trim(),
         boxTotal: Number(tds[index++]?.textContent.trim()) || 0,
         totalCost: tds[index++]?.textContent.trim(),
+        owe: tds[index++]?.textContent.trim(),
     };
 
     // Get cookie data dynamically from troopInventoryData
     const troopInventoryData = JSON.parse(sessionStorage.getItem('troopInventoryData'));
     if (troopInventoryData?.inventory) {
-        orderData.orderContent = {};
-        troopInventoryData.inventory.forEach(cookie => {
-            const fieldName = cookie.variety.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase());
-            orderData.orderContent[fieldName] = Number(tds[index++]?.textContent.trim()) || 0;
-        });
+        if (needsCookieArray) {
+            orderData.orderContent = {
+                cookies: [],
+            };
+
+            // Build cookies array
+            troopInventoryData.inventory.forEach(cookie => {
+                const boxes = Number(tds[index++]?.textContent.trim()) || 0;
+                if (boxes > 0) {
+                    orderData.orderContent.cookies.push({
+                        variety: cookie.variety,
+                        boxes: boxes,
+                    });
+                }
+            });
+        } else {
+            orderData.orderContent = {};
+            troopInventoryData.inventory.forEach(cookie => {
+                const fieldName = cookie.variety.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase());
+                orderData.orderContent[fieldName] = Number(tds[index++]?.textContent.trim()) || 0;
+            });
+        }
     }
 
     // Get the remaining fields after cookie data

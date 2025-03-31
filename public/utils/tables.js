@@ -120,13 +120,13 @@ function buildDynamicOrderFields(cookies) {
     return { headers, fields };
 }
 
-function createTable(parent, title, icon, filters, fields, button, removeActions = false) {
+function createTable(parent, title, icon, filters, fields, button, removeActions = false, needsOweAmount = false) {
     let filtersClass = (filters !== null && filters.length > 1) ? "grid grid-cols-1 sm:grid-cols-[auto_auto] xl:grid-cols-[40%_auto_auto] gap-4" : "flex";
-    let filtersContainer = "", buttonContainer = "";
+    let filtersContainer = "", buttonContainer = "", titleContainer = "";
 
     if (filters !== null) {
         filtersContainer = `
-            <div id="${title.replace(' ', '-').toLowerCase() + "-filters"}" class="${filtersClass} mb-4 items-center">
+            <div id="${title.replaceAll(' ', '-').toLowerCase() + "-filters"}" class="${filtersClass} mb-4 items-center">
                 ${filters.map(filter => filter).join('')}
             </div>
         `;
@@ -142,13 +142,28 @@ function createTable(parent, title, icon, filters, fields, button, removeActions
         `;
     }
 
-    const container = document.createElement('div');
-    container.className = "need-skeleton hidden mt-12 mb-6 px-2";
-    container.innerHTML = `
-        <div class="bg-white dark:bg-black py-6 px-4 max-w-7xl relative shadow-default mx-auto rounded-default">
+    if (needsOweAmount) {
+        titleContainer = `
+            <div class="grid grid-cols-1 lg:grid-cols-[auto_auto] gap-4">
+                <h2 class="text-green text-4xl max-sm:text-2xl font-extrabold lg:mb-8">
+                    <i class="fa-solid fa-${icon}"></i> ${title}
+                </h2>
+                <h2 id="${title.replaceAll(' ', '-').toLowerCase() + "-owe"}" class="text-orange text-4xl max-sm:text-2xl font-extrabold mb-8 lg:justify-self-end"> </h2>
+            </div>
+        `;
+    } else {
+        titleContainer = `
             <h2 class="text-green text-4xl max-sm:text-2xl font-extrabold mb-8">
                 <i class="fa-solid fa-${icon}"></i> ${title}
             </h2>
+        `;
+    }
+
+    const container = document.createElement('div');
+    container.className = "need-skeleton hidden mt-12 mb-6 px-2";
+    container.innerHTML = `
+        <div class="bg-white dark:bg-black py-6 px-4 max-w-[120rem] relative shadow-default mx-auto rounded-default">
+            ${titleContainer}
             ${filtersContainer}
             <div class="overflow-auto pb-4 max-h-[48rem]">
                 <table class="min-w-full border-separate border-spacing-0 border-4 border-green rounded-default">
@@ -177,7 +192,7 @@ function createTable(parent, title, icon, filters, fields, button, removeActions
 
 function createTrooperHiddenTable(parent, title, tbodyId, fields) {
     const container = document.createElement('div');
-    container.className = "bg-white dark:bg-black py-6 px-4 max-w-7xl shadow-default my-6 rounded-default";
+    container.className = "bg-white dark:bg-black py-6 px-4 max-w-[120rem] shadow-default my-6 rounded-default";
     container.innerHTML = `
         <h2 class="text-green text-4xl max-sm:text-2xl font-extrabold mb-8">
             ${title}
@@ -259,7 +274,7 @@ function createTrooperInventoryTable(parent, trooperData, action) {
         icon: "cookie-bite",
         action: () => action("add", null, trooperData.id)
     }
-    createTable(parent, title, icon, null, tableSchemas.inventory.headers, button);
+    createTable(parent, title, icon, null, tableSchemas.inventory.headers, button, false, true);
 
     const tbody = document.getElementById(title.replaceAll(' ', '-').toLowerCase() + "-tbody");
     tbody.setAttribute("data-tid", trooperData.id);
@@ -268,7 +283,7 @@ function createTrooperInventoryTable(parent, trooperData, action) {
 function createYourInventoryTable(parent) {
     const title = "Your Inventory";
     const icon = "box"
-    createTable(parent, title, icon, null, tableSchemas.inventory.headers, null, true);
+    createTable(parent, title, icon, null, tableSchemas.inventory.headers, null, true, true);
 }
 
 function createTroopInventoryTable(parent, action) {
@@ -371,7 +386,7 @@ function createRewardBox(parent, trooperData, rewardData, action) {
     const container = document.createElement('div');
     container.className = "need-skeleton hidden mt-12 mb-6 px-2";
     container.innerHTML = `
-        <div class="max-w-7xl mx-auto bg-white dark:bg-black rounded-default shadow-default p-6">
+        <div class="max-w-[120rem] mx-auto bg-white dark:bg-black rounded-default shadow-default p-6">
             <h2 class="text-green text-4xl max-sm:text-2xl font-extrabold mb-8">
                 <i class="fa-solid fa-award"></i>Rewards for ${trooperData.trooperName}
             </h2>
@@ -435,7 +450,7 @@ function createMonthlyCookie(parent, cookieData) {
     const container = document.createElement('div');
     container.className = "need-skeleton hidden mt-12 mb-6 px-2";
     container.innerHTML = `
-        <div class="bg-green relative max-w-7xl shadow-default mx-auto rounded-default overflow-hidden">
+        <div class="bg-green relative max-w-[120rem] shadow-default mx-auto rounded-default overflow-hidden">
             <div class="grid sm:grid-cols-2 max-sm:gap-6">
                 <div class="text-center p-6 flex flex-col justify-center items-center">
                     <h3 class="font-extrabold text-5xl text-white leading-tight">Monthly Cookie</h3>
@@ -471,7 +486,7 @@ function createStatsBox(parent, statData) {
     const container = document.createElement('div');
     container.className = "need-skeleton hidden mt-12 mb-6 px-2";
     container.innerHTML = `
-        <div class="bg-white dark:bg-black px-4 py-12 rounded-default shadow-default max-w-7xl m-auto">
+        <div class="bg-white dark:bg-black px-4 py-12 rounded-default shadow-default max-w-[120rem] m-auto">
             <div class="max-sm:max-w-sm mx-auto">
                 <h2 class="text-green text-4xl max-sm:text-2xl font-extrabold mb-8"><i
                         class="fa-solid fa-chart-line"></i> ${statData.id} Current Statistics</h2>
@@ -670,7 +685,7 @@ const handleTableRow = {
     allTrooper: (trooperId, data, editAction, deleteAction) => addTrooperRow(trooperId, data, "all", editAction, deleteAction),
     yourDocuments: (fileUrl, data, downloadAction, deleteAction) => addFileRow(fileUrl, data, downloadAction, deleteAction),
     troopReward: (rewardId, data, editAction, deleteAction) => addRewardRow(rewardId, data, editAction, deleteAction),
-    updateOrderRow: (row, data) => editRowData(row, tableSchemas.orders.fields, data),
+    updateOrderRow: (row, data) => editRowData(row, "orders", data),
     updateInventoryRow: (row, data) => editRowData(row, tableSchemas.inventory.fields, data),
     updateTrooperRow: (row, data) => editRowData(row, tableSchemas.troopers.fields, data),
     updateRewardRow: (row, data) => editRowData(row, tableSchemas.rewards.fields, data),
@@ -789,7 +804,7 @@ function addOrderRow(orderId, data, isCurrentOrder, editAction, deleteAction, co
     // If this is a current order and orderIsCorrect = true, add the complete button otherwise add the pickup button
     let completeActionBtn = false;
     if (isCurrentOrder && data.status === "Picked up") {
-        completeActionBtn = { title: "Complete", iconClass: "fa-clipboard-check text-green hover:text-green-light", action: completeAction };
+        completeActionBtn = { title: "Edit Paid Amounts", iconClass: "fa-file-invoice-dollar text-blue hover:text-blue-light", action: completeAction };
     } else if (isCurrentOrder && data.status === "Ready for pickup") {
         completeActionBtn = { title: "Pickup", iconClass: "fa-truck text-green hover:text-green-light", action: completeAction };
     }
@@ -873,7 +888,7 @@ function addTrooperRow(trooperId, data, tbodyId, editAction, deleteAction) {
     if (data.rewardData && data.rewardData.length > 0) {
         data.rewardData.forEach((reward) => {
             let tr = document.createElement("tr");
-            tr.className = "bg-white dark:bg-black [&:nth-child(4n-1)]:bg-gray [&:nth-child(4n-1)]:dark:bg-black-light text-sm text-black dark:text-white [&_td]:p-4";
+            tr.className = "bg-white dark:bg-black even:bg-gray even:dark:bg-black-light text-sm text-black dark:text-white [&_td]:p-4";
 
             const rewardData = {
                 name: reward.name,
@@ -888,18 +903,29 @@ function addTrooperRow(trooperId, data, tbodyId, editAction, deleteAction) {
     if (data.orderData && data.orderData.length > 0) {
         data.orderData.forEach((order) => {
             let tr = document.createElement("tr");
-            tr.className = "bg-white dark:bg-black [&:nth-child(4n-1)]:bg-gray [&:nth-child(4n-1)]:dark:bg-black-light text-sm text-black dark:text-white [&_td]:p-4";
+            tr.className = "bg-white dark:bg-black even:bg-gray even:dark:bg-black-light text-sm text-black dark:text-white [&_td]:p-4";
 
             // Get all fields in correct order
             const allOrderFields = [
                 ...tableSchemas.orders.staticFields,
-                ...cookieHeaders.map(header => header.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase())),
+                ...cookieHeaders.map(header => {
+                    const variety = header.replace('# ', '');
+                    return variety.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase());
+                }),
                 ...tableSchemas.orders.footerFields
             ];
 
+            // Create data object that includes cookie box counts
             const orderData = {
-
-            }
+                ...order,
+                ...order.orderContent,  // Spread orderContent to top level
+                // Map cookies array to individual cookie fields
+                ...(order.orderContent?.cookies?.reduce((acc, cookie) => {
+                    const fieldName = cookie.variety.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase());
+                    acc[fieldName] = cookie.boxes;
+                    return acc;
+                }, {}) || {})
+            };
 
             setupRowFields(tr, false, allOrderFields, orderData, null);
             ordersTbody.appendChild(tr);
@@ -943,6 +969,19 @@ function editRowData(row, fields, data) {
     if (!row || !fields || !data || typeof data !== "object") {
         console.error("Invalid parameters passed to updateTableRow");
         return;
+    }
+
+    if (fields && fields === "orders") {
+        // Get cookie fields from sessionStorage
+        const troopInventoryData = JSON.parse(sessionStorage.getItem('troopInventoryData'));
+        const { headers: cookieHeaders, fields: cookieFields } = buildDynamicOrderFields(troopInventoryData?.inventory || []);
+
+        // Combine all headers for orders table
+        fields = [
+            ...tableSchemas.orders.staticFields,
+            ...cookieFields,
+            ...tableSchemas.orders.footerFields
+        ];
     }
 
     const tds = row.getElementsByTagName("td");
