@@ -32,5 +32,7 @@ router.put('/orderPickup/:id',  orderController.parentPickup);
 //requireLogin, checkRole(['leader']),
 router.put('/archiveOrders',  orderController.archiveOrders);
 
+//requireLogin, checkRole(['leader']),
+router.put('/updateNeedToOrder/:orderId', orderController.updateNeedToOrder);
 
 module.exports = router;

@@ -86,6 +86,25 @@ const createOrder = async ({ dateCreated, trooperId, trooperName, ownerId, owner
           text: `Order ${newOrderRef.id} has been submitted for trooper ${trooperName}.`,
         }); */
       } else {
+        // Update the need to order list with missing boxes
+        const needToOrder = [];
+        orderContent.cookies.forEach(cookie => {
+          const inventoryItem = leaderInventory.find(item => item.varietyId === cookie.varietyId);
+          const availableBoxes = inventoryItem ? inventoryItem.boxes : 0;
+
+          if (availableBoxes < cookie.boxes) {
+            needToOrder.push({
+              orderId: newOrderRef.id,
+              varietyId: cookie.varietyId,
+              variety: cookie.variety,
+              boxes: cookie.boxes - availableBoxes,
+              boxPrice: parseFloat(cookie.boxPrice.replace(/[^0-9.-]+/g, ""))
+            });
+          }
+        });
+
+        transaction.update(leaderInventoryRef, { needToOrder: Firestore.FieldValue.arrayUnion(...needToOrder) });
+        newOrderData.status = "Not ready for pickup";
         // Send email to parent and leader
         /* await sendEmail({
           to: ownerEmail,
@@ -200,6 +219,24 @@ const updateOrder = async (id, { trooperId, trooperName, ownerEmail, ownerName, 
           text: `Order ${id} has been updated for trooper ${trooperName}.`,
         }); */
       } else {
+        const needToOrder = [];
+        orderContent.cookies.forEach(cookie => {
+          const inventoryItem = leaderInventory.find(item => item.varietyId === cookie.varietyId);
+          const availableBoxes = inventoryItem ? inventoryItem.boxes : 0;
+
+          if (availableBoxes < cookie.boxes) {
+            needToOrder.push({
+              orderId: orderRef.id,
+              varietyId: cookie.varietyId,
+              variety: cookie.variety,
+              boxes: cookie.boxes - availableBoxes,
+              boxPrice: parseFloat(cookie.boxPrice.replace(/[^0-9.-]+/g, ""))
+            });
+          }
+        });
+
+        transaction.update(leaderInventoryRef, { needToOrder: Firestore.FieldValue.arrayUnion(...needToOrder) });
+        newOrderData.status = "Not ready for pickup";
         /* // Send email to parent and leader
         await sendEmail({
           to: ownerEmail,
@@ -601,7 +638,6 @@ const archiveOrders = async () => {
   }
 };
 
-
 const getUserOrders = async (userId) => {
   try {
     const snapshot = await Firestore.collection('orders').where('ownerId', '==', userId).get();
@@ -651,7 +687,64 @@ const getAllOrders = async () => {
 };
 
 
+// Create order -> update needToOrder -> leaderClick fill from inventory -> fill all cookie
+const updateNeedToOrder = async (orderId, updatedCookies) => {
+  try {
+    await Firestore.runTransaction(async (transaction) => {
 
+      // Get the troop inventory document
+      const troopInventoryRef = Firestore.collection('inventory').doc('troop-inventory');
+      const troopInventoryDoc = await transaction.get(troopInventoryRef);
+      if (!troopInventoryDoc.exists) {
+        throw new Error('Troop inventory not found');
+      }
+
+      const troopInventory = troopInventoryDoc.data();
+      const needToOrder = troopInventory.needToOrder || [];
+
+      // Update the needToOrder field
+      updatedCookies.forEach(updatedCookie => {
+        const needToOrderItem = needToOrder.find(item => item.varietyId === updatedCookie.varietyId);
+
+        if (needToOrderItem) {
+          // Reduce the boxes in needToOrder based on the updated cookies
+          needToOrderItem.boxes -= updatedCookie.boxes;
+        }
+      });
+
+      // Update the troop inventory document
+      transaction.update(troopInventoryRef, { needToOrder });
+
+      // Get the original order document
+      const orderRef = Firestore.collection('orders').doc(orderId);
+      const orderDoc = await transaction.get(orderRef);
+      if (!orderDoc.exists) {
+        throw new Error('Original order not found');
+      }
+
+      const orderData = orderDoc.data();
+
+      // Update the order status and notify the parent
+      const updatedOrderData = {
+        ...orderData,
+        status: 'Ready for pickup',
+      };
+
+      transaction.update(orderRef, updatedOrderData);
+
+      // Notify the parent via email
+      /* await sendEmail({
+        to: ownerEmail,
+        subject: 'Order Ready for Pickup',
+        text: `Order ${originalOrderId} is now ready for pickup.`,
+      }); */
+    });
+
+    return { message: 'Need to order updated and parent notified successfully' };
+  } catch (error) {
+    throw new Error(`Failed to update need to order: ${error.message}`);
+  }
+};
 
 
 
@@ -669,4 +762,5 @@ module.exports = {
   getOrdersByTrooperId,
   getOrdersByOwnerId,
   parentPickup,
+  updateNeedToOrder
 };

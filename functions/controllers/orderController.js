@@ -118,6 +118,20 @@ const parentPickup = async (req, res) => {
   }
 };
 
+const updateNeedToOrder = async (req, res) => {
+  const { orderId } = req.params;
+  const { updatedCookies } = req.body;
+  try {
+    const result = await orderService.updateNeedToOrder(orderId, updatedCookies);
+    console.log('UpdateNeedToOrder successfully:', result);
+    res.status(200).json({ message: 'UpdateNeedToOrder successfully:', result });
+  } catch (error) {
+    console.error('Failed to UpdateNeedToOrder:', error.message);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
 module.exports = {
   createOrder,
   getAllOrders,
@@ -128,5 +142,7 @@ module.exports = {
   archiveOrders,
   getOrdersByTrooperId,
   getOrdersByOwnerId,
-  parentPickup
+  parentPickup,
+  updateNeedToOrder
+
 };

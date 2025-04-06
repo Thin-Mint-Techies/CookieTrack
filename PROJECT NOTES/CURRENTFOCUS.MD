@@ -97,3 +97,19 @@ Test:
     - Order should update owe to zero after order is complete
     - Parent return cookies
     - Parent pickup: review
+
+
+New Flow: 
+    Parent place order for 1 trooper at 1 time -> pickup order -> order goes into trooper inventory and parent inventory -> 
+when owe ammount is zero, mark order as complete -> 
+
+
+Remaining functions:
+    Leader edit need to order: 
+        create originalOrderId field, 
+        update the originalOrderId field when cookie is ready, 
+        change it to ready to pickup, notify parent.
+        
+    Check for negative in order, check for negagative in other functions.
+    Parent returning cookies.
+    
