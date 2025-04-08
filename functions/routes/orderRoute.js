@@ -4,35 +4,17 @@ const router = express.Router();
 const { requireLogin, checkRole, checkUserOwnership } = require('../utils/roleCheck');
 
 
-//requireLogin,
-router.post('/order',  orderController.createOrder);
-
-//requireLogin, checkRole(['leader']),
-router.get('/order',  orderController.getAllOrders);
-//requireLogin, 
-router.put('/order/:id', orderController.updateOrder);
-//requireLogin
-router.put('/orderPayment/:id', orderController.updateOrderPaidAmount);
-//requireLogin, checkRole(['leader']),
-router.delete('/order/:id',  orderController.deleteOrder);
-
-//requireLogin, 
-router.get('/ordersTrooper/:id',orderController.getOrdersByTrooperId);
-//requireLogin,
-router.put('/orderComplete/:id',  orderController.markOrderComplete);
-
-//router.get('/archiveOrder', orderController.archivedOrders);
-
-// requireLogin, 
-router.get('/ordersOwner/:id',orderController.getOrdersByOwnerId);
-//requireLogin, 
-router.put('/orderComplete/:id', orderController.markOrderComplete);
-//requireLogin,
-router.put('/orderPickup/:id',  orderController.parentPickup);
-//requireLogin, checkRole(['leader']),
-router.put('/archiveOrders',  orderController.archiveOrders);
-
-//requireLogin, checkRole(['leader']),
-router.put('/updateNeedToOrder/:orderId', orderController.updateNeedToOrder);
+router.post('/order', requireLogin, orderController.createOrder);
+router.get('/order', requireLogin, checkRole(['leader']), orderController.getAllOrders);
+router.put('/order/:id',requireLogin, orderController.updateOrder);
+router.put('/orderPayment/:id',requireLogin, orderController.updateOrderPaidAmount);
+router.delete('/order/:id', requireLogin, checkRole(['leader']), orderController.deleteOrder);
+router.get('/ordersTrooper/:id',requireLogin, orderController.getOrdersByTrooperId);
+router.put('/orderComplete/:id',requireLogin,  orderController.markOrderComplete);
+router.get('/ordersOwner/:id',requireLogin,orderController.getOrdersByOwnerId);
+router.put('/orderComplete/:id',requireLogin, orderController.markOrderComplete);
+router.put('/orderPickup/:id',requireLogin,  orderController.parentPickup);
+router.put('/archiveOrders',requireLogin, checkRole(['leader']),  orderController.archiveOrders);
+router.put('/updateNeedToOrder/:orderId', requireLogin, checkRole(['leader']), orderController.updateNeedToOrder);
 
 module.exports = router;

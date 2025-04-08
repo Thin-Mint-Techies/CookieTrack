@@ -7,22 +7,15 @@ const { requireLogin, checkRole, checkUserOwnership } = require('../utils/roleCh
 
 
 router.post('/user', userController.createUser);
-
-//requireLogin, 
-router.get('/user',  userController.getAllUser);
-
-//requireLogin,
-router.get('/user/:id', userController.getUserById);
-
-//requireLogin,
-router.put('/user/:id',  userController.updateUser);
-
-// requireLogin, checkRole(['leader']),
-router.delete('/user/:id', userController.deleteUser);
-
 router.post('/attachRoleAsCustomClaim/:id', userController.attachRoleAsCustomClaim);
+router.get('/getRole/:id',requireLogin, userController.getRole);
 
-router.get('/getRole/:id', userController.getRole);
+router.get('/user', requireLogin,  userController.getAllUser);
+router.get('/user/:id',requireLogin,  userController.getUserById);
+router.put('/user/:id', requireLogin,  userController.updateUser);
+router.delete('/user/:id',requireLogin, checkRole(['leader']), userController.deleteUser);
+
+
 
 
 

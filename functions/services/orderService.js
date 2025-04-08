@@ -686,7 +686,6 @@ const getAllOrders = async () => {
   }
 };
 
-
 // Create order -> update needToOrder -> leaderClick fill from inventory -> fill all cookie
 const updateNeedToOrder = async (orderId, updatedCookies) => {
   try {
@@ -745,10 +744,6 @@ const updateNeedToOrder = async (orderId, updatedCookies) => {
     throw new Error(`Failed to update need to order: ${error.message}`);
   }
 };
-
-
-
-
 
 
 module.exports = {
