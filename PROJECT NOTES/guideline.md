@@ -47,3 +47,11 @@ If you have a distributed system, use distributed locking mechanisms to ensure t
 10. Monitoring and Observability
 Use monitoring tools (e.g., Prometheus, Datadog, Google Cloud Monitoring) to track metrics like request latency, error rates, and database contention.
 Implement logging and tracing (e.g., ELK Stack, Jaeger) to debug concurrency issues.
+
+
+
+-Optimization options: 
+    -Batch Reads: Combine multiple read requests into a single batch read request.
+    -Caching: Use caching to store frequently accessed data and reduce the number of reads to the database.
+    -Pagination: Implement pagination to limit the number of documents read in a single request.
+    -Denormalization: Store redundant data to reduce the number of reads needed to fetch related data.

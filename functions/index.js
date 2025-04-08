@@ -21,21 +21,20 @@ const { moveCompletedOrders, updateMonthlySales } = require('./utils/scheduler')
 
 
 const app = express();
-// parse JSON requests
 app.use(express.json());
 
 
 const allowedOrigins = [
-  'http://localhost:5000',
-  'https://your-frontend-domain.com'
+  'https://cookietrack-hub.web.app' ,
+  'https://cookietrack-hub.firebaseapp.com'
 ];
 
 app.use(cors({
   // Testing only
-  origin: true
+  //origin: true
 
   // Production
-  /*origin: (origin, callback) => {
+  origin: (origin, callback) => {
     if (!origin || allowedOrigins.includes(origin)) {
       // Allow requests with no origin (like mobile apps or Postman) or those in the list
       callback(null, true);
@@ -43,7 +42,7 @@ app.use(cors({
       // Block other origins
       callback(new Error('Not allowed by CORS'));
     }
-  } */
+  } 
 
 }));
 
@@ -78,6 +77,7 @@ app.use('/', saleDataRoute);
 
 
 /*FROM HERE IS LOCAL ONLY, USE FOR TESTING*/
+/*
 const PORT = process.env.PORT || 5000;
 const initializeFirebase = async () => {
   try {
@@ -98,7 +98,7 @@ const initializeFirebase = async () => {
 
 };
 initializeFirebase();
-
+*/
 
 // Sheduled to move completed orders, run every week
 // exports.scheduledMoveCompletedOrders = moveCompletedOrders;
