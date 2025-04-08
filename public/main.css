@@ -658,6 +658,9 @@ video {
 .z-\[99\] {
   z-index: 99;
 }
+.z-\[1001\] {
+  z-index: 1001;
+}
 .m-auto {
   margin: auto;
 }
@@ -987,6 +990,9 @@ video {
 .max-w-7xl {
   max-width: 80rem;
 }
+.max-w-\[120rem\] {
+  max-width: 120rem;
+}
 .max-w-\[80\%\] {
   max-width: 80%;
 }
@@ -999,8 +1005,8 @@ video {
 .max-w-xl {
   max-width: 36rem;
 }
-.max-w-\[120rem\] {
-  max-width: 120rem;
+.max-w-md {
+  max-width: 28rem;
 }
 .flex-1 {
   flex: 1 1 0%;
@@ -1104,6 +1110,9 @@ video {
 .gap-16 {
   gap: 4rem;
 }
+.gap-2 {
+  gap: 0.5rem;
+}
 .gap-3 {
   gap: 0.75rem;
 }
@@ -1143,9 +1152,6 @@ video {
   --tw-space-y-reverse: 0;
   margin-top: calc(2rem * calc(1 - var(--tw-space-y-reverse)));
   margin-bottom: calc(2rem * var(--tw-space-y-reverse));
-}
-.justify-self-end {
-  justify-self: end;
 }
 .overflow-auto {
   overflow: auto;
@@ -1287,6 +1293,9 @@ video {
 }
 .bg-white-overlay {
   background-color: rgba(255,255,255,0.6);
+}
+.bg-black-overlay {
+  background-color: rgba(52,52,52,0.6);
 }
 .bg-gradient-to-b {
   background-image: linear-gradient(to bottom, var(--tw-gradient-stops));
@@ -2251,10 +2260,6 @@ h2>i {
   .max-md\:max-w-xl {
     max-width: 36rem;
   }
-
-  .max-md\:justify-self-end {
-    justify-self: end;
-  }
 }
 
 @media not all and (min-width: 640px) {
@@ -2306,6 +2311,13 @@ h2>i {
   }
 }
 
+@media (max-width: 480px) {
+
+  .max-\[480px\]\:flex-col {
+    flex-direction: column;
+  }
+}
+
 @media (max-width: 320px) {
 
   .max-\[320px\]\:flex-col {
@@ -2347,10 +2359,6 @@ h2>i {
     margin-bottom: 4rem;
   }
 
-  .md\:mb-8 {
-    margin-bottom: 2rem;
-  }
-
   .md\:w-24 {
     width: 6rem;
   }
@@ -2366,20 +2374,16 @@ h2>i {
   .md\:grid-cols-4 {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
-
-  .md\:justify-self-end {
-    justify-self: end;
-  }
 }
 
 @media (min-width: 1024px) {
 
-  .lg\:ml-auto {
-    margin-left: auto;
-  }
-
   .lg\:mb-8 {
     margin-bottom: 2rem;
+  }
+
+  .lg\:ml-auto {
+    margin-left: auto;
   }
 
   .lg\:\!flex {
@@ -2396,10 +2400,6 @@ h2>i {
 
   .lg\:w-\[270px\] {
     width: 270px;
-  }
-
-  .lg\:grid-cols-2 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .lg\:grid-cols-\[auto_auto\] {

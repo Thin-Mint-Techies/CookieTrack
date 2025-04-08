@@ -33,12 +33,12 @@ const tableSchemas = {
         fields: ["fileName", "fileSize", "dateUploaded"]
     },
     rewards: {
-        headers: ["Reward Name", "Description", "Boxes Needed", "Image"],
-        fields: ["name", "description", "boxesNeeded", "downloadUrl"]
+        headers: ["Reward Name", "Description", "Boxes Needed", "Choices", "Image"],
+        fields: ["name", "description", "boxesNeeded", "choices", "downloadUrl"]
     },
     selectedRewards: {
-        headers: ["Reward Name", "Description", "Data Selected"],
-        fields: ["name", "description", "selectedAt"]
+        headers: ["Reward Name", "Description", "Choice Selected", "Data Selected"],
+        fields: ["name", "description", "selectedChoice", "selectedAt"]
     }
 };
 
@@ -83,7 +83,7 @@ const tableFilters = {
                     <input id="${startId}-datestart" name="start" type="date"
                         class="block w-full min-w-0 p-2.5 bg-white dark:bg-black border-2 border-gray text-black dark:text-white text-sm rounded-default focus:ring-green focus:border-green outline-none appearance-none">
                 </div>
-                <span class="text-black">to</span>
+                <span class="text-black dark:text-white">to</span>
                 <div class="relative flex-1 min-w-0">
                     <label for="${endId}-dateend"
                         class="absolute text-sm text-green left-1 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-black px-2">
@@ -357,7 +357,7 @@ function createRewardBox(parent, trooperData, rewardData, action) {
         let btnClass = "bg-gray text-black", btnText = "Locked", disabled = "disabled";
 
         if (reward.redeemed === "Redeemed") {
-            btnText = reward.redeemed;
+            btnText = "Redeemed: " + reward.selectedChoice;
             btnClass = "bg-green-super-light text-black";
         } else if (!reward.hasOwnProperty('redeemed') && reward.boxesNeeded <= boxesSold) {
             btnText = "Redeem";
@@ -439,9 +439,9 @@ function createRewardBox(parent, trooperData, rewardData, action) {
     // Attach event listeners after elements are added to the DOM
     container.querySelectorAll(".redeem-btn").forEach(button => {
         button.addEventListener("click", (event) => {
-            const trooperId = event.target.dataset.tid;
+            handleTableRow.currentRowEditing = button;
             const rewardId = event.target.dataset.rid;
-            action(trooperId, rewardId);
+            action(rewardId);
         });
     });
 }
@@ -555,8 +555,8 @@ function searchCurrentOrderRows(searchName, startDate, endDate) {
 
         //Get values from specific <td> cells
         const dateCreatedText = cells[0].textContent.trim();
-        const trooperNameText = cells[1].textContent.trim();
-        const parentNameText = cells[2].textContent.trim();
+        const trooperNameText = cells[2].textContent.trim();
+        const parentNameText = cells[3].textContent.trim();
 
         //Convert table date to a local Date object
         const dateParts = dateCreatedText.split("/"); // Expected format: MM/DD/YYYY
@@ -603,9 +603,9 @@ function searchCompletedOrderRows(searchName, startDate, endDate) {
 
         //Get values from specific <td> cells
         const dateCreatedText = cells[0].textContent.trim();
-        const dateCompletedText = cells[1].textContent.trim();
-        const trooperNameText = cells[2].textContent.trim();
-        const parentNameText = cells[3].textContent.trim();
+        const dateCompletedText = cells[2].textContent.trim();
+        const trooperNameText = cells[3].textContent.trim();
+        const parentNameText = cells[4].textContent.trim();
 
         //Convert table date to a local Date object
         const dateCreatedParts = dateCreatedText.split("/"); //Expected format: MM/DD/YYYY
@@ -893,6 +893,7 @@ function addTrooperRow(trooperId, data, tbodyId, editAction, deleteAction) {
             const rewardData = {
                 name: reward.name,
                 description: reward.description,
+                selectedChoice: reward.selectedChoice,
                 selectedAt: new Date(reward.selectedAt).toLocaleDateString("en-US"),
             }
             setupRowFields(tr, false, tableSchemas.selectedRewards.fields, rewardData, null);

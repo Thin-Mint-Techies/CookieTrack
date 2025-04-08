@@ -16,7 +16,7 @@ router.delete('/saleData/:id', saleDataController.deleteSaleData);
 router.get('/saleDataTrooperId/:id',  saleDataController.getSaleDatasByTrooperId);
 //requireLogin,
 router.get('/saleDataOwnerId/:id',  saleDataController.getSaleDataByOwnerId);
-//requireLogin, checkRole(['leader']),
+//requireLogin,
 router.get('/saleDatas',  saleDataController.getAllSaleData);
 
 

@@ -6,7 +6,7 @@ import { handleSkeletons } from "../utils/skeletons.js";
 import { manageLoader } from "../utils/loader.js";
 
 //#region CREATE TABLES/LOAD DATA -----------------------------------
-let userData, userRole, userTroopers;
+let userData, userRole, userTroopers, troopRewardData;
 
 //First show skeleton loaders as reward info is waiting to be pulled
 const mainContent = document.getElementsByClassName('main-content')[0];
@@ -23,16 +23,16 @@ document.addEventListener("authStateReady", async () => {
         userTroopers = await callApi(`/troopersOwnerId/${userData.id}`);
 
         //Load the troop reward data
-        const rewardData = await callApi('/reward');
+        troopRewardData = await callApi('/reward');
 
         //Create the table for adding new rewards 
         if (userRole.role === "leader") {
             handleTableCreation.troopRewards(mainContent, openAddRewardModal);
-            if (rewardData) loadRewardTableRows(rewardData);
+            if (troopRewardData) loadRewardTableRows(troopRewardData);
         }
 
         //Create all the reward boxes for all the users's troopers
-        await loadRewardBoxes(userTroopers, rewardData);
+        await loadRewardBoxes(userTroopers, troopRewardData);
     } else {
         showToast("Error Loading Data", "There was an error loading user data. Please refresh the page to try again.", STATUS_COLOR.RED, false);
         return;
@@ -53,7 +53,7 @@ async function loadRewardBoxes(troopers, rewardData) {
     if (!troopers && userRole.role === "parent") {
         showToast("No Troopers", "There are no troopers in your account to show rewards for.", STATUS_COLOR.RED, false);
         return;
-    }
+    } else if (!troopers) return;
 
     await Promise.all(troopers.map(async (trooper) => {
         const saleData = await callApi(`/saleData/${trooper.saleDataId}`);
@@ -93,12 +93,12 @@ async function loadRewardBoxes(troopers, rewardData) {
         ).length;
         trooper.boxesSold = saleData.totalBoxesSold;
 
-        handleTableCreation.rewardBox(mainContent, trooper, rewards, redeemReward);
+        handleTableCreation.rewardBox(mainContent, trooper, rewards, openChoiceModal);
     }));
 }
 //#endregion CREATE TABLES/LOAD DATA --------------------------------
 
-//#region Add/Edit Orders -------------------------------------------
+//#region Add/Edit/Select Rewards ------------------------------------------
 let rewardForm = document.getElementById('reward-form');
 let rewardTitle = document.getElementById('reward-title');
 let rewardSubtitle = document.getElementById('reward-subtitle');
@@ -106,12 +106,22 @@ let rewardCancel = document.getElementById('reward-cancel');
 let rewardSubmit = document.getElementById('reward-submit');
 let rewardClose = document.getElementById('reward-close');
 
-//Input variables
+//Add/edit reward form variables
 const rewardName = document.getElementById('reward-name');
 const rewardDesc = document.getElementById('reward-description');
 const rewardBoxes = document.getElementById('reward-boxes');
 const rewardImage = document.getElementById('reward-image');
+const rewardChoices = document.getElementById('reward-choices');
+const addChoiceBtn = document.getElementById('add-choice');
 let selectedFile = null;
+
+//Select reward choice form variables
+const choiceModal = document.getElementById('choice-modal');
+const choiceOptions = document.getElementById('choice-options');
+const choiceClose = document.getElementById('choice-close');
+const choiceCancel = document.getElementById('choice-cancel');
+const choiceSubmit = document.getElementById('choice-submit');
+let selectedChoice = null;
 
 function openAddRewardModal(mode = "add", rewardData) {
     if (mode === "edit") {
@@ -120,6 +130,39 @@ function openAddRewardModal(mode = "add", rewardData) {
         rewardName.value = rewardData.name;
         rewardDesc.value = rewardData.description;
         rewardBoxes.value = rewardData.boxesNeeded;
+
+        // Clear existing choices
+        rewardChoices.innerHTML = '';
+
+        // Add existing choices
+        if (rewardData.choices && rewardData.choices.length > 0) {
+            rewardData.choices.forEach(choice => {
+                const choiceDiv = document.createElement('div');
+                choiceDiv.className = 'reward-choice flex items-center gap-2';
+                choiceDiv.innerHTML = `
+                    <input type="text" 
+                        class="bg-white dark:bg-black border border-gray flex-1 text-base text-black dark:text-white px-4 py-2.5 rounded-default accent-green"
+                        placeholder="Enter reward choice" 
+                        value="${choice}" />
+                    <button type="button" class="remove-choice text-red hover:text-red-light" title="Remove choice">
+                        <i class="fa-solid fa-times"></i>
+                    </button>
+                `;
+                rewardChoices.appendChild(choiceDiv);
+            });
+        }
+    } else {
+        // Clear choices for new reward
+        rewardChoices.innerHTML = `
+            <div class="reward-choice flex items-center gap-2">
+                <input type="text" 
+                    class="bg-white dark:bg-black border border-gray flex-1 text-base text-black dark:text-white px-4 py-2.5 rounded-default accent-green"
+                    placeholder="Enter reward choice" />
+                <button type="button" class="remove-choice text-red hover:text-red-light" title="Remove choice">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
+        `;
     }
 
     rewardForm.setAttribute('data-mode', mode);
@@ -142,6 +185,18 @@ function closeRewardModal() {
     rewardBoxes.value = "";
     rewardImage.value = "";
     selectedFile = null;
+
+    // Reset choices to initial state
+    rewardChoices.innerHTML = `
+        <div class="reward-choice flex items-center gap-2">
+            <input type="text" 
+                class="bg-white dark:bg-black border border-gray flex-1 text-base text-black dark:text-white px-4 py-2.5 rounded-default accent-green"
+                placeholder="Enter reward choice" />
+            <button type="button" class="remove-choice text-red hover:text-red-light" title="Remove choice">
+                <i class="fa-solid fa-times"></i>
+            </button>
+        </div>
+    `;
 }
 
 rewardImage.addEventListener("change", (e) => {
@@ -155,6 +210,9 @@ rewardSubmit.addEventListener('click', (e) => {
     const desc = rewardDesc.value.trim() || "";
     const boxes = parseInt(rewardBoxes.value, 10) || 0;
     const currentMode = rewardForm.getAttribute('data-mode');
+
+    // Get all choices
+    const choices = Array.from(rewardChoices.querySelectorAll('input')).map(input => input.value.trim()).filter(choice => choice !== "");
 
     if (!name) {
         showToast("Missing Reward Name", "Please make sure you have correctly entered the reward's name.", STATUS_COLOR.RED, true, 5);
@@ -171,11 +229,17 @@ rewardSubmit.addEventListener('click', (e) => {
         return;
     }
 
+    if (choices.length < 1) {
+        showToast("Missing Choices", "Please add at least one choice for the reward.", STATUS_COLOR.RED, true, 5);
+        return;
+    }
+
     const rewardData = {
         name: name,
         description: desc,
         boxesNeeded: boxes,
-        downloadUrl: selectedFile
+        downloadUrl: selectedFile,
+        choices: choices,
     }
 
     if (currentMode === "add") {
@@ -200,6 +264,10 @@ async function createRewardApi(rewardData) {
         //Then upload the reward img
         const downloadUrl = await uploadDocumentXHR(`/rewardImg/${rewardId.id}`, compressedImg);
         rewardData.downloadUrl = downloadUrl.downloadURL;
+        rewardData.id = rewardId.id;
+
+        // Add the new reward to local troopRewardData array
+        troopRewardData.push(rewardData);
 
         //Reward created, add to table and show message
         handleTableRow.troopReward(rewardId.id, rewardData, editReward, createModals.deleteItem(deleteReward));
@@ -231,6 +299,13 @@ async function updateRewardApi(rewardData, rewardId) {
         }
 
         await callApi(`/reward/${rewardId}`, 'PUT', rewardData);
+
+        //Update the local troopRewardData array
+        const rewardIndex = troopRewardData.findIndex(r => r.id === rewardId);
+        if (rewardIndex !== -1) {
+            troopRewardData[rewardIndex] = { ...troopRewardData[rewardIndex], ...rewardData };
+        }
+
         //Reward updated, update data in table and show message
         handleTableRow.updateReward(handleTableRow.currentRowEditing, rewardData);
         showToast("Reward Updated", "The selected reward has been updated with the new information.", STATUS_COLOR.GREEN, true, 5);
@@ -243,15 +318,107 @@ async function updateRewardApi(rewardData, rewardId) {
     rewardClose.click();
 }
 
-async function redeemReward(trooperId, rewardId) {
+//Select/Redeem reward functionality
+addChoiceBtn.addEventListener('click', () => {
+    const choiceDiv = document.createElement('div');
+    choiceDiv.className = 'reward-choice flex items-center gap-2';
+    choiceDiv.innerHTML = `
+        <input type="text" 
+            class="bg-white dark:bg-black border border-gray flex-1 text-base text-black dark:text-white px-4 py-2.5 rounded-default accent-green"
+            placeholder="Enter reward choice" />
+        <button type="button" class="remove-choice text-red hover:text-red-light" title="Remove choice">
+            <i class="fa-solid fa-times"></i>
+        </button>
+    `;
+    rewardChoices.appendChild(choiceDiv);
+});
+
+rewardChoices.addEventListener('click', (e) => {
+    if (e.target.closest('.remove-choice')) {
+        e.target.closest('.reward-choice').remove();
+    }
+});
+
+function openChoiceModal(rewardId) {
+    // Find the reward in local rewardData
+    const reward = troopRewardData.find(r => r.id === rewardId);
+
+    if (!reward) {
+        showToast("Error", "Reward not found", STATUS_COLOR.RED, true, 5);
+        return;
+    }
+
+    //Reset selected choice
+    selectedChoice = null;
+    choiceSubmit.disabled = true;
+
+    if (reward.choices && reward.choices.length > 0) {
+        //Populate choice options
+        choiceOptions.innerHTML = reward.choices.map((choice, index) => `
+            <button class="choice-btn w-full p-3 text-left text-black dark:text-white rounded-default border border-gray hover:bg-green-light" 
+                data-choice="${index}">
+                ${choice}
+            </button>
+        `).join('');
+
+        //Handle choice button clicks
+        choiceOptions.addEventListener('click', (e) => {
+            const btn = e.target.closest('.choice-btn');
+            if (btn) {
+                //Remove active class from all buttons
+                choiceOptions.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('bg-green'));
+                //Add active class to selected button
+                btn.classList.add('bg-green');
+                selectedChoice = reward.choices[btn.dataset.choice];
+                choiceSubmit.disabled = false;
+            }
+        });
+    }
+
+    choiceModal.classList.remove('hidden');
+    choiceModal.classList.add('flex');
+}
+
+//Close/cancel the choice modal
+choiceClose.addEventListener('click', closeChoiceModal, false);
+choiceCancel.addEventListener('click', closeChoiceModal, false);
+
+function closeChoiceModal() {
+    selectedChoice = null;
+    choiceOptions.innerHTML = '';
+    choiceSubmit.disabled = true;
+    choiceModal.classList.remove('flex');
+    choiceModal.classList.add('hidden');
+}
+
+//Verify choice and redeem the reward
+choiceSubmit.addEventListener('click', (e) => {
+    e.preventDefault();
+    const trooperId = handleTableRow.currentRowEditing.getAttribute('data-tid');
+    const rewardId = handleTableRow.currentRowEditing.getAttribute('data-rid');
+
+    if (!selectedChoice) {
+        showToast("Missing Choice", "Please select a choice for the reward.", STATUS_COLOR.RED, true, 5);
+        return;
+    }
+
+    redeemRewardWithChoice(trooperId, rewardId, selectedChoice);
+});
+
+async function redeemRewardWithChoice(trooperId, rewardId, selectedChoice) {
     manageLoader(true);
 
     try {
-        await callApi(`/selectReward/${trooperId}`, 'POST', { rewardId: rewardId, userId: userData.id });
-        //Reward selected, update selection in reward box and show message
+        await callApi(`/selectReward/${trooperId}`, 'POST', {
+            rewardId: rewardId,
+            userId: userData.id,
+            selectedChoice: selectedChoice
+        });
+
+        // Update UI
         const redeemBtn = document.getElementById(trooperId + "-" + rewardId);
         redeemBtn.disabled = true;
-        redeemBtn.textContent = "Redeemed";
+        redeemBtn.textContent = "Redeemed: " + selectedChoice;
         redeemBtn.classList.remove("bg-green", "text-white", "hover:bg-green-light");
         redeemBtn.classList.add("bg-green-super-light", "text-black");
 
@@ -266,6 +433,7 @@ async function redeemReward(trooperId, rewardId) {
     }
 
     manageLoader(false);
+    closeChoiceModal();
 }
 //#endregion --------------------------------------------------------
 
@@ -282,6 +450,10 @@ async function deleteReward() {
         const rewardId = handleTableRow.currentRowEditing.getAttribute('data-rid');
         await callApi(`/rewardImg/${rewardId}`, 'DELETE');
         await callApi(`/reward/${rewardId}`, 'DELETE');
+
+        // Remove from local rewardData array
+        troopRewardData = troopRewardData.filter(r => r.id !== rewardId);
+
         //Reward deleted, remove from tables and show message
         handleTableRow.currentRowEditing.remove();
         showToast("Reward Deleted", "The selected reward has been deleted.", STATUS_COLOR.GREEN, true, 5);
@@ -294,14 +466,16 @@ async function deleteReward() {
 }
 
 function getRowData(row) {
-    // Exclude the last <td> (actions)
-    let tds = Array.from(row.children).slice(0, -1);
-    let index = 0;
+    // Get the reward from troopRewardData using the row's ID
+    const rewardId = row.getAttribute('data-rid');
+    const reward = troopRewardData.find(r => r.id === rewardId);
 
     let rewardData = {
-        name: tds[index++]?.textContent.trim(),
-        description: tds[index++]?.textContent.trim(),
-        boxesNeeded: tds[index++]?.textContent.trim(),
+        name: reward.name,
+        description: reward.description,
+        boxesNeeded: reward.boxesNeeded,
+        choices: reward.choices || [],
+        downloadUrl: reward.downloadUrl
     };
 
     return rewardData;

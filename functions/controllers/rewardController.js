@@ -64,9 +64,9 @@ const deleteAllReward = async (req, res) => {
 
 const selectRewardForTroop = async (req, res) => {
   const { id } = req.params;
-  const { rewardId, userId } = req.body;
+  const { rewardId, userId, selectedChoice } = req.body;
   try {
-    const result = await rewardService.selectRewardForTroop(id,rewardId,userId);
+    const result = await rewardService.selectRewardForTroop(id,rewardId,userId, selectedChoice);
     console.log('Reward selection is successful:', result);
     res.status(200).json(result);
   } catch (error) {

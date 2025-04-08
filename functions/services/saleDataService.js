@@ -6,20 +6,11 @@ const createSaleData = async ({ ownerId, trooperId, trooperName }) => {
     const newSaleDataRef = Firestore.collection('saleData').doc();
 
     await Firestore.runTransaction(async (transaction) => {
-      // Check for duplicate orderId (optional)
-      /* const existingSaleDataSnapshot = await Firestore.collection('saleData')
-        .where('orderId', 'array-contains', orderId)
-        .get();
-
-      if (!existingSaleDataSnapshot.empty) {
-        throw new Error('Sale data with this orderId already exists');
-      } */
-
       const newSaleData = {
         ownerId,
         trooperId,
         trooperName,
-        orderId: [],
+        orderInfo: [],
         cookieData: [],
         totalMoneyMade: "$0.00",
         totalBoxesSold: 0,
@@ -45,16 +36,17 @@ const updateSaleData = async (saleDataId, { orderId, orderContent }) => {
       }
 
       const saleData = saleDataDoc.data();
-      const updatedSaleData = {
-        ...saleData,
-        orderId: [...saleData.orderId, orderId],
-        totalMoneyMade: (parseFloat(saleData.totalMoneyMade.replace(/[^0-9.-]+/g, "")) + parseFloat(orderContent.totalCost.replace(/[^0-9.-]+/g, ""))).toLocaleString('en-US', {
-          style: 'currency',
-          currency: 'USD'
-        }),
-      };
+      const updatedSaleData = { ...saleData };
 
-      //Update cookie data
+      // Add new order info
+      updatedSaleData.orderInfo.push({
+        id: orderId,
+        dateCompleted: Date.now(),
+        boxTotal: orderContent.boxTotal,
+        totalCost: orderContent.totalCost
+      });
+
+      // Update cookie data
       orderContent.cookies.forEach(cookie => {
         const existingCookie = updatedSaleData.cookieData.find(item => item.varietyId === cookie.varietyId);
         if (existingCookie) {
@@ -77,11 +69,15 @@ const updateSaleData = async (saleDataId, { orderId, orderContent }) => {
         }
       });
 
-      // Calculate new boxes from this order
+      // Calculate totals
       const newBoxesTotal = orderContent.cookies.reduce((total, cookie) => total + cookie.boxes, 0);
-
-      // Add new boxes to existing totalBoxesSold
       updatedSaleData.totalBoxesSold = (saleData.totalBoxesSold || 0) + newBoxesTotal;
+      
+      const totalMade = (parseFloat(saleData.totalMoneyMade.replace(/[^0-9.-]+/g, "")) || 0) + parseFloat(orderContent.totalCost.replace(/[^0-9.-]+/g, ""));
+      updatedSaleData.totalMoneyMade = totalMade.toLocaleString('en-US', {
+        style: 'currency',
+        currency: 'USD'
+      });
 
       transaction.update(saleDataRef, updatedSaleData);
     });

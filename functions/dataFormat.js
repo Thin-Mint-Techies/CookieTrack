@@ -128,7 +128,9 @@ const saleDataformatforTrooper = {
     ownerId: '',
     trooperId: '',
     trooperName: '',
-    orderId: [], // completed orders
+    orderInfo: [
+        { id: '', dateCompleted: '', boxTotal: 0, totalCost: 0.0 }, //completed orders
+    ],
     cookieData: [
         {varietyId: '', variety: '', boxPrice: '', boxTotal: 0, cookieTotalCost: 0.0,},
     ],

@@ -1,10 +1,10 @@
 const { Firestore } = require('../firebaseConfig');
 
 // Service to create a new Reward
-const createReward = async ({ name, description, boxesNeeded }) => {
+const createReward = async ({ name, description, boxesNeeded, choices }) => {
   try {
     const newRewardRef = Firestore.collection('rewards').doc();
-    await newRewardRef.set({name,description,boxesNeeded});
+    await newRewardRef.set({name,description,boxesNeeded,choices});
     return newRewardRef.id;
   } catch (error) {
     throw new Error('Error creating Reward');
@@ -69,7 +69,7 @@ const deleteReward = async (id) => {
 
 
 // Allow user to select a reward for a specific troop
-const selectRewardForTroop = async (troopId, rewardId, userId) => {
+const selectRewardForTroop = async (troopId, rewardId, userId, selectedChoice) => {
   try {
     await Firestore.runTransaction(async (transaction) => {
       // Validate trooper association
@@ -93,12 +93,18 @@ const selectRewardForTroop = async (troopId, rewardId, userId) => {
       const rewardData = rewardDoc.data();
       rewardData.id = rewardId;
 
+      // Validate the selected choice
+      if (selectedChoice && !rewardData.choices.includes(selectedChoice)) {
+        throw new Error('Invalid reward choice selected');
+      }
+
       // Add reward selection to the trooper's currentReward array
       const currentReward = trooperData.currentReward || [];
       currentReward.push({
         ...rewardData,
         selectedBy: userId,
         selectedAt: new Date().toISOString(),
+        selectedChoice: selectedChoice,
       });
 
       // Update the trooper's currentReward within the transaction
