@@ -50,17 +50,11 @@ const createOrder = async ({ dateCreated, trooperId, trooperName, ownerId, owner
 
       // Calculate totalCost and boxTotal
       orderContent.cookies.forEach(cookie => {
-        cookie.cookieTotalCost = (cookie.boxes * parseFloat(cookie.boxPrice.replace(/[^0-9.-]+/g, ""))).toLocaleString('en-US', {
-          style: 'currency',
-          currency: 'USD'
-        });
-        totalCost += parseFloat(cookie.cookieTotalCost.replace(/[^0-9.-]+/g, ""));
+        cookie.cookieTotalCost = cookie.boxes * cookie.boxPrice;
+        totalCost += cookie.cookieTotalCost;
         boxTotal += cookie.boxes;
       });
-      newOrderData.orderContent.totalCost = totalCost.toLocaleString('en-US', {
-        style: 'currency',
-        currency: 'USD'
-      });
+      newOrderData.orderContent.totalCost = totalCost;
       newOrderData.orderContent.boxTotal = boxTotal;
 
       // Process the order
@@ -98,7 +92,7 @@ const createOrder = async ({ dateCreated, trooperId, trooperName, ownerId, owner
               varietyId: cookie.varietyId,
               variety: cookie.variety,
               boxes: cookie.boxes - availableBoxes,
-              boxPrice: parseFloat(cookie.boxPrice.replace(/[^0-9.-]+/g, ""))
+              boxPrice: cookie.boxPrice
             });
           }
         });
@@ -194,18 +188,12 @@ const updateOrder = async (id, { trooperId, trooperName, ownerEmail, ownerName, 
         inventoryItem.boxes -= boxDifference;
 
         // Calculate costs
-        newCookie.cookieTotalCost = (newCookie.boxes * parseFloat(newCookie.boxPrice.replace(/[^0-9.-]+/g, ""))).toLocaleString('en-US', {
-          style: 'currency',
-          currency: 'USD'
-        });
-        totalCost += parseFloat(newCookie.cookieTotalCost.replace(/[^0-9.-]+/g, ""));
+        newCookie.cookieTotalCost = newCookie.boxes * newCookie.boxPrice;
+        totalCost += newCookie.cookieTotalCost;
         boxTotal += newCookie.boxes;
       });
 
-      updatedOrderData.orderContent.totalCost = totalCost.toLocaleString('en-US', {
-        style: 'currency',
-        currency: 'USD'
-      });
+      updatedOrderData.orderContent.totalCost = totalCost;
       updatedOrderData.orderContent.boxTotal = boxTotal;
 
       if (inStock) {
@@ -230,7 +218,7 @@ const updateOrder = async (id, { trooperId, trooperName, ownerEmail, ownerName, 
               varietyId: cookie.varietyId,
               variety: cookie.variety,
               boxes: cookie.boxes - availableBoxes,
-              boxPrice: parseFloat(cookie.boxPrice.replace(/[^0-9.-]+/g, ""))
+              boxPrice: cookie.boxPrice,
             });
           }
         });
@@ -272,13 +260,12 @@ const updateOrderPaidAmount = async (id, { trooperId, ownerId, cashPaid, cardPai
       const originalOrderData = orderDoc.data();
 
       // Calculate payment differences
-      const originalPaidAmount = parseFloat(originalOrderData.cashPaid?.replace(/[^0-9.-]+/g, "") || "0") + parseFloat(originalOrderData.cardPaid?.replace(/[^0-9.-]+/g, "") || "0");
-      const newPaidAmount = parseFloat(cashPaid?.replace(/[^0-9.-]+/g, "") || "0") + parseFloat(cardPaid?.replace(/[^0-9.-]+/g, "") || "0");
+      const originalPaidAmount = originalOrderData.cashPaid + originalOrderData.cardPaid;
+      const newPaidAmount = cashPaid + cardPaid;
       const paymentDifference = newPaidAmount - originalPaidAmount;
 
       // Calculate new owe amount for order
-      const orderTotalCost = parseFloat(originalOrderData.orderContent.totalCost.replace(/[^0-9.-]+/g, "") || "0");
-      const newOrderOweAmount = orderTotalCost - newPaidAmount;
+      const newOrderOweAmount = originalOrderData.orderContent.totalCost - newPaidAmount;
 
       // Get trooper inventory
       const trooperInventorySnapshot = await transaction.get(Firestore.collection('inventory').where('trooperId', '==', trooperId));
@@ -297,8 +284,8 @@ const updateOrderPaidAmount = async (id, { trooperId, ownerId, cashPaid, cardPai
       const parentInventory = parentDoc.data();
 
       // Update owe amounts for both trooper and parent
-      const trooperCurrentOwe = parseFloat(trooperInventory.owe?.replace(/[^0-9.-]+/g, "") || "0");
-      const parentCurrentOwe = parseFloat(parentInventory.owe?.replace(/[^0-9.-]+/g, "") || "0");
+      const trooperCurrentOwe = trooperInventory.owe;
+      const parentCurrentOwe = parentInventory.owe;
 
       // Reduce owe amount by payment difference (if payment increased, owe decreases)
       const newTrooperOwe = trooperCurrentOwe - paymentDifference;
@@ -306,17 +293,11 @@ const updateOrderPaidAmount = async (id, { trooperId, ownerId, cashPaid, cardPai
 
       // Update all documents in transaction
       transaction.update(trooperDoc.ref, {
-        owe: newTrooperOwe.toLocaleString('en-US', {
-          style: 'currency',
-          currency: 'USD'
-        })
+        owe: newTrooperOwe,
       });
 
       transaction.update(parentDoc.ref, {
-        owe: newParentOwe.toLocaleString('en-US', {
-          style: 'currency',
-          currency: 'USD'
-        })
+        owe: newParentOwe,
       });
 
       // Update order with new payment amounts and owe amount
@@ -326,10 +307,7 @@ const updateOrderPaidAmount = async (id, { trooperId, ownerId, cashPaid, cardPai
         cardPaid,
         orderContent: {
           ...originalOrderData.orderContent,
-          owe: newOrderOweAmount.toLocaleString('en-US', {
-            style: 'currency',
-            currency: 'USD'
-          })
+          owe: newOrderOweAmount,
         }
       };
 
@@ -422,15 +400,15 @@ const parentPickup = async (orderId, ownerEmail) => {
       });
 
       // Calculate amount owed
-      const totalCost = parseFloat(orderData.orderContent.totalCost.replace(/[^0-9.-]+/g, ""));
-      const cashPaid = parseFloat(orderData.cashPaid?.replace(/[^0-9.-]+/g, "") || "0");
-      const cardPaid = parseFloat(orderData.cardPaid?.replace(/[^0-9.-]+/g, "") || "0");
+      const totalCost = orderData.orderContent.totalCost;
+      const cashPaid = orderData.cashPaid;
+      const cardPaid = orderData.cardPaid;
       const paidAmount = cashPaid + cardPaid;
       const amountOwed = totalCost - paidAmount;
 
       // Get current owe amounts as numbers
-      const parentCurrentOwe = parseFloat(parentInventory.owe?.replace(/[^0-9.-]+/g, "") || "0");
-      const trooperCurrentOwe = parseFloat(trooperInventory.owe?.replace(/[^0-9.-]+/g, "") || "0");
+      const parentCurrentOwe = parentInventory.owe;
+      const trooperCurrentOwe = trooperInventory.owe;
 
       // Calculate new owe amounts
       const newParentOwe = parentCurrentOwe + amountOwed;
@@ -439,19 +417,13 @@ const parentPickup = async (orderId, ownerEmail) => {
       // Update parent inventory document
       transaction.update(parentDoc.ref, {
         inventory: parentInventory.inventory,
-        owe: newParentOwe.toLocaleString('en-US', {
-          style: 'currency',
-          currency: 'USD'
-        })
+        owe: newParentOwe,
       });
 
       // Update trooper inventory document
       transaction.update(trooperDoc.ref, {
         inventory: trooperInventory.inventory,
-        owe: newTrooperOwe.toLocaleString('en-US', {
-          style: 'currency',
-          currency: 'USD'
-        })
+        owe: newTrooperOwe,
       });
 
       // Update order status
@@ -461,10 +433,7 @@ const parentPickup = async (orderId, ownerEmail) => {
         datePickedUp: new Date().toLocaleDateString("en-US"),
         orderContent: {
           ...orderData.orderContent,
-          owe: amountOwed.toLocaleString('en-US', {
-            style: 'currency',
-            currency: 'USD'
-          })
+          owe: amountOwed,
         }
       };
       transaction.update(orderRef, updatedOrderData);
@@ -540,14 +509,14 @@ const markOrderComplete = async (orderId) => {
       }).filter(cookie => cookie.boxes > 0); // Remove cookies with 0 boxes
 
       // Calculate the final amounts to be paid
-      const totalCost = parseFloat(orderData.orderContent.totalCost.replace(/[^0-9.-]+/g, ""));
-      const cashPaid = parseFloat(orderData.cashPaid?.replace(/[^0-9.-]+/g, "") || "0");
-      const cardPaid = parseFloat(orderData.cardPaid?.replace(/[^0-9.-]+/g, "") || "0");
+      const totalCost = orderData.orderContent.totalCost
+      const cashPaid = orderData.cashPaid;
+      const cardPaid = orderData.cardPaid;
       const totalPaid = cashPaid + cardPaid;
 
       // Calculate the current owe amounts
-      const trooperCurrentOwe = parseFloat(trooperInventory.owe?.replace(/[^0-9.-]+/g, "") || "0");
-      const parentCurrentOwe = parseFloat(parentInventory.owe?.replace(/[^0-9.-]+/g, "") || "0");
+      const trooperCurrentOwe = trooperInventory.owe;
+      const parentCurrentOwe = parentInventory.owe;
 
       // Calculate new owe amounts by removing only the remaining unpaid amount
       const remainingUnpaid = totalCost - totalPaid;
@@ -557,19 +526,13 @@ const markOrderComplete = async (orderId) => {
       // Update trooper inventory
       transaction.update(trooperDoc.ref, {
         inventory: updatedTrooperInventory,
-        owe: newTrooperOwe.toLocaleString('en-US', {
-          style: 'currency',
-          currency: 'USD'
-        })
+        owe: newTrooperOwe,
       });
 
       // Update parent inventory
       transaction.update(parentDoc.ref, {
         inventory: updatedParentInventory,
-        owe: newParentOwe.toLocaleString('en-US', {
-          style: 'currency',
-          currency: 'USD'
-        })
+        owe: newParentOwe,
       });
 
       // Update order status

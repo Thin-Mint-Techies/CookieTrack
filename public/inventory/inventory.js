@@ -1,7 +1,7 @@
 import { showToast, STATUS_COLOR } from "../utils/toasts.js";
 import { callApi } from "../utils/apiCall.js";
 import { handleSkeletons } from "../utils/skeletons.js";
-import { handleTableRow, handleTableCreation, setupDropdown, addOptionToDropdown } from "../utils/utils.js";
+import { handleTableRow, handleTableCreation, setupDropdown, setupCurrencyInput, addOptionToDropdown } from "../utils/utils.js";
 import { createModals } from "../utils/confirmModal.js";
 import { manageLoader } from "../utils/loader.js";
 
@@ -59,14 +59,14 @@ function loadInventoryTableRows(inventory, inventoryType, hasActions = true) {
     //Load the parent's owe amount
     if (inventoryType === "your") {
         const oweElem = document.getElementById("your-inventory-owe");
-        oweElem.textContent = `Owe: ${parentInventoryData[0].owe}`;
+        oweElem.textContent = `Owe: ${parentInventoryData[0].owe.toLocaleString("en-US", { style: "currency", currency: "USD" })}`;
     }
 
     inventory.forEach((cookie) => {
         const cookieData = {
             variety: cookie.variety,
             boxes: cookie.boxes,
-            boxPrice: cookie.boxPrice,
+            boxPrice: cookie.boxPrice.toLocaleString("en-US", { style: "currency", currency: "USD" }),
         }
 
         if (inventoryType === "troop") {
@@ -97,14 +97,14 @@ async function loadTrooperInventoryTableRows(troopers) {
             //Load the trooper's owe amount
             const oweIdTrooperName = trooper.trooperName.replaceAll(' ', '-').toLowerCase();
             const oweElem = document.getElementById(`inventory-for-${oweIdTrooperName}-owe`);
-            oweElem.textContent = `Owe: ${inventory[0].owe}`;
+            oweElem.textContent = `Owe: ${inventory[0].owe.toLocaleString("en-US", { style: "currency", currency: "USD" })}`;
 
             if (!inventory[0].inventory) return;
             inventory[0].inventory.forEach((cookie) => {
                 const cookieData = {
                     variety: cookie.variety,
                     boxes: cookie.boxes,
-                    boxPrice: cookie.boxPrice,
+                    boxPrice: cookie.boxPrice.toLocaleString("en-US", { style: "currency", currency: "USD" }),
                 }
                 const trooperName = trooper.trooperName.replace(' ', '-').toLowerCase();
                 handleTableRow.trooperInventory(cookie.varietyId, cookieData, trooperName, editCookie, createModals.deleteItem(deleteCookie));
@@ -141,6 +141,9 @@ function setupAndLoadDropdowns() {
     }
 
     setupDropdown('cookie-name-btn', 'cookie-name-dropdown');
+
+    //Setup currency input
+    setupCurrencyInput(cookiePrice);
 }
 
 //Show the add cookie modal depending on user role
@@ -214,7 +217,7 @@ cookieSubmit.addEventListener('click', (e) => {
     e.preventDefault();
     const isAdmin = cookieForm.getAttribute('data-admin');
     const cName = isAdmin === "true" ? cookieName.value.trim() : cookieNameBtn.textContent.trim();
-    const cPrice = parseFloat(cookiePrice.value) || 0;
+    const cPrice = parseFloat(cookiePrice.value.replace(/[^0-9.-]+/g, "")) || 0;
     const cStock = parseInt(cookieStock.value, 10) || 0;
 
     if (isAdmin === "true") {
@@ -249,7 +252,7 @@ cookieSubmit.addEventListener('click', (e) => {
     //If it is an admin, add the cookie to the troop inventory
     //If it is a user, assign the cookie to the trooper inventory
     if (isAdmin === "true") {
-        cookieData.boxPrice = (cPrice).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+        cookieData.boxPrice = cPrice;
         if (currentMode === "add") {
             createCookieApi(cookieData);
         } else if (currentMode === "edit") {
@@ -280,6 +283,7 @@ async function createCookieApi(cookieData) {
         troopInventoryData.inventory.push(newCookieData);
         await callApi('/leaderInventory', 'PUT', troopInventoryData);
         //Cookie created, add to table and show message
+        cookieData.boxPrice = cookieData.boxPrice.toLocaleString("en-US", { style: "currency", currency: "USD" });
         handleTableRow.troopInventory(cookieId.id, cookieData, editCookie, createModals.deleteItem(deleteCookie));
         showToast("Cookie Added", "A new cookie has been created and added to the troop inventory.", STATUS_COLOR.GREEN, true, 5);
     } catch (error) {
@@ -305,6 +309,7 @@ async function updateCookieApi(cookieData, cookieId) {
         } : item);
         await callApi('/leaderInventory', 'PUT', troopInventoryData);
         //Cookie updated, update data in table and show message
+        cookieData.boxPrice = cookieData.boxPrice.toLocaleString("en-US", { style: "currency", currency: "USD" });
         handleTableRow.updateInventoryRow(handleTableRow.currentRowEditing, cookieData);
         showToast("Cookie Updated", "The selected cookie has been updated with the new information.", STATUS_COLOR.GREEN, true, 5);
     } catch (error) {
@@ -353,6 +358,7 @@ async function addCookieToTrooperInventoryApi(trooperId, cookieData) {
             trooperInventory.inventory.push(cookieData);
             await callApi(`/trooperInventory/${trooperInventory.id}`, 'PUT', trooperInventory);
 
+            cookieData.boxPrice = cookieData.boxPrice.toLocaleString("en-US", { style: "currency", currency: "USD" });
             const trooperName = trooperInventory.trooperName.replace(' ', '-').toLowerCase();
             handleTableRow.trooperInventory(cookieData.varietyId, cookieData, trooperName, editCookie, createModals.deleteItem(deleteCookie));
 
@@ -382,6 +388,7 @@ async function updateTrooperInventoryApi(trooperId, cookieData, cookieId) {
             } : item);
             await callApi(`/trooperInventory/${trooperInventory.id}`, 'PUT', trooperInventory);
             //Cookie updated, update data in table and show message
+            cookieData.boxPrice = cookieData.boxPrice.toLocaleString("en-US", { style: "currency", currency: "USD" });
             handleTableRow.updateInventoryRow(handleTableRow.currentRowEditing, cookieData);
             showToast("Cookie Updated", "The selected cookie has been updated with the new information.", STATUS_COLOR.GREEN, true, 5);
         } else {
@@ -437,7 +444,7 @@ function getRowData(row) {
         varietyId: row.getAttribute('data-cid'),
         variety: tds[index++]?.textContent.trim(),
         boxes: tds[index++]?.textContent.trim(),
-        boxPrice: tds[index++]?.textContent.trim().replace("$", ''),
+        boxPrice: tds[index++]?.textContent.trim(),
     }
 
     return cookieData;

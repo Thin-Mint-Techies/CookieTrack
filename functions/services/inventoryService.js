@@ -6,7 +6,7 @@ const createParentInventory = async ({ ownerId }) => {
     const newInventoryRef = Firestore.collection('inventory').doc();
     const newInventoryData = {
       ownerId,
-      owe: "$0.00",
+      owe: 0.0,
       inventory: [],
     };
     await newInventoryRef.set(newInventoryData);
@@ -37,7 +37,7 @@ const createTrooperInventory = async ({ ownerId, parentId, trooperId, trooperNam
     const newInventoryData = {
       ownerId,
       parentId,
-      owe: "$0.00",
+      owe: 0.0,
       trooperId,
       trooperName,
       troopNumber,
@@ -107,20 +107,16 @@ const updateTrooperInventory = async (id, { inventory }) => {
 
       //Calculate total cost of inventory
       const totalCost = inventory.reduce((total, cookie) => {
-        const cookieCost = parseFloat(cookie.boxPrice.replace(/[^0-9.-]+/g, "")) * cookie.boxes;
+        const cookieCost = cookie.boxPrice * cookie.boxes;
         return total + cookieCost;
       }, 0);
 
       // Get current owe amount and add new total
-      const currentOwe = parseFloat(currentData.owe.replace(/[^0-9.-]+/g, "")) || 0;
-      const newOweAmount = currentOwe + totalCost;
+      const newOweAmount = currentData.owe + totalCost;
 
       const updatedInventoryData = {
         inventory,
-        owe: newOweAmount.toLocaleString('en-US', {
-          style: 'currency',
-          currency: 'USD'
-        }),
+        owe: newOweAmount,
       };
 
       transaction.update(ref, updatedInventoryData);

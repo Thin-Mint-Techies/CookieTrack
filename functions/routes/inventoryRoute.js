@@ -13,7 +13,7 @@ router.put('/leaderInventory',requireLogin, checkRole(['leader']), inventoryCont
 router.put('/trooperInventory/:id',requireLogin,  inventoryController.updateTrooperInventory);
 router.put('/trooperCookie/:trooperId',requireLogin,  inventoryController.updateTrooperCookie);
 router.get('/inventories', requireLogin, checkRole(['leader']),  inventoryController.getAllInventories);
-router.get('/leaderInventory',requireLogin, checkRole(['leader']),  inventoryController.getLeaderInventory);
+router.get('/leaderInventory',requireLogin,  inventoryController.getLeaderInventory);
 router.get('/inventory/:id', requireLogin, inventoryController.getInventoryByOwnerId);
 router.delete('/inventory/:id',requireLogin, checkRole(['leader']), inventoryController.deleteInventory);
 

@@ -91,12 +91,14 @@ function setupCurrencyInput(inputElem) {
         
         // Combine parts and add dollar sign
         value = '$' + parts.join('.');
+        if(value === "$NaN") value = "$0.00";
         e.target.value = value;
     }
 
     function handleBlur(e) {
         let value = e.target.value.replace(/[^\d.]/g, '');
         if (value) {
+            if(value === ".") value = 0;
             // Ensure proper decimal format on blur
             e.target.value = parseFloat(value).toLocaleString('en-US', {
                 style: 'currency',

@@ -8,7 +8,7 @@ router.post('/order', requireLogin, orderController.createOrder);
 router.get('/order', requireLogin, checkRole(['leader']), orderController.getAllOrders);
 router.put('/order/:id',requireLogin, orderController.updateOrder);
 router.put('/orderPayment/:id',requireLogin, orderController.updateOrderPaidAmount);
-router.delete('/order/:id', requireLogin, checkRole(['leader']), orderController.deleteOrder);
+router.delete('/order/:id', requireLogin, orderController.deleteOrder);
 router.get('/ordersTrooper/:id',requireLogin, orderController.getOrdersByTrooperId);
 router.put('/orderComplete/:id',requireLogin,  orderController.markOrderComplete);
 router.get('/ordersOwner/:id',requireLogin,orderController.getOrdersByOwnerId);

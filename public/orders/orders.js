@@ -60,6 +60,11 @@ document.addEventListener("authStateReady", async () => {
 function loadOrderTableRows(orders) {
     if (!orders) return;
     orders.forEach((order) => {
+        order.orderContent.totalCost = order.orderContent.totalCost.toLocaleString("en-US", { style: "currency", currency: "USD" });
+        order.cashPaid = order.cashPaid.toLocaleString("en-US", { style: "currency", currency: "USD" });
+        order.cardPaid = order.cardPaid.toLocaleString("en-US", { style: "currency", currency: "USD" });
+        order.orderContent.owe = order.orderContent.owe.toLocaleString("en-US", { style: "currency", currency: "USD" });
+
         //Check if order is a current order or if it is completed
         if (order.status && order.status === "Completed") {
             handleTableRow.completedOrder(order.id, order, userRole.role === "leader" ? createModals.deleteItem(deleteCompletedOrder) : null);
@@ -311,7 +316,7 @@ orderSubmit.addEventListener('click', (e) => {
                 };
                 cookies.push(cookieOrder);
                 // Add to total cost
-                totalCost += value * parseFloat(inventoryCookie.boxPrice.replace(/[^0-9.-]+/g, ""));
+                totalCost += value * inventoryCookie.boxPrice;
             }
         }
     });
@@ -325,7 +330,7 @@ orderSubmit.addEventListener('click', (e) => {
 
     const orderContent = {
         cookies: cookies,
-        totalCost: totalCost.toLocaleString('en-US', { style: 'currency', currency: 'USD' }),
+        totalCost: totalCost,
         boxTotal: cookies.reduce((sum, cookie) => sum + cookie.boxes, 0)
     }
 
@@ -341,13 +346,13 @@ orderSubmit.addEventListener('click', (e) => {
         financialAgreement: financialAgreement === true ? "Agreed" : "Declined",
         pickupLocation: pickup,
         orderContent: orderContent,
-        cashPaid: cash.toLocaleString('en-US', { style: 'currency', currency: 'USD' }),
-        cardPaid: card.toLocaleString('en-US', { style: 'currency', currency: 'USD' }),
+        cashPaid: cash,
+        cardPaid: card,
     }
 
     if (currentMode === "add") {
         orderData.saleDataId = userTroopers.find(trooper => trooper.id === tId).saleDataId;
-        orderData.orderContent.owe = "$0.00";
+        orderData.orderContent.owe = 0.0;
         createOrderApi(orderData);
     } else if (currentMode === "edit") {
         const orderId = handleTableRow.currentRowEditing.getAttribute("data-oid");
@@ -390,7 +395,7 @@ orderSubmit.addEventListener('click', (e) => {
         const currentOrderData = getRowData(handleTableRow.currentRowEditing, false);
         const totalOrderCost = parseFloat(currentOrderData.totalCost.replace(/[^0-9.-]+/g, ""));
         const totalPaid = cash + card;
-        orderData.owe = (totalOrderCost - totalPaid).toLocaleString("en-US", { style: "currency", currency: "USD" });
+        orderData.orderContent.owe = totalOrderCost - totalPaid;
 
         // Check if payment equals total cost
         if (Math.abs(totalOrderCost - totalPaid) < 0.01) { // Using small epsilon for float comparison
@@ -408,6 +413,10 @@ async function createOrderApi(orderData) {
         const orderInfo = await callApi('/order', 'POST', orderData);
         //Order created, add to table and show message
         orderData.status = orderInfo.status;
+        orderData.orderContent.totalCost = orderData.orderContent.totalCost.toLocaleString("en-US", { style: "currency", currency: "USD" });
+        orderData.cashPaid = orderData.cashPaid.toLocaleString("en-US", { style: "currency", currency: "USD" });
+        orderData.cardPaid = orderData.cardPaid.toLocaleString("en-US", { style: "currency", currency: "USD" });
+        orderData.orderContent.owe = orderData.orderContent.owe.toLocaleString("en-US", { style: "currency", currency: "USD" });
         handleTableRow.currentOrder(orderInfo.id, orderData, editCurrentOrder, createModals.deleteItem(deleteCurrentOrder), createModals.pickupOrder(markOrderAsPickedUp));
         showToast("Order Added", "A new order has been created for your account.", STATUS_COLOR.GREEN, true, 5);
     } catch (error) {
@@ -431,6 +440,10 @@ async function updateOrderApi(orderData, orderId, needsUserInfo, isPaymentUpdate
         const subroute = isPaymentUpdate ? `/orderPayment/${orderId}` : `/order/${orderId}`;
         await callApi(subroute, 'PUT', orderData);
         //Order updated, update data in table and show message
+        orderData.orderContent.totalCost = orderData.orderContent.totalCost.toLocaleString("en-US", { style: "currency", currency: "USD" });
+        orderData.cashPaid = orderData.cashPaid.toLocaleString("en-US", { style: "currency", currency: "USD" });
+        orderData.cardPaid = orderData.cardPaid.toLocaleString("en-US", { style: "currency", currency: "USD" });
+        orderData.orderContent.owe = orderData.orderContent.owe.toLocaleString("en-US", { style: "currency", currency: "USD" });
         handleTableRow.updateOrderRow(handleTableRow.currentRowEditing, orderData);
         showToast("Order Updated", "The selected order has been updated with the new information.", STATUS_COLOR.GREEN, true, 5);
     } catch (error) {

@@ -66,7 +66,7 @@ async function loadTrooperTableRows(troopers, isAllTroopers) {
             trooperName: trooper.trooperName,
             parentName: trooper.parentName,
             troopLeader: trooper.troopLeader,
-            owe: inventoryData[0].owe,
+            owe: inventoryData[0].owe.toLocaleString('en-US', { style: 'currency', currency: 'USD' }),
             boxesSold: saleData.totalBoxesSold,
             age: trooper.age,
             grade: trooper.grade,
@@ -74,6 +74,15 @@ async function loadTrooperTableRows(troopers, isAllTroopers) {
         }
 
         const rewardData = trooper.currentReward;
+
+        if (orderData && orderData.length > 0) {
+            orderData.forEach((order) => {
+                order.orderContent.totalCost = order.orderContent.totalCost.toLocaleString("en-US", { style: "currency", currency: "USD" });
+                order.cashPaid = order.cashPaid.toLocaleString("en-US", { style: "currency", currency: "USD" });
+                order.cardPaid = order.cardPaid.toLocaleString("en-US", { style: "currency", currency: "USD" });
+                order.orderContent.owe = order.orderContent.owe.toLocaleString("en-US", { style: "currency", currency: "USD" });
+            });
+        }
 
         const data = {
             trooperData: trooperData,
@@ -188,7 +197,7 @@ trooperSubmit.addEventListener('click', (e) => {
         age: age,
         grade: grade,
         shirtSize: size,
-        owe: "$0.00", //Only used to show in row for trooper creation
+        owe: 0.0, //Only used to show in row for trooper creation
         boxesSold: 0, //Only used to show in row for trooper creation
     }
 

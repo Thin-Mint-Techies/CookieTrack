@@ -274,7 +274,7 @@ function createTrooperInventoryTable(parent, trooperData, action) {
         icon: "cookie-bite",
         action: () => action("add", null, trooperData.id)
     }
-    createTable(parent, title, icon, null, tableSchemas.inventory.headers, button, false, true);
+    createTable(parent, title, icon, null, tableSchemas.inventory.headers, null, false, true);
 
     const tbody = document.getElementById(title.replaceAll(' ', '-').toLowerCase() + "-tbody");
     tbody.setAttribute("data-tid", trooperData.id);

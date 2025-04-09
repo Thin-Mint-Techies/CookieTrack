@@ -12,7 +12,7 @@ const createSaleData = async ({ ownerId, trooperId, trooperName }) => {
         trooperName,
         orderInfo: [],
         cookieData: [],
-        totalMoneyMade: "$0.00",
+        totalMoneyMade: 0.0,
         totalBoxesSold: 0,
       };
 
@@ -51,20 +51,14 @@ const updateSaleData = async (saleDataId, { orderId, orderContent }) => {
         const existingCookie = updatedSaleData.cookieData.find(item => item.varietyId === cookie.varietyId);
         if (existingCookie) {
           existingCookie.boxTotal += cookie.boxes;
-          existingCookie.cookieTotalCost = (existingCookie.boxTotal * parseFloat(existingCookie.boxPrice.replace(/[^0-9.-]+/g, ""))).toLocaleString('en-US', {
-            style: 'currency',
-            currency: 'USD'
-          });
+          existingCookie.cookieTotalCost = existingCookie.boxTotal * existingCookie.boxPrice;
         } else {
           updatedSaleData.cookieData.push({
             varietyId: cookie.varietyId,
             variety: cookie.variety,
             boxPrice: cookie.boxPrice,
             boxTotal: cookie.boxes,
-            cookieTotalCost: (cookie.boxes * parseFloat(cookie.boxPrice.replace(/[^0-9.-]+/g, ""))).toLocaleString('en-US', {
-              style: 'currency',
-              currency: 'USD'
-            }),
+            cookieTotalCost: cookie.boxes * cookie.boxPrice,
           });
         }
       });
@@ -73,11 +67,8 @@ const updateSaleData = async (saleDataId, { orderId, orderContent }) => {
       const newBoxesTotal = orderContent.cookies.reduce((total, cookie) => total + cookie.boxes, 0);
       updatedSaleData.totalBoxesSold = (saleData.totalBoxesSold || 0) + newBoxesTotal;
       
-      const totalMade = (parseFloat(saleData.totalMoneyMade.replace(/[^0-9.-]+/g, "")) || 0) + parseFloat(orderContent.totalCost.replace(/[^0-9.-]+/g, ""));
-      updatedSaleData.totalMoneyMade = totalMade.toLocaleString('en-US', {
-        style: 'currency',
-        currency: 'USD'
-      });
+      const totalMade = saleData.totalMoneyMade + orderContent.totalCost;
+      updatedSaleData.totalMoneyMade = totalMade;
 
       transaction.update(saleDataRef, updatedSaleData);
     });

@@ -56,7 +56,7 @@ function loadSaleDataBoxes(saleData, inventory, saleDataType) {
                 if (order.dateCompleted) {
                     const date = new Date(order.dateCompleted);
                     if (date.getMonth() === new Date().getMonth()) {
-                        revenue += parseFloat(order.totalCost.replace(/[^0-9.-]+/g, ""));
+                        revenue += order.totalCost;
                         boxesSold += order.boxTotal;
                         completedOrders++;
                     }
