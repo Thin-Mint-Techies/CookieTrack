@@ -104,13 +104,13 @@ function loadSaleDataBoxes(saleData, inventory, saleDataType) {
 
 function getCurrentMonthCookie() {
     const monthlyCookie = {
-        0: { name: "Adventurefuls", image: "/public/resources/images/adventurefuls.jpg" },
-        1: { name: "Thin Mints", image: "/public/resources/images/thin-mints.jpg" },
-        2: { name: "Peanut Butter Patties", image: "/public/resources/images/pb-patties.png" },
-        3: { name: "Trefoils", image: "/public/resources/images/trefoils.jpg" },
+        0: { name: "Adventurefuls", image: "../resources/images/adventurefuls.jpg" },
+        1: { name: "Thin Mints", image: "../resources/images/thin-mints.jpg" },
+        2: { name: "Peanut Butter Patties", image: "../resources/images/pb-patties.png" },
+        3: { name: "Trefoils", image: "../resources/images/trefoils.jpg" },
     };
 
     const currentMonth = new Date().getMonth();
-    return monthlyCookie[currentMonth] || { name: "Unknown", image: "/public/resources/images/cookie_icon.png" };
+    return monthlyCookie[currentMonth] || { name: "Unknown", image: "../resources/images/cookie_icon.png" };
 }
 //#endregion CREATE TABLES/LOAD DATA --------------------------------

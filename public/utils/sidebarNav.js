@@ -65,7 +65,7 @@ function createSidebar() {
         const pageClass = isSmall ? "text-sm block py-2" : "text-lg flex items-center py-2.5";
         return `
         <li>
-            <a href="/public/${link}" title="${title}"
+            <a href="../${link}" title="${title}"
                 class="text-black cursor-pointer hover:bg-green-light rounded-default px-3 transition-all duration-300 ${pageClass}">
                 <i class="fa-solid fa-${icon}"></i>
                 <span class="overflow-hidden text-ellipsis whitespace-nowrap">
@@ -80,8 +80,8 @@ function createSidebar() {
         <nav id="sidebar" class="lg:w-[270px] max-lg:fixed transition-all duration-500 shrink-0 z-[101]">
             <div id="sidebar-collapse-menu" class="bg-green shadow-default h-screen fixed top-0 left-0 overflow-auto overflow-x-hidden z-[99] lg:w-[270px] max-lg:w-0 max-lg:invisible transition-all duration-500">
                 <div class="bg-white dark:bg-black flex items-center gap-4 pt-6 pb-2 px-4 sticky top-0 min-h-[64px] z-[100]">
-                    <a href="/public/dashboard/dashboard.html" title="CookieTrack Logo">
-                        <img src="/public/resources/images/cookietrack_logo.png" alt="logo" class="w-40 max-lg:mr-5 accent-green" />
+                    <a href="../dashboard/dashboard.html" title="CookieTrack Logo">
+                        <img src="../resources/images/cookietrack_logo.png" alt="logo" class="w-40 max-lg:mr-5 accent-green" />
                     </a>
                     <button id="close-sidebar" title="Close Sidebar" class="ml-auto hover:bg-off-white hover:dark:bg-black-light p-2 rounded-default transition-all duration-300">
                         <i class="fa-solid fa-bars-staggered text-xl text-black dark:text-white"></i>
@@ -114,8 +114,8 @@ function createSidebar() {
                                 </button>
                             </li>
                         </ul>
-                        <a href="/public/user/account.html" title="User Account" class="need-skeleton mt-2 flex items-center cursor-pointer hover:bg-green-light rounded-default px-3 py-2.5 transition-all duration-300">
-                            <img id="nav-userphoto" src="/public/resources/images/avatar.png" alt="Profile picture" class="w-9 h-9 rounded-full border-2 border-black shrink-0" />
+                        <a href="../user/account.html" title="User Account" class="need-skeleton mt-2 flex items-center cursor-pointer hover:bg-green-light rounded-default px-3 py-2.5 transition-all duration-300">
+                            <img id="nav-userphoto" src="../resources/images/avatar.png" alt="Profile picture" class="w-9 h-9 rounded-full border-2 border-black shrink-0" />
                             <div class="ml-4">
                                 <p id="nav-username" class="text-sm text-black whitespace-nowrap"></p>
                                 <p id="nav-useremail" class="text-xs text-black whitespace-nowrap"></p>
@@ -131,7 +131,7 @@ function createSidebar() {
         const pageClass = isSmall ? "text-sm block py-2" : "text-lg flex items-center p-[13px]";
         return `
         <li>
-            <a href="/public/${link}" title="${title}"
+            <a href="../${link}" title="${title}"
                 class="text-black cursor-pointer hover:bg-green-light rounded-default px-3 transition-all duration-300 ${pageClass}">
                 <i class="fa-solid fa-${icon}"></i>
                 ${isSmall ? title : ""}
@@ -168,8 +168,8 @@ function createSidebar() {
                                 </button>
                             </li>
                         </ul>
-                        <a href="/public/user/account.html" title="User Account" class="need-skeleton mt-2 py-1 flex items-center justify-center cursor-pointer hover:bg-green-light rounded-default transition-all duration-300">
-                            <img id="nav-sm-userphoto" src="/public/resources/images/avatar.png" alt="Profile picture" class="w-9 h-9 rounded-full border-2 border-black shrink-0" />
+                        <a href="../user/account.html" title="User Account" class="need-skeleton mt-2 py-1 flex items-center justify-center cursor-pointer hover:bg-green-light rounded-default transition-all duration-300">
+                            <img id="nav-sm-userphoto" src="../resources/images/avatar.png" alt="Profile picture" class="w-9 h-9 rounded-full border-2 border-black shrink-0" />
                         </a>
                     </div>
                 </div>

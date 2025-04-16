@@ -28,7 +28,7 @@ if (sessionStorage.getItem("userData")) {
     userLName.value = lName;
     userEmail.value = userData.email;
     userPhone.value = userData.phone;
-    userProfilePic.src = profilePic || "/public/resources/images/avatar.png";
+    userProfilePic.src = profilePic || "../resources/images/avatar.png";
 } else {
     manageLoader(true);
 
@@ -43,7 +43,7 @@ if (sessionStorage.getItem("userData")) {
             userLName.value = lName;
             userEmail.value = userData.email;
             userPhone.value = userData.phone;
-            userProfilePic.src = profilePic || "/public/resources/images/avatar.png";
+            userProfilePic.src = profilePic || "../resources/images/avatar.png";
         }
     });
 
@@ -175,7 +175,7 @@ userSubmit.addEventListener("click", async () => {
 
         if (updatedUserInfo || updatedProfilePic) {
             showToast("Account Updated", "Your account has been updated with any new information you provided.", STATUS_COLOR.GREEN, true, 5);
-        } 
+        }
     } catch (error) {
         console.log('Error updating info:', error);
         showToast("Error Updating Information", "There was an error with updating your information. Please try again", STATUS_COLOR.RED, true, 5);

@@ -54,7 +54,7 @@ onAuthStateChanged(auth, async (user) => {
                     await callApi(`/attachRoleAsCustomClaim/${user.uid}`, 'POST', null, false);
                     window.location.reload();
                 }
-                
+
                 const userRole = await callApi(`/getRole/${user.uid}`);
 
                 //Check if profile pic exists in local storage
@@ -107,8 +107,8 @@ function updateSidebarWithUserData() {
 
     if (navUserName) navUserName.textContent = userData?.name || null;
     if (navUserEmail) navUserEmail.textContent = userData?.email || null;
-    if (navUserPhoto) navUserPhoto.src = userProfilePic || "/public/resources/images/avatar.png";
-    if (navSmUserPhoto) navSmUserPhoto.src = userProfilePic || "/public/resources/images/avatar.png";
+    if (navUserPhoto) navUserPhoto.src = userProfilePic || "../resources/images/avatar.png";
+    if (navSmUserPhoto) navSmUserPhoto.src = userProfilePic || "../resources/images/avatar.png";
 }
 
 //Sign out functions ------------------------------------------------
