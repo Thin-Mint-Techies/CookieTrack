@@ -1,4 +1,5 @@
 const { Firestore } = require('../firebaseConfig');
+const admin = require('firebase-admin');
 const { sendEmail } = require('../utils/emailSender');
 const { completedOrderDataFormat } = require('../dataFormat');
 //const { updateSaleData } = require('./test');
@@ -97,7 +98,7 @@ const createOrder = async ({ dateCreated, trooperId, trooperName, ownerId, owner
           }
         });
 
-        transaction.update(leaderInventoryRef, { needToOrder: Firestore.FieldValue.arrayUnion(...needToOrder) });
+        transaction.update(leaderInventoryRef, { needToOrder: admin.firestore.FieldValue.arrayUnion(...needToOrder) });
         newOrderData.status = "Not ready for pickup";
         // Send email to parent and leader
         /* await sendEmail({
@@ -223,7 +224,7 @@ const updateOrder = async (id, { trooperId, trooperName, ownerEmail, ownerName, 
           }
         });
 
-        transaction.update(leaderInventoryRef, { needToOrder: Firestore.FieldValue.arrayUnion(...needToOrder) });
+        transaction.update(leaderInventoryRef, { needToOrder: admin.firestore.FieldValue.arrayUnion(...needToOrder) });
         newOrderData.status = "Not ready for pickup";
         /* // Send email to parent and leader
         await sendEmail({
@@ -653,6 +654,13 @@ const getAllOrders = async () => {
 const updateNeedToOrder = async (orderId, updatedCookies) => {
   try {
     await Firestore.runTransaction(async (transaction) => {
+      // Get the original order document
+      const orderRef = Firestore.collection('orders').doc(orderId);
+      const orderDoc = await transaction.get(orderRef);
+      if (!orderDoc.exists) {
+        throw new Error('Order not found');
+      }
+      const orderData = orderDoc.data();
 
       // Get the troop inventory document
       const troopInventoryRef = Firestore.collection('inventory').doc('troop-inventory');
@@ -662,47 +670,85 @@ const updateNeedToOrder = async (orderId, updatedCookies) => {
       }
 
       const troopInventory = troopInventoryDoc.data();
-      const needToOrder = troopInventory.needToOrder || [];
+      let needToOrder = troopInventory.needToOrder || [];
+      let inventory = troopInventory.inventory || [];
 
-      // Update the needToOrder field
-      updatedCookies.forEach(updatedCookie => {
-        const needToOrderItem = needToOrder.find(item => item.varietyId === updatedCookie.varietyId);
+      // Find and update the needToOrder item
+      const needToOrderIndex = needToOrder.findIndex(item =>
+        item.orderId === orderId && item.varietyId === updatedCookies.varietyId
+      );
 
-        if (needToOrderItem) {
-          // Reduce the boxes in needToOrder based on the updated cookies
-          needToOrderItem.boxes -= updatedCookie.boxes;
+      if (needToOrderIndex !== -1) {
+        // Get the original needed amount before updating
+        const originalNeededBoxes = needToOrder[needToOrderIndex].boxes;
+
+        if (updatedCookies.boxes === 0) {
+          // Remove the item from needToOrder if boxes is 0
+          needToOrder.splice(needToOrderIndex, 1);
+        } else {
+          // Update the boxes in needToOrder
+          needToOrder[needToOrderIndex].boxes = updatedCookies.boxes;
         }
-      });
 
-      // Update the troop inventory document
-      transaction.update(troopInventoryRef, { needToOrder });
+        // Update the troop inventory with the newly ordered boxes
+        const inventoryItem = inventory.find(item => item.varietyId === updatedCookies.varietyId);
+        if (inventoryItem) {
+          // Add the newly ordered boxes to inventory
+          inventoryItem.boxes += originalNeededBoxes - updatedCookies.boxes;
+        }
 
-      // Get the original order document
-      const orderRef = Firestore.collection('orders').doc(orderId);
-      const orderDoc = await transaction.get(orderRef);
-      if (!orderDoc.exists) {
-        throw new Error('Original order not found');
+        // Check if the order can now be fulfilled
+        let inStock = true;
+        orderData.orderContent.cookies.forEach(orderCookie => {
+          const invItem = inventory.find(item => item.varietyId === orderCookie.varietyId);
+          if (!invItem || invItem.boxes < orderCookie.boxes) {
+            inStock = false;
+          }
+        });
+
+        // If the order is now in stock, subtract ALL cookies from inventory
+        if (inStock) {
+          inventory = inventory.map(invItem => {
+            const orderCookie = orderData.orderContent.cookies.find(
+              cookie => cookie.varietyId === invItem.varietyId
+            );
+
+            if (orderCookie) {
+              return {
+                ...invItem,
+                boxes: invItem.boxes - orderCookie.boxes
+              };
+            }
+            return invItem;
+          });
+        }
+
+        // Update the troop inventory document
+        transaction.update(troopInventoryRef, {
+          needToOrder: needToOrder.filter(item => item.boxes > 0),
+          inventory
+        });
+
+        // Update the order status based on stock availability
+        const updatedOrderData = {
+          ...orderData,
+          status: inStock ? 'Ready for pickup' : 'Not ready for pickup'
+        };
+
+        transaction.update(orderRef, updatedOrderData);
+
+        // Send notification email if order is now ready
+        if (inStock) {
+          /* await sendEmail({
+            to: orderData.ownerEmail,
+            subject: 'Order Ready for Pickup',
+            text: `Order ${orderId} for trooper ${orderData.trooperName} is now ready for pickup.`,
+          }); */
+        }
       }
-
-      const orderData = orderDoc.data();
-
-      // Update the order status and notify the parent
-      const updatedOrderData = {
-        ...orderData,
-        status: 'Ready for pickup',
-      };
-
-      transaction.update(orderRef, updatedOrderData);
-
-      // Notify the parent via email
-      /* await sendEmail({
-        to: ownerEmail,
-        subject: 'Order Ready for Pickup',
-        text: `Order ${originalOrderId} is now ready for pickup.`,
-      }); */
     });
 
-    return { message: 'Need to order updated and parent notified successfully' };
+    return { message: 'Need to order updated successfully' };
   } catch (error) {
     throw new Error(`Failed to update need to order: ${error.message}`);
   }

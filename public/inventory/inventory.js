@@ -76,8 +76,8 @@ function loadInventoryTableRows(inventory, inventoryType, hasActions = true) {
                 handleTableRow.troopInventory(cookie.varietyId, cookieData, null, null);
             }
         } else if (inventoryType === "need") {
-            delete cookieData.boxPrice;
-            handleTableRow.needInventory(cookie.varietyId, cookieData, editCookie, createModals.deleteItem(deleteCookie));
+            cookieData.orderId = cookie.orderId;
+            handleTableRow.needInventory(cookie.varietyId, cookieData, openNeedCookieModal, null);
         } else if (inventoryType === "your") {
             handleTableRow.yourInventory(cookie.varietyId, cookieData);
         }
@@ -414,6 +414,80 @@ function editCookie() {
         openCookieModalUser("edit", getRowData(handleTableRow.currentRowEditing), trooperId);
     }
 }
+
+//Need cookie form --------------------------------------
+let needCookieForm = document.getElementById('need-cookie-form');
+let needCookieCancel = document.getElementById('need-cookie-cancel');
+let needCookieSubmit = document.getElementById('need-cookie-submit');
+let needCookieClose = document.getElementById('need-cookie-close');
+const needCookieBoxes = document.getElementById("need-cookie-boxes");
+
+function openNeedCookieModal() {
+    needCookieBoxes.value = handleTableRow.currentRowEditing.children[2].textContent;
+    needCookieForm.classList.remove('hidden');
+    needCookieForm.classList.add('flex');
+}
+
+//Close/Cancel the need cookie modal
+needCookieClose.addEventListener('click', closeNeedCookieModal, false);
+needCookieCancel.addEventListener('click', closeNeedCookieModal, false);
+
+function closeNeedCookieModal() {
+    needCookieForm.classList.remove('flex');
+    needCookieForm.classList.add('hidden');
+    needCookieBoxes.value = "";
+}
+
+//Verify input and update need to order boxes
+needCookieSubmit.addEventListener('click', (e) => {
+    e.preventDefault();
+    const cookieId = handleTableRow.currentRowEditing.getAttribute('data-cid');
+    const cName = handleTableRow.currentRowEditing.children[1].textContent;
+    const cStock = parseInt(needCookieBoxes.value, 10);
+
+    if (isNaN(cStock) || cStock < 0) {
+        showToast("Invalid Cookie Stock", "Please make sure that you have entered the correct box amount for this cookie.", STATUS_COLOR.RED, true, 5);
+        return;
+    }
+
+    const cookieData = {
+        varietyId: cookieId,
+        variety: cName,
+        boxes: cStock,
+    }
+
+    const orderId = handleTableRow.currentRowEditing.children[0].textContent;
+    updateNeedCookiesApi(orderId, cookieData);
+});
+
+async function updateNeedCookiesApi(orderId, cookieData) {
+    manageLoader(true);
+
+    try {
+        //Update need to order cookies
+        await callApi(`/updateNeedToOrder/${orderId}`, 'PUT', { updatedCookies: cookieData });
+        //Need to order updates, update data in table and show message
+        if (cookieData.boxes === 0) {
+            handleTableRow.currentRowEditing.remove();
+        } else {
+            handleTableRow.currentRowEditing.children[2].textContent = cookieData.boxes;
+        }
+        troopInventoryData = await callApi('/leaderInventory');
+        if (troopInventoryData && troopInventoryData.inventory) {
+            const troopTbody = document.getElementById('troop-inventory-tbody');
+            troopTbody.replaceChildren();
+            loadInventoryTableRows(troopInventoryData.inventory, "troop");
+        }
+        showToast("Need To Order Updated", "The selected cookie has been updated with the new information.", STATUS_COLOR.GREEN, true, 5);
+    } catch (error) {
+        console.error('Error updating need to order:', error);
+        showToast("Error Updating Need To Order", 'There was an error with updating the boxes needed for this cookie. Please try again.', STATUS_COLOR.RED, true, 5);
+    }
+
+    manageLoader(false);
+    needCookieClose.click();
+}
+//-------------------------------------------------------
 
 async function deleteCookie() {
     manageLoader(true);

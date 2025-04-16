@@ -3,6 +3,7 @@ import { setPersistence, browserLocalPersistence, browserSessionPersistence, sig
 import { doc, setDoc } from 'https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js';
 import { manageLoader } from "../utils/loader.js";
 import { showToast, STATUS_COLOR } from "../utils/toasts.js";
+import { callApi } from "../utils/apiCall.js";
 
 const provider = new GoogleAuthProvider();
 const loginEmail = document.getElementById("login-email");
@@ -59,10 +60,14 @@ googleLoginBtn?.addEventListener('click', () => {
             setDoc(doc(db, "users", user.uid), {
                 name: user.displayName,
                 email: user.email,
+                phone: "",
                 role: "parent"
-            }).then(() => {
-                //Successful upload
+            }).then(async () => {
+                // Successful upload, set role through custom claims and create parent inventory
+                const customClaim = await callApi(`/attachRoleAsCustomClaim/${user.uid}`, 'POST', null, false);
+                const inventoryId = await callApi(`/parentInventory`, 'POST', { ownerId: user.uid });
                 localStorage.removeItem("creatingAccount");
+                if (customClaim && inventoryId) window.location.href = "../dashboard/dashboard.html";
             }).catch((error) => {
                 manageLoader(false);
                 console.log(error.code + ": " + error.message);
@@ -71,6 +76,7 @@ googleLoginBtn?.addEventListener('click', () => {
         } else {
             //Signed in
             localStorage.removeItem("creatingAccount");
+            window.location.href = "../dashboard/dashboard.html";
         }
     }).catch((error) => {
         manageLoader(false);

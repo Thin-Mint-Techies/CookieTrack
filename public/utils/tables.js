@@ -17,8 +17,8 @@ const tableSchemas = {
         fields: ["variety", "boxes", "boxPrice"]
     },
     inventoryNeed: {
-        headers: ["Cookie Name", "Boxes Needed"],
-        fields: ["variety", "boxesNeeded"]
+        headers: ["Order ID", "Cookie Name", "Boxes Needed"],
+        fields: ["orderId", "variety", "boxes"]
     },
     troopers: {
         headers: [
@@ -826,13 +826,10 @@ function addInventoryRow(cookieId, data, tbodyId, editAction, deleteAction) {
     tr.className = "bg-white dark:bg-black even:bg-gray even:dark:bg-black-light text-sm text-black dark:text-white [&_td]:p-4";
 
     // Button configurations
-    let buttons = null;
-    if (editAction && deleteAction) {
-        buttons = [
-            { title: "Edit", iconClass: "fa-pen-to-square text-blue hover:text-blue-light", action: editAction },
-            { title: "Delete", iconClass: "fa-trash-can text-red hover:text-red-light", action: deleteAction }
-        ];
-    }
+    let buttons = [
+        editAction !== null && { title: "Edit", iconClass: "fa-pen-to-square text-blue hover:text-blue-light", action: editAction },
+        deleteAction !== null && { title: "Delete", iconClass: "fa-trash-can text-red hover:text-red-light", action: deleteAction }
+    ].filter(Boolean);
 
     setupRowFields(tr, false, fields, data, buttons);
     tbody.appendChild(tr);
