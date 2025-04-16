@@ -19,6 +19,13 @@
           }
         ]
       }
+    ],
+    "redirects":[
+      {
+        "source": "/",
+        "destination": "/login/sign-in.html",
+        "type": 301
+      }
     ]
   },
   "firestore": {
