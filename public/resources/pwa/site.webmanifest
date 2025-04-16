@@ -22,6 +22,12 @@
     "name": "CookieTrack",
     "short_name": "CookieTrack",
     "scope": "https://cookietrack-hub.web.app/",
-    "start_url": "https://cookietrack-hub.web.app/login",
-    "description": "A web app used to track, manage, and stay up to date with the latest orders, rewards, and inventory of Girl Scout cookie troops."
+    "start_url": "https://cookietrack-hub.web.app/login/sign-in.html",
+    "description": "A web app used to track, manage, and stay up to date with the latest orders, rewards, and inventory of Girl Scout cookie troops.",
+    "id": "https://cookietrack-hub.web.app/",
+    "display_override": [
+        "window-controls-overlay",
+        "standalone",
+        "browser"
+    ]
 }

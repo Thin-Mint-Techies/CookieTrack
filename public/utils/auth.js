@@ -89,6 +89,13 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
+    //Ensure that the browser supports the service worker API then register it
+    if (navigator.serviceWorker) {
+        navigator.serviceWorker.register('../service-worker.js').then(reg => {
+            console.log('Service Worker registered with scope:', reg.scope);
+        }).catch(swErr => console.error(`Service Worker registration failed: ${swErr}}`));
+    }
+
     if (sessionStorage.getItem("userData")) {
         updateSidebarWithUserData();
     }
