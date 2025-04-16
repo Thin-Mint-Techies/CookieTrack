@@ -5,7 +5,7 @@ const BASE_URL = "https://api-gknady4m2q-uc.a.run.app";
 const TEST_URL = "http://localhost:5000";
 
 export async function callApi(subroute, method = 'GET', body = null, needsAuth = true) {
-  const url = `${TEST_URL}${subroute}`;
+  const url = `${BASE_URL}${subroute}`;
   const userToken = await getIdToken(auth.currentUser);
 
   const options = {
