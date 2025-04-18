@@ -42,32 +42,34 @@ document.addEventListener("authStateReady", async () => {
 });
 
 function loadSaleDataBoxes(saleData, inventory, saleDataType) {
-    if (!saleData || !inventory) return;
-
     //Get the revenue and boxes sold for the current month
     //If saleDataType is Troop, get the completed order count for the month
     //If saleDataType is Your, get the current owe amount for the parent
     let revenue = 0, boxesSold = 0, completedOrders = 0, currentInventory = 0;
-    let oweAmount = inventory.owe || 0;
+    let oweAmount = (inventory && inventory.owe) || 0;
 
-    saleData.forEach((data) => {
-        if (saleDataType === "Troop" || data.ownerId === userData.id) {
-            data.orderInfo.forEach((order) => {
-                if (order.dateCompleted) {
-                    const date = new Date(order.dateCompleted);
-                    if (date.getMonth() === new Date().getMonth()) {
-                        revenue += order.totalCost;
-                        boxesSold += order.boxTotal;
-                        completedOrders++;
+    if (saleData) {
+        saleData.forEach((data) => {
+            if (saleDataType === "Troop" || data.ownerId === userData.id) {
+                data.orderInfo.forEach((order) => {
+                    if (order.dateCompleted) {
+                        const date = new Date(order.dateCompleted);
+                        if (date.getMonth() === new Date().getMonth()) {
+                            revenue += order.totalCost;
+                            boxesSold += order.boxTotal;
+                            completedOrders++;
+                        }
                     }
-                }
-            });
-        }
-    });
+                });
+            }
+        });
+    }
 
-    inventory.forEach((cookie) => {
-        currentInventory += cookie.boxes;
-    });
+    if (inventory) {
+        inventory.forEach((cookie) => {
+            currentInventory += cookie.boxes;
+        });
+    }
 
     //Create the statData object based on saleDataType
     const statData = {

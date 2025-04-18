@@ -307,7 +307,7 @@ async function updateRewardApi(rewardData, rewardId) {
         }
 
         //Reward updated, update data in table and show message
-        handleTableRow.updateReward(handleTableRow.currentRowEditing, rewardData);
+        handleTableRow.updateRewardRow(handleTableRow.currentRowEditing, rewardData);
         showToast("Reward Updated", "The selected reward has been updated with the new information.", STATUS_COLOR.GREEN, true, 5);
     } catch (error) {
         console.error('Error updating reward:', error);

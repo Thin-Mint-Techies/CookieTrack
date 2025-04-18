@@ -15,7 +15,6 @@ let selectedFile = null;
 let userData = null;
 
 let darkMode = document.getElementById("dark-mode");
-let emailPref = document.getElementById("email-pref");
 
 setupPhoneInput(userPhone);
 
