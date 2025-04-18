@@ -1,9 +1,6 @@
 const { auth, Firestore } = require('../firebaseConfig');
 const { registerUser, loginUser } = require('../services/authService');
 
-/*
-NOT USE
-*/
 const registerController = async (req, res) => {
   const { email, password, role } = req.body;
 
@@ -42,7 +39,6 @@ const loginController = async (req, res) => {
 };
 
 
-// Have not tested
 async function googleLogin(req, res) {
   const { idToken } = req.body;
 

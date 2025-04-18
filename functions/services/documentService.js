@@ -1,7 +1,6 @@
-const { storage, Firestore } = require('../firebaseConfig'); // Import Firebase config
+const { storage, Firestore } = require('../firebaseConfig'); 
 const admin = require('firebase-admin');
 
-// Create a document
 async function createDoc(file, userId) {
   try {
     const bucket = storage.bucket(process.env.FIREBASE_STORAGE_BUCKET);
@@ -135,7 +134,6 @@ async function createRewardImg(file, rewardId) {
   }
 }
 
-// Delete a document
 async function deleteDoc(userId, fileName) {
   try {
     const bucket = storage.bucket(process.env.FIREBASE_STORAGE_BUCKET);
