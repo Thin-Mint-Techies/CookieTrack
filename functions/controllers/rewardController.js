@@ -11,7 +11,6 @@ const createReward = async (req, res) => {
   }
 };
 
-// Controller for getting all Rewards
 const getAllReward = async (req, res) => {
   try {
     const Rewards = await rewardService.getAllRewards();
@@ -23,8 +22,6 @@ const getAllReward = async (req, res) => {
   }
 };
 
-
-// Controller for updating a Reward
 const updateReward = async (req, res) => {
   const { id } = req.params;
   try {
@@ -37,7 +34,6 @@ const updateReward = async (req, res) => {
   }
 };
 
-// Controller for deleting a Reward
 const deleteReward = async (req, res) => {
   const { id } = req.params;
   try {
@@ -49,18 +45,6 @@ const deleteReward = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
-// Controller for deleting all Rewards
-/*
-const deleteAllReward = async (req, res) => {
-  try {
-    const result = await RewardService.deleteAllReward();
-    res.status(200).json(result);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-*/
 
 const selectRewardForTroop = async (req, res) => {
   const { id } = req.params;
@@ -74,26 +58,6 @@ const selectRewardForTroop = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
-/*
-//need more testing, need to go through roleCheck.js first
-const selectRewardForTroop = async (req, res) => {
-  const idToken = req.headers.authorization?.split('Bearer ')[1];
-
-  if (!idToken) {
-    return res.status(401).json({ error: 'Unauthorized: Missing ID token' });
-  }
-
-  const { troopId, rewardId } = req.body;
-
-  try {
-    const result = await rewardService.selectRewardForTroop(idToken, troopId, rewardId);
-    res.status(200).json(result);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-*/
 
 
 module.exports = {
