@@ -1,11 +1,12 @@
 import { auth } from "./auth.js";
 import { getIdToken } from 'https://www.gstatic.com/firebasejs/11.2.0/firebase-auth.js';
 
-const BASE_URL = "https://api-gknady4m2q-uc.a.run.app";
+const PROD_URL = "https://api-gknady4m2q-uc.a.run.app";
 const TEST_URL = "http://localhost:5000";
+const MAIN_URL = PROD_URL;
 
 export async function callApi(subroute, method = 'GET', body = null, needsAuth = true) {
-  const url = `${BASE_URL}${subroute}`;
+  const url = `${MAIN_URL}${subroute}`;
   const userToken = await getIdToken(auth.currentUser);
 
   const options = {
@@ -44,7 +45,7 @@ export function uploadDocumentXHR(subroute, file, onProgress = null) {
     formData.append('file', file);
     
     // Set up the request
-    xhr.open('POST', `${TEST_URL}${subroute}`);
+    xhr.open('POST', `${MAIN_URL}${subroute}`);
     
     // Get and add the authentication token
     try {
