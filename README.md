@@ -170,9 +170,7 @@ storage, and secure access to resources.
 <!-- GETTING STARTED -->
 ## Getting Started
 
-To get a local copy up and running follow the first two steps of the Prerequisites then move on to Installation.
-
-If you plan on setting up your own instance, follow all the steps below.
+To get set up your own instance, follow the steps of the Prerequisites then move on to Installation.
 
 ### Prerequisites
 
@@ -217,7 +215,7 @@ If you plan on setting up your own instance, follow all the steps below.
 ### Installation
    
 1. To see changes on the frontend based on Tailwind edits:
-   ```bash
+   ```javascript
    //Root directory
    npm run dev
    ```
@@ -269,7 +267,7 @@ If you plan on setting up your own instance, follow all the steps below.
    ```
 
 3. Now to run the local backend server:
-   ```bash
+   ```javascript
    //From root: cd functions
    npx nodemon index.js
    ```
@@ -285,6 +283,17 @@ If you plan on setting up your own instance, follow all the steps below.
 5. This will be different based on what IDE you use. For vscode, you can install 'Live Server' extension and run it on port 5000. 'Go Live' with this extension and select the page you want to start on.
    
 6.  Now you have both the frontend and backend being run locally!
+
+7. To start hosting your own instance, run the following command.
+   ```javascript
+   //This will deploy both functions and hosting to your account 
+   firebase deploy
+   ```
+   To only deploy one or the other, use --only (hosting|functions). 
+   ```javascript
+   //Example deploying only hosting
+   firebase deploy --only hosting  
+   ```  
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
