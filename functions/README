@@ -1,11 +1,9 @@
-# CookieTrack Backend API
+<a id="readme-top"></a>
 
 <div align="center">
-  <h3 align="center">CookieTrack Backend</h3>
-  <p align="center">
-    RESTful API service powering the CookieTrack application
-    <br />
-    <a href="../README.md">Main Documentation</a>
+  <h1 align="center">CookieTrack Backend API</h1>
+  <p align="center">Backend service powering the CookieTrack application with Express.js and Firebase<br />
+    <a href="../README.md"><strong>« Main Documentation</strong></a>
     ·
     <a href="https://github.com/Thin-Mint-Techies/CookieTrack/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
     ·
@@ -13,14 +11,28 @@
   </p>
 </div>
 
-## Table of Contents
-- [Overview](#overview)
-- [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
-- [Getting Started](#getting-started)
-- [API Documentation](#api-documentation)
-- [Development](#development)
-- [Deployment](#deployment)
+<!-- TABLE OF CONTENTS -->
+<details style="cursor: pointer">
+  <summary>Table of Contents</summary>
+  <ol>
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#tech-stack">Tech Stack</a></li>
+    <li><a href="#project-structure">Project Structure</a></li>
+    <li>
+      <a href="#architecture">Architecture</a>
+      <ul>
+        <li><a href="#request-data-flow">Request Data Flow</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#getting-started">Getting Started</a>
+      <ul>
+        <li><a href="#Start development server">Prerequisites</a></li>
+        <li><a href="#Push to Firebase Functions">Installation</a></li>
+      </ul>
+    </li>
+  </ol>
+</details>
 
 ## Overview
 The backend service handles all server-side operations including:
@@ -66,22 +78,50 @@ functions/
 │   ├── trooperController.js
 │   └── userController.js
 ├── routes/                  
-│   ├── authRoute.js
-│   ├── parentRoute.js
-│   ├── leaderRoute.js
-│   └── sharedRoute.js
+│   ├── cookieRoute.js
+│   ├── documentRoute.js
+│   ├── inventoryRoute.js
+│   ├── orderRoute.js
+│   ├── rewardRoute.js
+│   ├── saleDataRoute.js
+│   ├── trooperRoute.js
+│   └── userRoute.js
 ├── services/                
-│   ├── authService.js
-│   ├── troopService.js
-│   └── documentService.js
+│   ├── cookieService.js
+│   ├── documentService.js
+│   ├── inventoryService.js
+│   ├── orderService.js
+│   ├── rewardService.js
+│   ├── saleDataService.js
+│   ├── trooperService.js
+│   └── userService.js
 ├── utils/                    
+│   ├── calculation.js
+│   ├── emailSender.js
+│   ├── fileUpload.js
+│   ├── logger.js
 │   ├── roleCheck.js
-│   └── fileUpload.js
+│   └── scheduler.js
 ├── index.js                 
 └── package.json
 ```
 
-### Architecture 
+## Architecture 
+The backend follows a modular microservice architecture pattern where each component is designed to be independent and focused on a specific business domain:
+
+- **Order Service**: Manages order processing and tracking
+- **Inventory Service**: Controls cookie inventory and stock management
+- **Reward Service**: Handles scout rewards and achievements
+- **Notification Service**: Manages email and notification delivery
+- **Document Service**: Handles file uploads and document management
+
+Each service:
+- Has its own data model and business logic
+- Communicates through well-defined APIs
+- Can be deployed and scaled independently
+- Maintains its own database collections
+- Follows the single responsibility principle
+
 1. **Routes** 
    - Entry point for all API requests
    - Handles request routing and URL mapping
@@ -150,13 +190,44 @@ SENDGRID_API_KEY=
 ```
 
 ### Start development server
-4. **Start development server:**
+1. **Commented out the Firebase function export in index.js:**
+```javascript
+//exports.api = functions.https.onRequest(app);
+```
+
+2. **Run the local server:**
 ```bash
-npm run dev
+npx nodemon index.js
 ```
 
 ### Push to Firebase Functions
-5. **Deploy to Firebase Functions:**
+1. **Commented out the Local server code: **
+```javascript
+/*
+const PORT = process.env.PORT || 5000;
+const initializeFirebase = async () => {
+  try {
+    // Initialize Firebase 
+    if (!admin.apps.length) {
+      admin.initializeApp(firebaseConfig);
+    }
+    console.log('Firebase initialized successfully!');
+
+    // Start the Express server
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`Server is running on PORT: ${PORT}`);
+    });
+  } catch (error) {
+    console.error('Error initializing Firebase:', error);
+    process.exit(1); // Exit if Firebase initialization fails
+  }
+
+};
+initializeFirebase();
+*/
+```
+
+2. **Deploy to Firebase Functions:**
 ```bash
 firebase deploy --only functions
 ```
