@@ -33,6 +33,7 @@
     <br />
     <br />
     <a href="https://github.com/Thin-Mint-Techies/CookieTrack"><strong>Explore the docs »</strong></a>
+    <a href="https://github.com/Thin-Mint-Techies/CookieTrack/functions/README.md"><strong>Backend Docs »</strong></a>
     <br />
     <br />
     <a href="https://github.com/Thin-Mint-Techies/CookieTrack">View Demo</a>

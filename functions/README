@@ -1,154 +1,165 @@
-#########################
-##CLOUD HOSTING VERSION##
-#########################
+# CookieTrack Backend API
+
+<div align="center">
+  <h3 align="center">CookieTrack Backend</h3>
+  <p align="center">
+    RESTful API service powering the CookieTrack application
+    <br />
+    <a href="../README.md">Main Documentation</a>
+    ·
+    <a href="https://github.com/Thin-Mint-Techies/CookieTrack/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
+    ·
+    <a href="https://github.com/Thin-Mint-Techies/CookieTrack/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
+  </p>
+</div>
+
+## Table of Contents
+- [Overview](#overview)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+- [API Documentation](#api-documentation)
+- [Development](#development)
+- [Deployment](#deployment)
+
+## Overview
+The backend service handles all server-side operations including:
+- User Authentication & Authorization
+- Cookie Inventory Management
+- Order Processing
+- File Storage
+- Notifications
+- Analytics
+    
+## Tech Stack
+- "node": "22"
+- "@sendgrid/mail": "^8.1.4",
+- "axios": "^1.7.9",
+- "bcrypt": "^5.1.1",
+- "cors": "^2.8.5",
+- "dotenv": "^16.4.7",
+- "express": "^4.21.2",
+- "express-rate-limit": "^7.5.0",
+- "firebase": "^11.2.0",
+- "firebase-admin": "^12.7.0",
+- "firebase-functions": "^6.3.0",
+- "jsonwebtoken": "^9.0.2",
+- "multer": "^1.4.5-lts.1",
+- "nodemailer": "^6.10.0",
+- "nodemon": "^3.1.9",
+- "xss": "^1.0.15"
+
+## Project Structure
+```
+functions/
+├── dataFromat.js     
+├── firebaseConfig.js    
+├── index.js     
+├── controllers/              
+│   ├── authController.js
+│   ├── cookieController.js
+│   ├── documentController.js
+│   ├── inventoryController.js
+│   ├── orderController.js
+│   ├── rewardController.js
+│   ├── saleController.js
+│   ├── trooperController.js
+│   └── userController.js
+├── routes/                  
+│   ├── authRoute.js
+│   ├── parentRoute.js
+│   ├── leaderRoute.js
+│   └── sharedRoute.js
+├── services/                
+│   ├── authService.js
+│   ├── troopService.js
+│   └── documentService.js
+├── utils/                    
+│   ├── roleCheck.js
+│   └── fileUpload.js
+├── index.js                 
+└── package.json
+```
+
+### Architecture 
+1. **Routes** 
+   - Entry point for all API requests
+   - Handles request routing and URL mapping
+   - Applies middleware (authentication, validation)
+
+2. **Controllers** 
+   - Processes HTTP requests and responses
+   - Validates input data
+   - Coordinates between multiple services
+   - Returns appropriate HTTP status codes
+
+3. **Services Layer** 
+   - Contains core business logic
+   - Handles database operations
+   - Manages external service integrations
+
+### Request Data Flow Example
+POST /order
+↓
+Route (orderRoute.js)
+  - Validates JWT token
+↓
+Controller (orderController.js)
+  - Validates order data
+↓
+Services:
+  orderService.js
+    - Validates order data
+    - Checks stock availability
+    - Creates order record
+    - Calculates totals
+    - Updates cookie inventory
+    - Sends order confirmations
+
+## Getting Started
+1. **Install dependencies:**
+```bash
+npm install
+```
+
+2. **Environment Configuration:**
+Create a `.env` file using data from Firebase console and set the following variables:
+```env
+COOKIETRACK_FIREBASE_TYPE=
+COOKIETRACK_FIREBASE_PROJECT_ID=
+COOKIETRACK_FIREBASE_PRIVATE_KEY_ID=
+COOKIETRACK_FIREBASE_PRIVATE_KEY=
+COOKIETRACK_FIREBASE_CLIENT_EMAIL=
+COOKIETRACK_FIREBASE_CLIENT_ID=
+COOKIETRACK_FIREBASE_AUTH_URI=
+COOKIETRACK_FIREBASE_TOKEN_URI=
+COOKIETRACK_FIREBASE_AUTH_PROVIDER_CERT_URL=
+COOKIETRACK_FIREBASE_CLIENT_CERT_URL=
+COOKIETRACK_FIREBASE_UNIVERSE_DOMAIN=
+COOKIETRACK_FIREBASE_DB_URL=
+COOKIETRACK_FIREBASE_STORAGE_BUCKET=
+COOKIETRACK_FIREBASE_API_KEY=
+```
+
+3. ** Additional env variables:**
+Add these to the `.env` files as needed (from API keys to secret keys):
+```env
+NODE_ENV=development
+SECRET_CODE = 
+SENDGRID_API_KEY=
+```
+
+### Start development server
+4. **Start development server:**
+```bash
+npm run dev
+```
+
+### Push to Firebase Functions
+5. **Deploy to Firebase Functions:**
+```bash
+firebase deploy --only functions
+```
 
 
-
-project-root/
-│
-├── backend/
-│   ├── config/
-│   │   ├── firebaseConfig.js        # Firebase Admin SDK initialization
-|   |
-|   ├── controllers/                 # Handles request processing and business logic
-│   │   ├── authController.js        # Logic for authentication-related endpoints
-│   │   ├── parentController.js      # Logic for parent-specific endpoints
-│   │   ├── leaderController.js      # Logic for leader-specific endpoints
-│   │   ├── sharedController.js      # Logic for shared endpoints between Parent and Leader
-|   |
-│   ├── routes/
-│   │   ├── authRoute.js             # Authentication endpoints (register, login)
-│   │   ├── parentRoute.js           # Parent-specific endpoints
-│   │   ├── leaderRoute.js           # Leader-specific endpoints
-│   │   ├── sharedRoute.js           # Shared endpoints between Parent and Leader
-│   │
-│   ├── services/
-│   │   ├── authService.js           # Authentication service (register/login logic)
-│   │   ├── troopService.js          # Troop-related logic
-│   │   ├── documentService.js       # Document-related logic
-│   │
-│   ├── utils/
-│   │   ├── roleCheck.js             # Middleware for role-based access
-│   │   ├── fileUpload.js            # Helper for file uploads to Firebase Storage
-│   │
-│   ├── server.js                    # Express app setup
-│   ├── package.json                 # Dependencies
-│   ├── .env                         # Environment variables
-│   ├── README.md                    # Documentation
-
-
-Route -> Controller -> Service
-
-Route: handle enpoints, apply auth and role check from middleware
-Controller: should making request andreturn messages
-Service: only handle business logic and DB interactions
-
-
-############
-Config Folder
-    firebaseConfig.js
-        Purpose: This file is responsible for initializing the Firebase Admin SDK and configuring access to Firebase services such as Firestore, Storage, and Authentication.
-        Key Responsibilities:
-            Set up Firebase with the credentials from your service account.
-            Initialize Firestore for database access.
-            Set up Firebase Storage for handling file uploads.
-            Set up Firebase Authentication for managing user authentication.
-############
-Routes Folder: The routes folder contains all the routing logic that maps incoming HTTP requests to corresponding controller functions. It handles the paths and HTTP methods (GET, POST, PUT, DELETE) but does not contain the business logic itself. Each route is specific to the user role or shared functionalities.
-    authRoute.js
-        Purpose: Handles the routing for authentication-related actions, including user registration, login, and authentication checks.
-        Key Responsibilities:
-            Define routes for user registration and login (e.g., POST /register, POST /login).
-            Direct the requests to the corresponding controller functions that manage authentication logic.
-    parentRoute.js
-        Purpose: Contains routes specific to actions that can be performed by parent users.
-        Key Responsibilities:
-            Define routes for adding a trooper, uploading documents, viewing parent-specific information, etc.
-            Routes direct requests to the parent controller functions.
-    leaderRoute.js
-        Purpose: Contains routes specific to actions that can be performed by leader users.
-        Key Responsibilities:
-            Define routes for managing troops, rewards, etc., that are specific to the leader role.
-            Routes direct requests to the leader controller functions.
-    sharedRoute.js
-        Purpose: Contains routes that are shared between parent and leader users.
-        Key Responsibilities:
-            Handle shared functions like notifications, order submissions, or viewing common data.
-            Routes direct requests to the shared controller functions.          
-############
-Controller Folder: The controllers folder contains the business logic for handling the requests routed from the routes folder. Controllers are responsible for processing data, interacting with services, and returning the correct response to the client.
-    authController.js
-        Purpose: Contains the logic for handling user authentication and registration.
-        Key Responsibilities:
-            Register a new user (create account).
-            Log in an existing user.
-            Handle JWT generation and validation.
-            Perform any necessary role-based access controls.
-    parentController.js
-        Purpose: Handles parent-specific business logic.
-        Key Responsibilities:
-            Logic for adding and managing troopers.
-            Logic for document uploads and handling.
-            Fetching parent-specific data, such as profiles or settings.
-    leaderController.js
-        Purpose: Handles leader-specific business logic.
-        Key Responsibilities:
-            Managing troops and associated data.
-            Logic for managing rewards and sale data.
-            Leader-specific notifications.
-    sharedController.js
-        Purpose: Contains the shared logic for features common between parents and leaders.
-        Key Responsibilities:
-            Fetching and sending notifications.
-            Handling shared resources like shared documents or common user data.
-############
-Services Folder: The services folder contains the actual logic for handling business processes. These services interact directly with databases, Firebase, or other external APIs and perform the necessary actions to fulfill the requests. The controllers call these services to handle the complex logic.
-    authService.js
-        Purpose: Contains the core logic for user authentication.
-        Key Responsibilities:
-            Handle user registration, login, and JWT token management.
-            Validate user credentials and handle password encryption.
-            Manage user sessions and refresh tokens.
-    troopService.js
-        Purpose: Contains the logic for managing troops and related data.
-        Key Responsibilities:
-            Add, update, and delete troops in the Firestore database.
-            Retrieve and process troop information.
-            Manage leader assignments and troop-related logic.
-    documentService.js
-        Purpose: Handles the document management logic.
-        Key Responsibilities:
-            Upload documents to Firebase Storage.
-            Retrieve and manage documents from Firebase Storage.
-            Validate document types and sizes.
-    notificationService.js (coming soon)
-        Purpose: Will contain logic for sending notifications.
-        Key Responsibilities:
-            Send push notifications to users (via Firebase Cloud Messaging or another service).
-            Manage notification preferences and settings.
-            Ensure notifications are sent to relevant users (e.g., leaders, parents).
-############
-Utils Folder: The utils folder contains helper functions and middleware that can be reused across various parts of the project.
-    roleCheck.js
-        Purpose: Middleware to check the role of a user and ensure they have the required permissions to access certain routes.
-        Key Responsibilities:
-            Check if a user has the correct role (parent, leader) to access specific resources.
-            Restrict access to sensitive endpoints based on roles.
-    fileUpload.js
-        Purpose: Helper function for handling file uploads to Firebase Storage.
-        Key Responsibilities:
-            Validate the file type and size.
-            Upload the file to Firebase Storage.
-            Provide file metadata or URL once uploaded.
-            Server Setup
-    server.js
-        Purpose: The entry point for the backend server. It initializes Express and other necessary middleware, and sets up routes.
-        Key Responsibilities:
-            Initialize and configure the Express app.
-            Set up middleware for CORS, JSON parsing, etc.
-            Start the server and listen for requests.
-            Set up Firebase initialization.
-
-
-
-
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
