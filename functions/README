@@ -1,38 +1,16 @@
-<a id="readme-top"></a>
+Backend service powering the CookieTrack application with Express.js and Firebase
 
-<div align="center">
-  <h1 align="center">CookieTrack Backend API</h1>
-  <p align="center">Backend service powering the CookieTrack application with Express.js and Firebase<br />
-    <a href="../README.md"><strong>« Main Documentation</strong></a>
-    ·
-    <a href="https://github.com/Thin-Mint-Techies/CookieTrack/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
-    ·
-    <a href="https://github.com/Thin-Mint-Techies/CookieTrack/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
-  </p>
-</div>
+[Main Documentation](../README.md) · [Report Bug](https://github.com/Thin-Mint-Techies/CookieTrack/issues/new?labels=bug&template=bug-report---.md) · [Request Feature](https://github.com/Thin-Mint-Techies/CookieTrack/issues/new?labels=enhancement&template=feature-request---.md)
 
-<!-- TABLE OF CONTENTS -->
-<details style="cursor: pointer">
-  <summary>Table of Contents</summary>
-  <ol>
-    <li><a href="#overview">Overview</a></li>
-    <li><a href="#tech-stack">Tech Stack</a></li>
-    <li><a href="#project-structure">Project Structure</a></li>
-    <li>
-      <a href="#architecture">Architecture</a>
-      <ul>
-        <li><a href="#request-data-flow">Request Data Flow</a></li>
-      </ul>
-    </li>
-    <li>
-      <a href="#getting-started">Getting Started</a>
-      <ul>
-        <li><a href="#Start development server">Prerequisites</a></li>
-        <li><a href="#Push to Firebase Functions">Installation</a></li>
-      </ul>
-    </li>
-  </ol>
-</details>
+## Table of Contents
+- [Overview](#overview)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Architecture](#architecture)
+  - [Request Data Flow](#request-data-flow)
+- [Getting Started](#getting-started)
+  - [Start development server](#start-development-server)
+  - [Push to Firebase Functions](#push-to-firebase-functions)
 
 ## Overview
 The backend service handles all server-side operations including:
