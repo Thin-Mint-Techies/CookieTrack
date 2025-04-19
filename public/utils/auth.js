@@ -61,7 +61,7 @@ onAuthStateChanged(auth, async (user) => {
                 if (!localStorage.getItem('profilePic')) {
                     //Check if the user has the profilePic in their info then update localStorage
                     if (userData.profilePic) {
-                        imageStorageHandler.saveFileUrl('profilePic', userData.profilePic);
+                        localStorage.setItem('profilePic', userData.profilePic);
                     }
                 }
 

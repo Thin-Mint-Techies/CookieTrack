@@ -283,8 +283,9 @@ async function createCookieApi(cookieData) {
         troopInventoryData.inventory.push(newCookieData);
         await callApi('/leaderInventory', 'PUT', troopInventoryData);
         //Cookie created, add to table and show message
-        cookieData.boxPrice = cookieData.boxPrice.toLocaleString("en-US", { style: "currency", currency: "USD" });
-        handleTableRow.troopInventory(cookieId.id, cookieData, editCookie, createModals.deleteItem(deleteCookie));
+        const displayCookieData = { ...newCookieData };
+        displayCookieData.boxPrice = displayCookieData.boxPrice.toLocaleString("en-US", { style: "currency", currency: "USD" });
+        handleTableRow.troopInventory(cookieId.id, displayCookieData, editCookie, createModals.deleteItem(deleteCookie));
         showToast("Cookie Added", "A new cookie has been created and added to the troop inventory.", STATUS_COLOR.GREEN, true, 5);
     } catch (error) {
         console.error('Error creating cookie:', error);
@@ -496,7 +497,7 @@ async function deleteCookie() {
         //Delete the cookie from the troop inventory and from the cookies
         const cookieId = handleTableRow.currentRowEditing.getAttribute('data-cid');
         await callApi(`/cookie/${cookieId}`, 'DELETE');
-        troopInventoryData.inventory = troopInventoryData.inventory.filter(item => item.varietyId !== "id");
+        troopInventoryData.inventory = troopInventoryData.inventory.filter(item => item.varietyId !== cookieId);
         await callApi('/leaderInventory', 'PUT', troopInventoryData);
         //Cookie deleted, remove from tables and show message
         handleTableRow.currentRowEditing.remove();

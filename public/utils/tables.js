@@ -755,7 +755,7 @@ function setupRowFields(tr, hasDropdown, fields, data, buttons) {
         tr.appendChild(td);
     });
 
-    if (buttons) {
+    if (buttons && buttons.length > 0) {
         // Create the action buttons column
         let actionTd = document.createElement("td");
         actionTd.className = "border-l border-gray-light";
@@ -988,10 +988,15 @@ function editRowData(row, fields, data) {
     fields.forEach(field => {
         if (tdIndex >= tds.length) return; // Prevent out-of-bounds errors
 
-        // If field exists in orderContent, get it from orderContent; otherwise, get it from the main object
-        const value = data.orderContent?.[field] ?? data[field] ?? null;
-        if (value !== null) tds[tdIndex].textContent = value;
-        tdIndex++;
+        if (field === "downloadUrl") {
+            tds[tdIndex].children[0].src = data[field];
+            tdIndex++;
+        } else {
+            // If field exists in orderContent, get it from orderContent; otherwise, get it from the main object
+            const value = data.orderContent?.[field] ?? data[field] ?? null;
+            if (value !== null) tds[tdIndex].textContent = value;
+            tdIndex++;
+        }
     });
 }
 

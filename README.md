@@ -303,9 +303,9 @@ To get set up your own instance, follow the steps of the Prerequisites then move
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
+You can view a full demo of the project from both the troop leader and parent user roles by going [here.](https://drive.google.com/file/d/1PnMRTYwfmUHfp8rzJ26goJ1rnOs44RZ_/view?usp=sharing)
 
-_For more examples, please refer to the [Frontend Overview](/documentation/Frontend%20Overview.md)_
+_For more information, please refer to the [documentation](/documentation/)_
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

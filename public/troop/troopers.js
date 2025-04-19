@@ -224,6 +224,7 @@ async function createTrooperApi(trooperData) {
         }
         await callApi('/trooperInventory', 'POST', inventoryData);
         //Trooper created, add to tables and show message
+        trooperData.owe = trooperData.owe.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
         const data = {
             trooperData: trooperData,
             orderData: [],

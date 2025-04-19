@@ -172,17 +172,6 @@ const imageStorageHandler = {
             localStorage.setItem(key, reader.result);
         }
     },
-    saveFileUrl: async function (key, url) {
-        const response = await fetch(url);
-        const blob = await response.blob();
-
-        const reader = new FileReader();
-        reader.readAsDataURL(blob);
-
-        reader.onloadend = () => {
-            localStorage.setItem(key, reader.result);
-        };
-    },
     loadFile: function (key, imgElement) {
         const dataUrl = localStorage.getItem(key);
         if (dataUrl) {
