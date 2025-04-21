@@ -36,7 +36,7 @@ module.exports = {
         'default': '0 3px 6px #00000029, 0 3px 6px #0000003b'
       },
       backgroundImage: {
-        'main-bg': "url('/public/resources/images/main-bg.png')"
+        'main-bg': "url('/resources/images/main-bg.png')"
       }
     }
   },

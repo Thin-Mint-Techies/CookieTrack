@@ -1298,7 +1298,7 @@ video {
   background-image: linear-gradient(to top right, var(--tw-gradient-stops));
 }
 .bg-main-bg {
-  background-image: url('/public/resources/images/main-bg.png');
+  background-image: url('/resources/images/main-bg.png');
 }
 .from-orange {
   --tw-gradient-from: #eb5600 var(--tw-gradient-from-position);
