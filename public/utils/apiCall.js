@@ -3,7 +3,7 @@ import { getIdToken } from 'https://www.gstatic.com/firebasejs/11.2.0/firebase-a
 
 const PROD_URL = "https://api-gknady4m2q-uc.a.run.app";
 const TEST_URL = "http://localhost:5000";
-const MAIN_URL = TEST_URL;
+const MAIN_URL = PROD_URL; 
 
 export async function callApi(subroute, method = 'GET', body = null, needsAuth = true) {
   const url = `${MAIN_URL}${subroute}`;

@@ -107,7 +107,7 @@ async function loadTrooperInventoryTableRows(troopers) {
                     boxPrice: cookie.boxPrice.toLocaleString("en-US", { style: "currency", currency: "USD" }),
                 }
                 const trooperName = trooper.trooperName.replace(' ', '-').toLowerCase();
-                handleTableRow.trooperInventory(cookie.varietyId, cookieData, trooperName, editCookie, createModals.deleteItem(deleteCookie));
+                handleTableRow.trooperInventory(cookie.varietyId, cookieData, trooperName, null, null);
             });
         }
     }));

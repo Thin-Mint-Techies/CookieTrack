@@ -268,13 +268,13 @@ function createCompletedOrdersTable(parent) {
 function createTrooperInventoryTable(parent, trooperData, action) {
     const title = `Inventory for ${trooperData.trooperName}`;
     const icon = "box";
-    let button = {
+    /* let button = {
         id: `add-${trooperData.trooperName.replace(' ', '-').toLowerCase()}-cookies`,
         title: "Assign Cookies",
         icon: "cookie-bite",
         action: () => action("add", null, trooperData.id)
-    }
-    createTable(parent, title, icon, null, tableSchemas.inventory.headers, null, false, true);
+    } */
+    createTable(parent, title, icon, null, tableSchemas.inventory.headers, null, true, true);
 
     const tbody = document.getElementById(title.replaceAll(' ', '-').toLowerCase() + "-tbody");
     tbody.setAttribute("data-tid", trooperData.id);
@@ -678,7 +678,7 @@ const handleTableRow = {
     currentOrder: (orderId, data, editAction, deleteAction, pickupAction) => addOrderRow(orderId, data, true, editAction, deleteAction, pickupAction),
     completedOrder: (orderId, data, deleteAction) => addOrderRow(orderId, data, false, null, deleteAction, null),
     trooperInventory: (cookieId, data, trooperName, editAction, deleteAction) => addInventoryRow(cookieId, data, `inventory-for-${trooperName}`, editAction, deleteAction),
-    yourInventory: (cookieId, data) => addInventoryRow(cookieId, data, "your-inventory"),
+    yourInventory: (cookieId, data) => addInventoryRow(cookieId, data, "your-inventory", null, null),
     troopInventory: (cookieId, data, editAction, deleteAction) => addInventoryRow(cookieId, data, "troop-inventory", editAction, deleteAction),
     needInventory: (cookieId, data, editAction, deleteAction) => addInventoryRow(cookieId, data, "need-to-order", editAction, deleteAction),
     yourTrooper: (trooperId, data, editAction, deleteAction) => addTrooperRow(trooperId, data, "your", editAction, deleteAction),
@@ -756,6 +756,7 @@ function setupRowFields(tr, hasDropdown, fields, data, buttons) {
     });
 
     if (buttons && buttons.length > 0) {
+        console.log(buttons);
         // Create the action buttons column
         let actionTd = document.createElement("td");
         actionTd.className = "border-l border-gray-light";
