@@ -32,11 +32,10 @@
     A web application designed to streamline the management and tracking of Girl Scout cookie sales, inventory, and rewards programs.
     <br />
     <br />
-    <a href="https://github.com/Thin-Mint-Techies/CookieTrack"><strong>Explore the docs »</strong></a>
-    <a href="https://github.com/Thin-Mint-Techies/CookieTrack/tree/main/functions"><strong>Backend Docs »</strong></a>
+    <a href="https://github.com/Thin-Mint-Techies/CookieTrack/tree/main/documentation"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/Thin-Mint-Techies/CookieTrack">View Demo</a>
+    <a href="https://drive.google.com/file/d/1PnMRTYwfmUHfp8rzJ26goJ1rnOs44RZ_/view?usp=sharing">View Demo</a>
     &middot;
     <a href="https://github.com/Thin-Mint-Techies/CookieTrack/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
     &middot;
