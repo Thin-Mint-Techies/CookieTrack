@@ -305,6 +305,8 @@ To get set up your own instance, follow the steps of the Prerequisites then move
 
 You can view a full demo of the project from both the troop leader and parent user roles by going [here.](https://drive.google.com/file/d/1PnMRTYwfmUHfp8rzJ26goJ1rnOs44RZ_/view?usp=sharing)
 
+You can also view a quick and simplified tutorial of setting up the project in Firebase [here.](https://drive.google.com/file/d/18CpQs2pBGZ9vdFoOWUBH5w-RNKWZLYxR/view?usp=sharing)
+
 _For more information, please refer to the [documentation](/documentation/)_
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
